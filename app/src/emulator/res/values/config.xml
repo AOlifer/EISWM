@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- На эмуляторе нет доступа к каталогу лаунчера, поэтому звуки хранятся в общей памяти. -->
+    <string name="welcome_sound_dir" translatable="false">/storage/emulated/0/EISWM/welcome</string>
+</resources>
