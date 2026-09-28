@@ -133,6 +133,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         btnTheme.setText("Тема: " + THEME_NAMES[themeMode(this)]);
         btnTheme.setOnClickListener(v -> switchTheme());
 
+        findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
         showSection(prefs.getInt(PREF_SECTION, 0));
         updateWelcomeSwitch();
@@ -174,7 +175,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     // ---------------------------------------------------------------- Разделы, справка, тема
 
     private void setupSections() {
-        sections.add(new Section("🔊", "Звуки приветствия", findViewById(R.id.soundsPanel),
+        sections.add(new Section("🔊", "Звуки", findViewById(R.id.soundsPanel),
                 "Звуки приветствия — это MP3-файлы, которые машина проигрывает, когда вы подходите "
                         + "к ней или садитесь. Каждый раз она выбирает один из них случайно.\n\n"
                         + "▶  прослушать звук, повторное нажатие останавливает его.\n"
@@ -183,7 +184,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                         + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
                         + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
                         + "Переключатель справа включает и выключает звуковое приветствие."));
-        sections.add(new Section("🖼", "Картинки приветствия", findViewById(R.id.picturesPanel),
+        sections.add(new Section("🖼", "Картинки", findViewById(R.id.picturesPanel),
                 "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
                         + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
                         + "и какого размера они должны быть."));
