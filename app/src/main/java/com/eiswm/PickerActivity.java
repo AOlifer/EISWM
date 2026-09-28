@@ -81,7 +81,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     private LinearLayout rootsBar, crumbs, list, sideList;
     private HorizontalScrollView crumbsScroll;
     private TextView sideTitle, status;
-    private Button btnSelectAll, btnAction;
+    private Button btnSelectAll, btnClearSelection, btnAction;
     private AudioPreview preview;
     private SharedPreferences prefs;
 
@@ -128,10 +128,12 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnRefresh).setOnClickListener(v -> refreshRoots());
-        btnSelectAll.setOnClickListener(v -> toggleSelectAll());
+        btnClearSelection = findViewById(R.id.btnClearSelection);
+        btnSelectAll.setOnClickListener(v -> selectAllHere());
+        btnClearSelection.setOnClickListener(v -> clearSelection());
         btnAction.setOnClickListener(v -> finishWithResult());
         if (MODE_FOLDER.equals(mode)) {
-            btnSelectAll.setVisibility(View.GONE);
+            findViewById(R.id.selectionButtons).setVisibility(View.GONE);
             String action = in.getStringExtra(EXTRA_ACTION);
             btnAction.setText(action != null ? action : "Выбрать эту папку");
             sideTitle.setText("Сохранить копию");
@@ -482,11 +484,18 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         return result;
     }
 
-    private void toggleSelectAll() {
+    /** Выделить все подходящие файлы открытой папки. */
+    private void selectAllHere() {
         List<File> here = selectableHere();
         if (here.isEmpty()) { toast("В этой папке нечего выбрать"); return; }
-        if (selected.containsAll(here)) selected.removeAll(here);
-        else selected.addAll(here);
+        selected.addAll(here);
+        for (FileRow r : rows.values()) applyRowState(r);
+        updateSide();
+    }
+
+    /** Снять весь выбор, в том числе в других папках. */
+    private void clearSelection() {
+        selected.clear();
         for (FileRow r : rows.values()) applyRowState(r);
         updateSide();
     }
@@ -517,8 +526,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         }
 
         List<File> here = selectableHere();
-        btnSelectAll.setEnabled(!here.isEmpty());
-        btnSelectAll.setText(!here.isEmpty() && selected.containsAll(here) ? "Снять выбор в папке" : "Выбрать все в папке");
+        btnSelectAll.setEnabled(!here.isEmpty() && !selected.containsAll(here));
+        btnClearSelection.setEnabled(n > 0);
         btnAction.setEnabled(n > 0);
         btnAction.setText(n > 0 ? "Добавить " + n + " " + FileUtils.plural(n, itemForms[0], itemForms[1], itemForms[2]) : "Добавить");
         status.setText(longCount == 1

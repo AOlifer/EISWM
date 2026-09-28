@@ -48,8 +48,6 @@
     <string name="standard_title">Стандартные картинки</string>
     <string name="standard_selected">Выбрано: %1$d</string>
     <string name="standard_none_selected">Отмеченные добавятся на круглый год.</string>
-    <string name="standard_select_all">Выбрать все</string>
-    <string name="standard_unselect_all">Снять выбор</string>
     <string name="standard_add">Добавить выбранные</string>
     <string name="standard_add_n">Добавить %1$d %2$s</string>
     <string name="standard_added_mark">уже добавлена</string>
@@ -64,6 +62,13 @@
     <string name="picker_image_ok">%1$d×%2$d</string>
     <string name="picker_image_crop">%1$d×%2$d · обрежется</string>
     <string name="picker_image_bad">не открывается</string>
+    <string name="select_all">Выделить все</string>
+    <string name="clear_selection">Очистить</string>
+    <string name="pictures_selected_header">Выделено: %1$d из %2$d</string>
+    <string name="pictures_delete_selected">Удалить (%1$d)</string>
+    <string name="pictures_delete_many_title">Удалить выделенные картинки?</string>
+    <string name="pictures_delete_many_message">%1$d %2$s. Машина больше не будет их показывать.</string>
+    <string name="pictures_deleted_many">Удалено картинок: %1$d</string>
     <string name="close">Закрыть</string>
     <string name="cancel">Отмена</string>
 </resources>

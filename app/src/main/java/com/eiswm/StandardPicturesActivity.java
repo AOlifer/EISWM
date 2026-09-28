@@ -41,7 +41,7 @@ public class StandardPicturesActivity extends BaseActivity {
     private Set<String> alreadyAdded;
 
     private TextView selectedTitle, hint, seasonalState;
-    private Button btnSelectAll, btnAdd, btnSeasonal;
+    private Button btnSelectAll, btnClear, btnAdd, btnSeasonal;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
@@ -61,7 +61,9 @@ public class StandardPicturesActivity extends BaseActivity {
         btnSeasonal = findViewById(R.id.btnSeasonal);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        btnSelectAll.setOnClickListener(v -> toggleAll());
+        btnClear = findViewById(R.id.btnClear);
+        btnSelectAll.setOnClickListener(v -> setAll(true));
+        btnClear.setOnClickListener(v -> setAll(false));
         btnAdd.setOnClickListener(v -> addSelected());
         btnSeasonal.setOnClickListener(v -> toggleSeasonal());
 
@@ -180,10 +182,10 @@ public class StandardPicturesActivity extends BaseActivity {
         applySelection();
     }
 
-    private void toggleAll() {
+    private void setAll(boolean on) {
         if (busy) return;
-        if (selected.size() == names.size()) selected.clear();
-        else selected.addAll(names);
+        if (on) selected.addAll(names);
+        else selected.clear();
         applySelection();
     }
 
@@ -200,7 +202,6 @@ public class StandardPicturesActivity extends BaseActivity {
         int n = selected.size();
         selectedTitle.setText(getString(R.string.standard_selected, n));
         hint.setVisibility(View.VISIBLE);
-        btnSelectAll.setText(n == names.size() && n > 0 ? R.string.standard_unselect_all : R.string.standard_select_all);
         btnAdd.setEnabled(n > 0 && !busy);
         btnAdd.setText(n > 0
                 ? getString(R.string.standard_add_n, n, FileUtils.plural(n, "картинку", "картинки", "картинок"))
@@ -209,7 +210,8 @@ public class StandardPicturesActivity extends BaseActivity {
         seasonalState.setVisibility(seasonal ? View.VISIBLE : View.GONE);
         btnSeasonal.setText(seasonal ? R.string.standard_seasonal_off : R.string.standard_seasonal_on);
         btnSeasonal.setEnabled(!busy);
-        btnSelectAll.setEnabled(!busy);
+        btnSelectAll.setEnabled(!busy && n < names.size());
+        btnClear.setEnabled(!busy && n > 0);
     }
 
     // ---------------------------------------------------------------- Действия

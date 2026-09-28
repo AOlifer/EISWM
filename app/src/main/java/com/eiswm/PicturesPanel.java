@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,7 +22,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,6 +47,12 @@ final class PicturesPanel {
     private final Switch toggle;
     private final Button btnAdd;
     private final Button btnStandard;
+    private final TextView header;
+    private final Button btnSelectAll, btnClear, btnDelete;
+    /** Выделенные картинки (по id записи) и то, что сейчас показано в сетке. */
+    private final Set<String> selectedIds = new HashSet<>();
+    private final List<WelcomePictures.Picture> current = new ArrayList<>();
+    private final Map<String, CheckBox> checks = new HashMap<>();
     private static final int[] SEASON_TITLES = {
             R.string.season_winter, R.string.season_spring, R.string.season_summer, R.string.season_autumn};
 
@@ -67,6 +80,13 @@ final class PicturesPanel {
         btnStandard.setOnClickListener(v -> {
             if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), REQ_STANDARD);
         });
+        header = activity.findViewById(R.id.picturesHeader);
+        btnSelectAll = activity.findViewById(R.id.btnPicturesSelectAll);
+        btnClear = activity.findViewById(R.id.btnPicturesClear);
+        btnDelete = activity.findViewById(R.id.btnPicturesDelete);
+        btnSelectAll.setOnClickListener(v -> setAllSelected(true));
+        btnClear.setOnClickListener(v -> setAllSelected(false));
+        btnDelete.setOnClickListener(v -> confirmDeleteSelected());
         toggle.setOnCheckedChangeListener((v, checked) -> {
             if (!updatingSwitch) setShown(checked);
         });
@@ -126,11 +146,20 @@ final class PicturesPanel {
 
     private void show(List<WelcomePictures.Picture> list, String error, int gen) {
         grid.removeAllViews();
+        checks.clear();
+        current.clear();
         if (list == null) {
+            selectedIds.clear();
+            updateSelectionUi();
             Ui.emptyState(grid, activity.getString(R.string.pictures_no_access), error);
             status.setText("");
             return;
         }
+        current.addAll(list);
+        // Выделение переживает обновление списка, но только для оставшихся картинок.
+        Set<String> ids = new HashSet<>();
+        for (WelcomePictures.Picture p : list) ids.add(p.id);
+        selectedIds.retainAll(ids);
         if (list.isEmpty()) {
             Ui.emptyState(grid, activity.getString(R.string.pictures_empty),
                     activity.getString(R.string.pictures_empty_details));
@@ -155,6 +184,52 @@ final class PicturesPanel {
             row.addView(new View(activity), new LinearLayout.LayoutParams(0, 1, 1));
         }
         loadThumbnails(list, images, gen);
+        updateSelectionUi();
+    }
+
+    // ---------------------------------------------------------------- Выделение
+
+    private void setAllSelected(boolean on) {
+        if (busy) return;
+        // Сначала меняем набор, потом галочки: их обработчики вызовут updateSelectionUi().
+        if (on) for (WelcomePictures.Picture p : current) selectedIds.add(p.id);
+        else selectedIds.clear();
+        for (CheckBox c : checks.values()) c.setChecked(on);
+        updateSelectionUi();
+    }
+
+    private void updateSelectionUi() {
+        int n = selectedIds.size();
+        header.setText(n > 0
+                ? activity.getString(R.string.pictures_selected_header, n, current.size())
+                : activity.getString(R.string.pictures_header));
+        btnSelectAll.setEnabled(!busy && !current.isEmpty() && n < current.size());
+        btnClear.setEnabled(!busy && n > 0);
+        btnDelete.setVisibility(n > 0 ? View.VISIBLE : View.INVISIBLE);
+        btnDelete.setEnabled(!busy);
+        btnDelete.setText(activity.getString(R.string.pictures_delete_selected, n));
+    }
+
+    private void confirmDeleteSelected() {
+        final List<WelcomePictures.Picture> victims = new ArrayList<>();
+        for (WelcomePictures.Picture p : current) if (selectedIds.contains(p.id)) victims.add(p);
+        if (victims.isEmpty()) return;
+        int n = victims.size();
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.pictures_delete_many_title)
+                .setMessage(activity.getString(R.string.pictures_delete_many_message, n,
+                        FileUtils.plural(n, "картинка", "картинки", "картинок")))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.pictures_delete_ok, (d, w) -> run(() -> {
+                    int deleted = 0;
+                    for (WelcomePictures.Picture p : victims) {
+                        pictures.delete(p);
+                        deleted++;
+                    }
+                    // Выделение удалённых само уйдёт при обновлении списка (show()).
+                    return activity.getString(R.string.pictures_deleted_many, deleted);
+                }))
+                .show();
     }
 
     /** @param active сколько из них показывается сейчас (у сезонных и просроченных срок не сегодня). */
@@ -190,6 +265,27 @@ final class PicturesPanel {
         image.setContentDescription(p.title);
         frame.addView(image, new FrameLayout.LayoutParams(-1, -1));
         frame.setOnClickListener(v -> showLarge(p));
+
+        // Галочка выделения в углу превью; нажатие на само превью открывает картинку крупно.
+        CheckBox check = new CheckBox(activity);
+        GradientDrawable checkBg = new GradientDrawable();
+        checkBg.setColor(0x99000000);
+        checkBg.setCornerRadius(Ui.dp(activity, 6));
+        check.setBackground(checkBg);
+        check.setScaleX(1.3f);
+        check.setScaleY(1.3f);
+        check.setChecked(selectedIds.contains(p.id));
+        check.setContentDescription(activity.getString(R.string.select_all));
+        check.setOnCheckedChangeListener((v, on) -> {
+            if (on) selectedIds.add(p.id); else selectedIds.remove(p.id);
+            card.setBackgroundColor(on ? activity.getColor(R.color.row_active) : Color.TRANSPARENT);
+            updateSelectionUi();
+        });
+        FrameLayout.LayoutParams checkLp = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START);
+        checkLp.setMargins(Ui.dp(activity, 8), Ui.dp(activity, 8), 0, 0);
+        frame.addView(check, checkLp);
+        checks.put(p.id, check);
+        if (check.isChecked()) card.setBackgroundColor(activity.getColor(R.color.row_active));
         card.addView(frame, new LinearLayout.LayoutParams(-1, -2));
 
         LinearLayout info = new LinearLayout(activity);
@@ -417,6 +513,7 @@ final class PicturesPanel {
         btnAdd.setEnabled(!value);
         btnStandard.setEnabled(!value);
         toggle.setEnabled(!value);
+        updateSelectionUi();
         if (value) status.setText(R.string.pictures_busy);
     }
 

@@ -187,9 +187,45 @@
                     android:background="@color/surface"
                     android:orientation="vertical">
 
-                    <TextView
-                        style="@style/EISWM.SectionHeader"
-                        android:text="@string/pictures_header" />
+                    <!-- Заголовок и действия с выделенными картинками. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@color/surface"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingEnd="8dp">
+
+                        <TextView
+                            android:id="@+id/picturesHeader"
+                            style="@style/EISWM.SectionHeader"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:singleLine="true"
+                            android:text="@string/pictures_header" />
+
+                        <!-- «Удалить» слева и скрыт через invisible: соседние кнопки не сдвигаются,
+                             и нажатие мимо не попадёт в удаление. -->
+                        <Button
+                            android:id="@+id/btnPicturesDelete"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="16dp"
+                            android:textColor="@color/pill_bad_fg"
+                            android:visibility="invisible" />
+
+                        <Button
+                            android:id="@+id/btnPicturesSelectAll"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:text="@string/select_all" />
+
+                        <Button
+                            android:id="@+id/btnPicturesClear"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:text="@string/clear_selection" />
+                    </LinearLayout>
 
                     <View style="@style/EISWM.Divider" />
 

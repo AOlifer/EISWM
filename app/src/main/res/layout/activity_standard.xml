@@ -68,11 +68,25 @@
                 android:layout_marginTop="2dp"
                 android:text="@string/standard_none_selected" />
 
-            <Button
-                android:id="@+id/btnSelectAll"
-                style="@style/EISWM.TextButton"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:text="@string/standard_select_all" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSelectAll"
+                    style="@style/EISWM.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/select_all" />
+
+                <Button
+                    android:id="@+id/btnClear"
+                    style="@style/EISWM.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/clear_selection" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnAddSelected"

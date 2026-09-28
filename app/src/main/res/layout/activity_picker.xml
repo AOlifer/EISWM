@@ -129,11 +129,27 @@
                 style="@style/EISWM.Caption"
                 android:layout_marginBottom="4dp" />
 
-            <Button
-                android:id="@+id/btnSelectAll"
-                style="@style/EISWM.TextButton"
+            <!-- «Выделить все» — файлы открытой папки; «Очистить» — весь выбор. -->
+            <LinearLayout
+                android:id="@+id/selectionButtons"
                 android:layout_width="match_parent"
-                android:text="Выбрать все в папке" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSelectAll"
+                    style="@style/EISWM.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/select_all" />
+
+                <Button
+                    android:id="@+id/btnClearSelection"
+                    style="@style/EISWM.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/clear_selection" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnAction"
