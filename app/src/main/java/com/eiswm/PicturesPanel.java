@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 final class PicturesPanel {
     static final int REQ_ADD = 11;
     static final int REQ_SAVE = 12;
+    static final int REQ_STANDARD = 13;
     private static final int COLUMNS = 2;
 
     private final Activity activity;
@@ -38,6 +39,9 @@ final class PicturesPanel {
     private final TextView label, warning, status;
     private final Switch toggle;
     private final Button btnAdd;
+    private final Button btnStandard;
+    private static final int[] SEASON_TITLES = {
+            R.string.season_winter, R.string.season_spring, R.string.season_summer, R.string.season_autumn};
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     /** Отдельный поток: обработка больших картинок не мешает звукам. */
@@ -59,6 +63,10 @@ final class PicturesPanel {
         btnAdd = activity.findViewById(R.id.btnAddPictures);
 
         btnAdd.setOnClickListener(v -> openPicker());
+        btnStandard = activity.findViewById(R.id.btnStandardPictures);
+        btnStandard.setOnClickListener(v -> {
+            if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), REQ_STANDARD);
+        });
         toggle.setOnCheckedChangeListener((v, checked) -> {
             if (!updatingSwitch) setShown(checked);
         });
@@ -127,7 +135,9 @@ final class PicturesPanel {
             Ui.emptyState(grid, activity.getString(R.string.pictures_empty),
                     activity.getString(R.string.pictures_empty_details));
         }
-        if (!busy) status.setText(summary(list.size()));
+        int active = 0;
+        for (WelcomePictures.Picture p : list) if (p.activeNow()) active++;
+        if (!busy) status.setText(summary(list.size(), active));
 
         boolean dimmed = pictures.isDisabled();
         List<ImageView> images = new ArrayList<>();
@@ -147,10 +157,14 @@ final class PicturesPanel {
         loadThumbnails(list, images, gen);
     }
 
-    private String summary(int n) {
+    /** @param active сколько из них показывается сейчас (у сезонных и просроченных срок не сегодня). */
+    private String summary(int n, int active) {
         String forms = FileUtils.plural(n, "картинка", "картинки", "картинок");
         if (pictures.isDisabled()) return n == 0 ? "" : activity.getString(R.string.pictures_summary_off, n, forms);
         if (n == 0) return "";
+        if (active != n) {
+            return activity.getString(R.string.pictures_summary_partial, n, forms, active);
+        }
         if (n == 1) return activity.getString(R.string.pictures_summary_one);
         return activity.getString(R.string.pictures_summary_many, n, forms);
     }
@@ -188,7 +202,15 @@ final class PicturesPanel {
         LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(0, -2, 1);
         dateLp.setMarginStart(Ui.dp(activity, 4));
         info.addView(date, dateLp);
-        if (!p.activeNow() && !pictures.isDisabled()) {
+        int season = WelcomePictures.seasonOf(p);
+        if (season >= 0 && season < SEASON_TITLES.length) {
+            // Картинка «по временам года»: подпись сезона, зелёная — если он идёт сейчас.
+            TextView pill = Ui.pill(activity);
+            boolean now = p.activeNow() && !pictures.isDisabled();
+            Ui.setPill(pill, activity.getString(SEASON_TITLES[season]) + (now ? " · " + activity.getString(R.string.season_now) : ""),
+                    now ? Ui.PILL_OK : Ui.PILL_NEUTRAL);
+            info.addView(pill);
+        } else if (!p.activeNow() && !pictures.isDisabled()) {
             TextView pill = Ui.pill(activity);
             Ui.setPill(pill, activity.getString(p.expired() ? R.string.pictures_expired : R.string.pictures_not_started),
                     Ui.PILL_WARN);
@@ -205,6 +227,9 @@ final class PicturesPanel {
     }
 
     private static String describe(WelcomePictures.Picture p) {
+        if (WelcomePictures.isStandard(p)) {
+            return WelcomePictures.seasonOf(p) >= 0 ? "Стандартная, по сезону" : "Стандартная, круглый год";
+        }
         if (p.created <= 0) return "";
         return "Добавлена " + android.text.format.DateFormat.format("dd.MM.yyyy", p.created);
     }
@@ -312,6 +337,10 @@ final class PicturesPanel {
 
     /** @return true, если результат относится к этому разделу. */
     boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQ_STANDARD) {
+            load();
+            return true;
+        }
         if (requestCode != REQ_ADD && requestCode != REQ_SAVE) return false;
         if (resultCode != Activity.RESULT_OK || data == null) return true;
         if (requestCode == REQ_ADD) {
@@ -386,6 +415,7 @@ final class PicturesPanel {
     private void setBusy(boolean value) {
         busy = value;
         btnAdd.setEnabled(!value);
+        btnStandard.setEnabled(!value);
         toggle.setEnabled(!value);
         if (value) status.setText(R.string.pictures_busy);
     }

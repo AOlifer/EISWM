@@ -3,6 +3,7 @@ package com.eiswm;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -18,9 +19,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Картинки приветствия лаунчера Evolute.
@@ -50,6 +55,14 @@ final class WelcomePictures {
     private static final long FOREVER = 4102444800000L;
     private static final String PREF_DISABLED = "pictures_disabled";
     private static final String PREF_PARKED = "pictures_parked";
+    /** Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам. */
+    private static final String STANDARD_DIR = "standard";
+    private static final String STD_PREFIX = "eiswm_std_";
+    private static final String SEASON_PREFIX = "eiswm_season_";
+    private static final String PREF_STD = "pictures_std";
+    private static final String PREF_SEASONAL = "pictures_seasonal";
+    static final String[] SEASONS = {"winter", "spring", "summer", "autumn"};
+    private static final int[] SEASON_START_MONTH = {Calendar.DECEMBER, Calendar.MARCH, Calendar.JUNE, Calendar.SEPTEMBER};
 
     /** Запись из welcome_advice и её файл. */
     static final class Picture {
@@ -57,6 +70,9 @@ final class WelcomePictures {
         int type, sort;
         long start, end, created;
         File file;
+        /** Откуда восстановить файл: наша копия или встроенная стандартная картинка. */
+        File backup;
+        String asset;
 
         boolean activeNow() {
             long now = System.currentTimeMillis();
@@ -72,8 +88,10 @@ final class WelcomePictures {
     private final File dbFile;
     private final File backupDir;
     private final SharedPreferences prefs;
+    private final AssetManager assets;
 
     WelcomePictures(Context c) {
+        assets = c.getAssets();
         adviceDir = new File(c.getString(R.string.welcome_picture_dir));
         dbFile = resolveDbFile(c);
         backupDir = new File(c.getFilesDir(), "pictures");
@@ -112,7 +130,12 @@ final class WelcomePictures {
             p.file = new File(adviceDir, p.fileName);
             if (p.file.isFile()) result.add(p);
         }
-        Collections.sort(result, (a, b) -> Long.compare(b.created, a.created));
+        // Сначала свои (новые выше), затем стандартные по сезонам.
+        Collections.sort(result, (a, b) -> {
+            if (a.created != b.created) return Long.compare(b.created, a.created);
+            int sa = seasonIndex(a.id), sb = seasonIndex(b.id);
+            return sa != sb ? Integer.compare(sa, sb) : a.id.compareTo(b.id);
+        });
         return result;
     }
 
@@ -165,6 +188,15 @@ final class WelcomePictures {
         }
         new File(adviceDir, p.fileName).delete();
         new File(backupDir, p.fileName).delete();
+        // Стандартную картинку убираем и из выбора, иначе restore() вернёт её обратно.
+        String name = p.id.startsWith(STD_PREFIX) ? p.id.substring(STD_PREFIX.length())
+                : p.id.startsWith(SEASON_PREFIX) ? p.id.substring(SEASON_PREFIX.length()) : null;
+        if (name != null) {
+            String key = p.id.startsWith(STD_PREFIX) ? PREF_STD : PREF_SEASONAL;
+            Set<String> set = new HashSet<>(prefs.getStringSet(key, Collections.emptySet()));
+            set.remove(name + ".png");
+            prefs.edit().putStringSet(key, set).commit();
+        }
     }
 
     // ---------------------------------------------------------------- Выключение
@@ -233,58 +265,223 @@ final class WelcomePictures {
      * @return сколько наших картинок пришлось восстановить.
      */
     int restore() throws IOException {
-        File[] backups = backupDir.listFiles(f -> f.isFile() && f.getName().startsWith(OWN_PREFIX));
-        int restored = 0;
+        List<Picture> desired = desiredRecords();
+        Set<String> restored = new HashSet<>();
+        for (Picture d : desired) {
+            if (restoreFile(d)) restored.add(d.id);
+        }
         if (isDisabled()) {
             List<Picture> parked = readParked();
             List<Picture> rows = readRows();
-            boolean changed = false;
             for (Picture r : rows) {
-                if (BLACK_ID.equals(r.id) || containsId(parked, r.id)) continue;
-                parked.add(r);
-                changed = true;
+                if (!BLACK_ID.equals(r.id) && !containsId(parked, r.id)) parked.add(r);
             }
-            if (backups != null) {
-                for (File b : backups) {
-                    if (restoreFile(b)) restored++;
-                    String id = b.getName().substring(0, b.getName().length() - 4);
-                    if (!containsId(parked, id)) {
-                        parked.add(ownPicture(b));
-                        changed = true;
-                    }
+            for (Picture d : desired) {
+                if (!containsId(parked, d.id)) {
+                    parked.add(d);
+                } else if (d.id.startsWith(SEASON_PREFIX)) {
+                    replaceById(parked, d); // сроки сезона сдвигаются на следующий год
                 }
             }
-            if (changed) writeParked(parked);
+            writeParked(parked);
             if (rows.size() != 1 || !BLACK_ID.equals(rows.get(0).id)) {
                 try (SQLiteDatabase db = openDb()) {
                     db.delete(TABLE, "id != ?", new String[]{BLACK_ID});
                 }
             }
             ensureBlack();
-            return restored;
+            return restored.size();
         }
-        if (backups == null || backups.length == 0) return 0;
+        if (desired.isEmpty()) return 0;
         List<Picture> rows = readRows();
         try (SQLiteDatabase db = openDb()) {
-            for (File b : backups) {
-                boolean fileRestored = restoreFile(b);
-                String id = b.getName().substring(0, b.getName().length() - 4);
-                if (!containsId(rows, id)) {
-                    db.insertWithOnConflict(TABLE, null, values(ownPicture(b)), SQLiteDatabase.CONFLICT_REPLACE);
-                    restored++;
-                } else if (fileRestored) {
-                    restored++;
+            for (Picture d : desired) {
+                boolean missing = !containsId(rows, d.id);
+                if (missing) restored.add(d.id);
+                if (missing || d.id.startsWith(SEASON_PREFIX)) {
+                    db.insertWithOnConflict(TABLE, null, values(d), SQLiteDatabase.CONFLICT_REPLACE);
                 }
             }
         }
-        return restored;
+        return restored.size();
     }
 
-    private boolean restoreFile(File backup) {
-        File target = new File(adviceDir, backup.getName());
+    /**
+     * Записи, которые EISWM поддерживает сам: добавленные пользователем (по копиям),
+     * стандартные «всегда» и стандартные «по временам года» (сроки — на текущий или ближайший сезон).
+     */
+    private List<Picture> desiredRecords() {
+        List<Picture> result = new ArrayList<>();
+        File[] backups = backupDir.listFiles(f -> f.isFile() && f.getName().startsWith(OWN_PREFIX));
+        if (backups != null) for (File b : backups) result.add(ownPicture(b));
+        for (String name : prefs.getStringSet(PREF_STD, Collections.emptySet())) {
+            result.add(standardPicture(name, false));
+        }
+        for (String name : prefs.getStringSet(PREF_SEASONAL, Collections.emptySet())) {
+            result.add(standardPicture(name, true));
+        }
+        return result;
+    }
+
+    /** Вернуть файл картинки в папку лаунчера из нашей копии или из встроенных картинок. */
+    private boolean restoreFile(Picture p) {
+        File target = new File(adviceDir, p.fileName);
         if (target.isFile()) return false;
         adviceDir.mkdirs();
-        return FileUtils.copyFileQuiet(backup, target);
+        if (p.backup != null) return FileUtils.copyFileQuiet(p.backup, target);
+        if (p.asset != null) {
+            try (InputStream in = assets.open(STANDARD_DIR + "/" + p.asset)) {
+                return FileUtils.copyStreamQuiet(in, target);
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static void replaceById(List<Picture> list, Picture p) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id.equals(p.id)) {
+                list.set(i, p);
+                return;
+            }
+        }
+        list.add(p);
+    }
+
+    // ---------------------------------------------------------------- Стандартные картинки
+
+    /** Имена встроенных стандартных картинок (bw_welcome_winter1.png …), по сезонам. */
+    List<String> standardNames() {
+        List<String> result = new ArrayList<>();
+        try {
+            String[] names = assets.list(STANDARD_DIR);
+            if (names != null) {
+                for (String n : names) if (n.endsWith(".png")) result.add(n);
+            }
+        } catch (IOException ignored) {
+        }
+        Collections.sort(result, (a, b) -> {
+            int sa = seasonIndex(a), sb = seasonIndex(b);
+            return sa != sb ? Integer.compare(sa, sb) : a.compareTo(b);
+        });
+        return result;
+    }
+
+    Bitmap standardThumbnail(String name, int minWidth) {
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inSampleSize = sampleSize(WIDTH, HEIGHT, minWidth, 1);
+        o.inPreferredConfig = Bitmap.Config.RGB_565;
+        try (InputStream in = assets.open(STANDARD_DIR + "/" + name)) {
+            return BitmapFactory.decodeStream(in, null, o);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /** Имена стандартных картинок, добавленных навсегда. */
+    Set<String> standardAdded() {
+        return new HashSet<>(prefs.getStringSet(PREF_STD, Collections.emptySet()));
+    }
+
+    boolean isSeasonal() {
+        return !prefs.getStringSet(PREF_SEASONAL, Collections.emptySet()).isEmpty();
+    }
+
+    /** Добавить стандартные картинки: показываются круглый год. */
+    void addStandard(List<String> names) throws IOException {
+        Set<String> set = standardAdded();
+        set.addAll(names);
+        if (!prefs.edit().putStringSet(PREF_STD, set).commit()) throw new IOException("Не удалось сохранить выбор");
+        restore();
+    }
+
+    /**
+     * Все стандартные картинки по временам года: зимой машина выбирает из четырёх зимних,
+     * весной — из весенних и так далее. Сроки обновляются при запуске и при старте машины.
+     */
+    void setSeasonal(boolean on) throws IOException {
+        if (on) {
+            Set<String> all = new HashSet<>(standardNames());
+            if (!prefs.edit().putStringSet(PREF_SEASONAL, all).commit()) throw new IOException("Не удалось сохранить выбор");
+            restore();
+            return;
+        }
+        Set<String> names = prefs.getStringSet(PREF_SEASONAL, Collections.emptySet());
+        List<String> ids = new ArrayList<>();
+        for (String n : names) ids.add(SEASON_PREFIX + baseName(n));
+        prefs.edit().remove(PREF_SEASONAL).commit();
+        if (isDisabled()) {
+            List<Picture> parked = readParked();
+            for (int i = parked.size() - 1; i >= 0; i--) {
+                if (parked.get(i).id.startsWith(SEASON_PREFIX)) parked.remove(i);
+            }
+            writeParked(parked);
+        } else {
+            try (SQLiteDatabase db = openDb()) {
+                for (String id : ids) db.delete(TABLE, "id = ?", new String[]{id});
+            }
+        }
+        for (String id : ids) new File(adviceDir, id + ".png").delete();
+    }
+
+    private Picture standardPicture(String name, boolean seasonal) {
+        Picture p = new Picture();
+        p.id = (seasonal ? SEASON_PREFIX : STD_PREFIX) + baseName(name);
+        p.fileName = p.id + ".png";
+        p.title = name;
+        p.url = "";
+        p.asset = name;
+        p.created = 0;
+        if (seasonal) {
+            long[] w = seasonWindow(seasonIndex(name), System.currentTimeMillis());
+            p.start = w[0];
+            p.end = w[1];
+        } else {
+            p.start = 0;
+            p.end = FOREVER;
+        }
+        return p;
+    }
+
+    private static String baseName(String name) {
+        return name.endsWith(".png") ? name.substring(0, name.length() - 4) : name;
+    }
+
+    /** 0 — зима, 1 — весна, 2 — лето, 3 — осень, 4 — не понятно. */
+    static int seasonIndex(String name) {
+        for (int i = 0; i < SEASONS.length; i++) if (name.contains(SEASONS[i])) return i;
+        return SEASONS.length;
+    }
+
+    /** Стандартная картинка из assets (навсегда или по сезонам). */
+    static boolean isStandard(Picture p) {
+        return p.id.startsWith(STD_PREFIX) || p.id.startsWith(SEASON_PREFIX);
+    }
+
+    /** Сезон записи «по временам года» (индекс как у {@link #seasonIndex}) или -1. */
+    static int seasonOf(Picture p) {
+        return p.id.startsWith(SEASON_PREFIX) ? seasonIndex(p.id) : -1;
+    }
+
+    /**
+     * Срок сезона, который идёт сейчас или наступит следующим: зима — декабрь…февраль,
+     * весна — март…май, лето — июнь…август, осень — сентябрь…ноябрь (по местному времени).
+     */
+    static long[] seasonWindow(int season, long now) {
+        int startMonth = SEASON_START_MONTH[Math.min(season, SEASON_START_MONTH.length - 1)];
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(now);
+        int year = c.get(Calendar.YEAR);
+        for (int y = year - 1; y <= year + 1; y++) {
+            c.clear();
+            c.set(y, startMonth, 1, 0, 0, 0);
+            long start = c.getTimeInMillis();
+            c.add(Calendar.MONTH, 3);
+            long end = c.getTimeInMillis();
+            if (end > now) return new long[]{start, end};
+        }
+        return new long[]{0, FOREVER};
     }
 
     private static Picture ownPicture(File backup) {
@@ -295,6 +492,7 @@ final class WelcomePictures {
         p.url = "";
         p.start = 0;
         p.end = FOREVER;
+        p.backup = backup;
         try {
             p.created = Long.parseLong(p.id.substring(OWN_PREFIX.length()));
         } catch (NumberFormatException e) {

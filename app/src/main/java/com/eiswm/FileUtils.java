@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -64,8 +65,17 @@ final class FileUtils {
      * а лаунчер не увидит недописанный MP3 (временное имя не оканчивается на .mp3).
      */
     static boolean copyFileQuiet(File src, File dst) {
+        try (FileInputStream in = new FileInputStream(src)) {
+            return copyStreamQuiet(in, dst);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /** То же для потока (например, файла из assets); поток закрывает вызывающий. */
+    static boolean copyStreamQuiet(InputStream in, File dst) {
         File tmp = new File(dst.getParentFile(), "." + dst.getName() + ".tmp");
-        try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(tmp)) {
+        try (FileOutputStream out = new FileOutputStream(tmp)) {
             byte[] buf = new byte[65536];
             int n;
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);

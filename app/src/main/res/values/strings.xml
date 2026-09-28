@@ -18,6 +18,7 @@
     <string name="pictures_no_access">Нет доступа к картинкам приветствия</string>
     <string name="pictures_summary_one">1 картинка. Машина показывает её при приветствии.</string>
     <string name="pictures_summary_many">%1$d %2$s. Машина выбирает одну из них случайно.</string>
+    <string name="pictures_summary_partial">%1$d %2$s, сейчас показываются %3$d. Машина выбирает одну из них случайно.</string>
     <string name="pictures_summary_off">Отложено: %1$d %2$s.</string>
     <string name="pictures_busy">Обработка картинок…</string>
     <string name="pictures_expired">срок показа истёк</string>
@@ -35,6 +36,31 @@
     <string name="pictures_save_failed">Не удалось сохранить картинку</string>
     <string name="pictures_error">Ошибка: %1$s</string>
     <string name="pictures_help">Картинки приветствия машина показывает на экране при включении автомобиля. Каждый раз она выбирает одну из них случайно.\n\nНажмите на картинку, чтобы посмотреть её крупно.\n⋮  сохранить копию картинки в память или на флешку, удалить картинку.\n«Добавить картинки»  выбрать PNG или JPG в памяти устройства или на USB-флешке. Картинка подгоняется под экран 1920×720, лишнее по краям обрезается.\n\nПереключатель справа выключает картинки: при приветствии экран будет тёмным, а сами картинки сохранятся и вернутся при включении.\n\nЕсли машина подключится к серверу производителя, он может стереть добавленные картинки. Приложение хранит их копии и восстанавливает при запуске и при старте машины.</string>
+    <string name="pictures_standard">Стандартные картинки</string>
+    <string name="season_winter">Зима</string>
+    <string name="season_spring">Весна</string>
+    <string name="season_summer">Лето</string>
+    <string name="season_autumn">Осень</string>
+    <string name="season_now">сейчас его сезон</string>
+    <string name="season_pill">%1$s</string>
+
+    <!-- Экран «Стандартные картинки». -->
+    <string name="standard_title">Стандартные картинки</string>
+    <string name="standard_selected">Выбрано: %1$d</string>
+    <string name="standard_none_selected">Отмеченные добавятся на круглый год.</string>
+    <string name="standard_select_all">Выбрать все</string>
+    <string name="standard_unselect_all">Снять выбор</string>
+    <string name="standard_add">Добавить выбранные</string>
+    <string name="standard_add_n">Добавить %1$d %2$s</string>
+    <string name="standard_added_mark">уже добавлена</string>
+    <string name="standard_seasonal_title">По временам года</string>
+    <string name="standard_seasonal_text">Все 16 картинок, каждая в свой сезон: зимой — одна из четырёх зимних и так далее.</string>
+    <string name="standard_seasonal_on">Включить по сезонам</string>
+    <string name="standard_seasonal_off">Выключить по сезонам</string>
+    <string name="standard_seasonal_enabled">Сейчас включено.</string>
+    <string name="standard_done_added">Добавлено стандартных картинок: %1$d</string>
+    <string name="standard_done_seasonal_on">Картинки по временам года включены</string>
+    <string name="standard_done_seasonal_off">Картинки по временам года выключены</string>
     <string name="picker_image_ok">%1$d×%2$d</string>
     <string name="picker_image_crop">%1$d×%2$d · обрежется</string>
     <string name="picker_image_bad">не открывается</string>

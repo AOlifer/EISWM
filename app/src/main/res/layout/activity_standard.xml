@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Стандартные картинки: сетка по сезонам слева, действия справа. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/EISWM.TopBar">
+
+        <Button
+            android:id="@+id/btnBack"
+            style="@style/EISWM.TextButton"
+            android:text="←  Назад" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="@string/standard_title"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View style="@style/EISWM.Divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/surface">
+
+            <!-- Строки «сезон + четыре картинки» создаются в коде. -->
+            <LinearLayout
+                android:id="@+id/standardGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp" />
+        </ScrollView>
+
+        <View style="@style/EISWM.VDivider" />
+
+        <LinearLayout
+            style="@style/EISWM.SidePanel"
+            android:layout_width="360dp"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/standardSelected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/standardHint"
+                style="@style/EISWM.Caption"
+                android:layout_marginTop="2dp"
+                android:text="@string/standard_none_selected" />
+
+            <Button
+                android:id="@+id/btnSelectAll"
+                style="@style/EISWM.TextButton"
+                android:layout_width="match_parent"
+                android:text="@string/standard_select_all" />
+
+            <Button
+                android:id="@+id/btnAddSelected"
+                style="@style/EISWM.PrimaryButton"
+                android:text="@string/standard_add" />
+
+            <View
+                style="@style/EISWM.Divider"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/standard_seasonal_title"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                style="@style/EISWM.Caption"
+                android:layout_marginTop="6dp"
+                android:text="@string/standard_seasonal_text" />
+
+            <TextView
+                android:id="@+id/seasonalState"
+                style="@style/EISWM.Caption"
+                android:layout_marginTop="6dp"
+                android:text="@string/standard_seasonal_enabled"
+                android:textColor="@color/pill_ok_fg"
+                android:visibility="gone" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnSeasonal"
+                style="@style/EISWM.PrimaryButton"
+                android:text="@string/standard_seasonal_on" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

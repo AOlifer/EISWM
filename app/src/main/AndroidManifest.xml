@@ -24,6 +24,9 @@
         <activity
             android:name=".PickerActivity"
             android:exported="false" />
+        <activity
+            android:name=".StandardPicturesActivity"
+            android:exported="false" />
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

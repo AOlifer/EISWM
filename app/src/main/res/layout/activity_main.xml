@@ -274,6 +274,12 @@
                         android:layout_weight="1" />
 
                     <Button
+                        android:id="@+id/btnStandardPictures"
+                        style="@style/EISWM.TextButton"
+                        android:layout_width="match_parent"
+                        android:text="@string/pictures_standard" />
+
+                    <Button
                         android:id="@+id/btnAddPictures"
                         style="@style/EISWM.PrimaryButton"
                         android:text="@string/pictures_add" />
