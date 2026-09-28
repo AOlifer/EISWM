@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingTop="3dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="2dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Менеджер звуков приветствия Evolute I-Space"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/welcomeState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:gravity="center_vertical"
+            android:text="Приветствие: ВКЛ"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnWelcome"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Включить или выключить приветствие"
+            android:padding="8dp"
+            android:src="@drawable/ic_volume_up" />
+
+        <Button
+            android:id="@+id/btnExit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:text="Выход" />
+    </LinearLayout>
+
+    <!-- Компактная справочная панель: используем ширину горизонтального экрана вместо большой высоты. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Управление звуками приветствия автомобиля:\nдобавление, прослушивание и удаление своих MP3."
+            android:textSize="15sp"
+            android:padding="5dp"
+            android:lineSpacingExtra="1dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Как пользоваться:\nСлева выберите MP3 (&gt; - выбранный файл,  &gt;&gt; - все MP3 из папки).\nСправа - прослушать или удалить (&lt; и &lt;&lt; - копировать обратно)."
+            android:textSize="12sp"
+            android:padding="5dp"
+            android:lineSpacingExtra="1dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Важно:\nПри приветствии автомобиль выбирает трек случайным образом.\nПоддерживаются только MP3 длительностью не более 6 секунд."
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:lineSpacingExtra="1dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Файловая система"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/leftPath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:paddingBottom="4dp"
+                android:textSize="11sp"
+                android:singleLine="true" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/leftList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="4dp">
+            <Button android:id="@+id/btnCopyOne" android:layout_width="match_parent" android:layout_height="wrap_content" android:text=">" />
+            <Button android:id="@+id/btnCopyAll" android:layout_width="match_parent" android:layout_height="wrap_content" android:text=">>" />
+            <Space android:layout_width="match_parent" android:layout_height="18dp" />
+            <Button android:id="@+id/btnBackOne" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="&lt;" />
+            <Button android:id="@+id/btnBackAll" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="&lt;&lt;" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Файлы приветствия"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/rightStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textSize="13sp" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/rightList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Нижняя панель разделена по колонкам: слева навигация, справа воспроизведение. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="5dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <Button android:id="@+id/btnUp" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="↑ Вверх" />
+            <Button android:id="@+id/btnInternal" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Память устройства" />
+            <Button android:id="@+id/btnExternal" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Внешние накопители" />
+            <Button android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Обновить" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/playing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ничего не воспроизводится"
+                android:textSize="14sp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp" />
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Стоп" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

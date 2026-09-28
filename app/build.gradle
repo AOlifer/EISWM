@@ -1,0 +1,74 @@
+import java.security.KeyFactory
+import java.security.KeyStore
+import java.security.cert.CertificateFactory
+import java.security.spec.PKCS8EncodedKeySpec
+
+plugins {
+    id 'com.android.application'
+}
+
+def keysDir = rootProject.file('keys')
+def privateKeyFile = new File(keysDir, 'platform_binary.pk8')
+def certFile = new File(keysDir, 'platform.x509.pem')
+def keystoreFile = new File(keysDir, 'platform.p12')
+def keystorePassword = 'android'
+def platformAlias = 'platform'
+
+// Build the PKCS#12 keystore from the two AOSP platform key files.
+// This runs on the developer machine; the private key never needs to be checked in.
+if (privateKeyFile.exists() && certFile.exists() && !keystoreFile.exists()) {
+    println("Creating ${keystoreFile} from platform_binary.pk8 + platform.x509.pem")
+    byte[] keyBytes = privateKeyFile.bytes
+    def privateKey = KeyFactory.getInstance('RSA').generatePrivate(new PKCS8EncodedKeySpec(keyBytes))
+    def cf = CertificateFactory.getInstance('X.509')
+    def cert = cf.generateCertificate(new FileInputStream(certFile))
+    KeyStore ks = KeyStore.getInstance('PKCS12')
+    ks.load(null, keystorePassword.toCharArray())
+    ks.setKeyEntry(platformAlias, privateKey, keystorePassword.toCharArray(), [cert] as java.security.cert.Certificate[])
+    new FileOutputStream(keystoreFile).withCloseable { fos -> ks.store(fos, keystorePassword.toCharArray()) }
+}
+
+if (!privateKeyFile.exists() || !certFile.exists()) {
+    throw new GradleException("Missing platform signing files. Put platform_binary.pk8 and platform.x509.pem into ${keysDir.absolutePath}")
+}
+if (!keystoreFile.exists()) {
+    throw new GradleException("Could not create ${keystoreFile}. Check that platform_binary.pk8 is a binary PKCS#8 RSA key.")
+}
+
+android {
+    namespace 'com.eiswm'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.eiswm'
+        minSdk 23
+        targetSdk 28
+        versionCode 2
+        versionName '1.1'
+    }
+
+    signingConfigs {
+        create("platformTest") {
+            storeFile keystoreFile
+            storePassword keystorePassword
+            keyAlias platformAlias
+            keyPassword keystorePassword
+            storeType "PKCS12"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.getByName("platformTest")
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.getByName("platformTest")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
