@@ -3,7 +3,7 @@
 Android-приложение для головного устройства автомобиля **Evolute I-Space**: управление MP3-файлами,
 которые машина проигрывает при приветствии, и включение/выключение самого приветствия.
 
-Текущая версия: **1.3** (`versionCode 3`).
+Текущая версия: **1.4** (`versionCode 4`).
 
 ## Назначение
 
@@ -156,7 +156,7 @@ adb install -r -g app\build\outputs\apk\emulator\debug\app-emulator-debug.apk
 | `master` | Только релизы. Сюда сливается `develop`, когда готова новая версия. |
 
 Выпуск версии: в `develop` обновить `versionCode`/`versionName` в `app/build.gradle` и
-раздел в `CHANGELOG.md`, затем слить `develop` в `master` и поставить тег версии (например, `v1.4`).
+раздел в `CHANGELOG.md`, затем слить `develop` в `master` и поставить тег версии (например, `v1.5`).
 
 ## Лицензия
 
