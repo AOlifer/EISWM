@@ -118,6 +118,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         soundDir = new File(getString(R.string.welcome_sound_dir));
         preview = new AudioPreview(this);
         copyBundledWelcomeFilesOnce();
+        io.execute(this::deleteLeftoverTempFiles);
 
         welcomeLabel = findViewById(R.id.welcomeLabel);
         welcomeSwitch = findViewById(R.id.welcomeSwitch);
@@ -130,7 +131,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         });
         btnAddSounds.setOnClickListener(v -> openSoundPicker());
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
-        findViewById(R.id.btnExit).setOnClickListener(v -> finishAndRemoveTask());
+        findViewById(R.id.btnExit).setOnClickListener(v -> exitApp());
         welcomeWarning = findViewById(R.id.welcomeWarning);
         findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
@@ -169,6 +170,42 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         io.shutdownNow();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
+    }
+
+    // ---------------------------------------------------------------- Выход
+
+    /** Системная «Назад» на главном экране работает так же, как кнопка «Выход». */
+    @Override public void onBackPressed() {
+        exitApp();
+    }
+
+    /**
+     * Закрыть приложение и убрать его из недавних. Во время копирования сначала спросить:
+     * копирование при выходе доделается в фоне, но итог «Добавлено: N» никто не увидит.
+     */
+    private void exitApp() {
+        if (!busy) {
+            finishAndRemoveTask();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Идёт копирование")
+                .setMessage("Звуки ещё копируются. Если выйти сейчас, копирование закончится в фоне, "
+                        + "но вы не увидите, всё ли прошло успешно.")
+                .setPositiveButton("Дождаться", null)
+                .setNegativeButton("Выйти сейчас", (d, w) -> finishAndRemoveTask())
+                .show();
+    }
+
+    /**
+     * Удалить временные файлы «.имя.tmp», оставшиеся от копирования, которое прервалось
+     * (например, машину выключили). Лаунчер их не видит, но место они занимают.
+     */
+    private void deleteLeftoverTempFiles() {
+        File[] leftovers = soundDir.listFiles(f -> f.isFile()
+                && f.getName().startsWith(".") && f.getName().endsWith(".tmp"));
+        if (leftovers == null) return;
+        for (File f : leftovers) f.delete();
     }
 
     // ---------------------------------------------------------------- Разделы, помощь, тема
