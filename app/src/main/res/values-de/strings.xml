@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deutsche Übersetzung. Standardsprache ist Englisch (values/strings.xml). -->
+<resources>
+    <string name="app_name">Begrüßungsmanager</string>
+
+    <!-- Allgemein -->
+    <string name="help">Hilfe</string>
+    <string name="exit">Beenden</string>
+    <string name="back">←  Zurück</string>
+    <string name="refresh">Aktualisieren</string>
+    <string name="got_it">Verstanden</string>
+    <string name="replace">Ersetzen</string>
+    <string name="delete">Löschen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="close">Schließen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="clear_selection">Leeren</string>
+    <string name="copying">Wird kopiert…</string>
+    <string name="menu_save_copy">Kopie speichern unter…</string>
+    <string name="save_where_title">Wohin soll die Kopie?</string>
+    <string name="save_here">Hier speichern</string>
+    <string name="saved">Gespeichert: %1$s</string>
+    <string name="save_failed">%1$s konnte nicht gespeichert werden</string>
+    <string name="play_desc">%1$s abspielen</string>
+    <string name="actions_desc">Aktionen für %1$s</string>
+    <string name="cannot_play">%1$s kann nicht abgespielt werden</string>
+    <string name="deleted">Gelöscht: %1$s</string>
+    <string name="delete_failed">%1$s konnte nicht gelöscht werden</string>
+    <string name="file_exists_title">Datei existiert bereits</string>
+    <string name="file_exists_message">%1$s\n\nErsetzen?</string>
+    <string name="file_already_here">Die Datei liegt bereits in diesem Ordner</string>
+
+    <!-- Design -->
+    <string name="theme_rail">Design\n%1$s</string>
+    <string name="theme_desc">Design: %1$s</string>
+    <string name="theme_toast">Design: %1$s</string>
+    <string-array name="theme_names">
+        <item>auto</item>
+        <item>hell</item>
+        <item>dunkel</item>
+    </string-array>
+
+    <!-- Einheiten und Speicher -->
+    <string name="size_b">%1$d B</string>
+    <string name="size_kb">%1$.1f KB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="duration_s">%1$.1f s</string>
+    <string name="duration_unknown">Länge unbekannt</string>
+    <string name="duration_cut">%1$s · endet nach 6 s</string>
+    <string name="storage_internal">Speicher</string>
+    <string name="storage_usb">USB %1$s</string>
+
+    <!-- Beenden -->
+    <string name="exit_busy_title">Kopiervorgang läuft</string>
+    <string name="exit_busy_message">Dateien werden noch kopiert. Wenn Sie jetzt beenden, wird im Hintergrund fertig kopiert, aber Sie sehen nicht, ob alles geklappt hat.</string>
+    <string name="exit_wait">Warten</string>
+    <string name="exit_now">Jetzt beenden</string>
+
+    <!-- Startbildschirm -->
+    <string name="home_version">Version %1$s</string>
+    <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten.</string>
+    <string name="home_open_sounds">Klänge</string>
+    <string name="home_open_pictures">Bilder</string>
+    <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
+    <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten abspielt.\nBilder: Bilder auf dem Begrüßungsbildschirm.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
+
+    <!-- Bereich Klänge -->
+    <string name="sounds_section">Klänge</string>
+    <string name="sounds_header">Klänge im Auto</string>
+    <string name="sounds_switch_desc">Begrüßungsklang</string>
+    <string name="sounds_on">Begrüßungsklang abspielen</string>
+    <string name="sounds_off">Keinen Begrüßungsklang abspielen</string>
+    <string name="sounds_unknown">Zustand des Begrüßungsklangs unbekannt</string>
+    <string name="sounds_off_warning">Das Auto spielt beim Einschalten keinen Begrüßungsklang ab.</string>
+    <string name="sounds_tip">Das Auto spielt einen Klang höchstens 6 Sekunden lang und bricht längere nach der 6. Sekunde ab.</string>
+    <string name="sounds_add">+  Klänge hinzufügen</string>
+    <string name="sounds_add_title">Klänge hinzufügen</string>
+    <string name="sounds_help">Begrüßungsklänge sind MP3-Dateien, die das Auto beim Einschalten abspielt. Jedes Mal wählt es zufällig einen davon aus.\n\n▶  Klang anhören; erneutes Tippen stoppt ihn.\n⋮  Kopie im Speicher oder auf einem USB-Stick sichern, Klang löschen.\nKlänge hinzufügen  MP3-Dateien im Speicher oder auf einem USB-Stick auswählen.\n\nDas Auto spielt einen Klang höchstens 6 Sekunden lang und bricht längere nach der 6. Sekunde ab. Solche Klänge sind gelb mit „endet nach 6 s“ markiert.\n\nDer Schalter rechts schaltet den Begrüßungsklang ein und aus. Ist er aus, spielt das Auto beim Einschalten keinen Klang ab.</string>
+    <string name="sounds_switch_failed">Die Einstellung für den Begrüßungsklang konnte nicht geändert werden</string>
+    <string name="sounds_switch_unchanged">Die Einstellung hat sich nicht geändert</string>
+    <string name="sounds_notifications_failed">Der Ordner Notifications konnte nicht angelegt werden</string>
+    <string name="sounds_bundled_added">Integrierte Klänge hinzugefügt: %1$d</string>
+    <string name="sounds_bundled_failed">Integrierte Klänge konnten nicht kopiert werden</string>
+    <string name="sounds_no_access">Kein Zugriff auf den Ordner der Begrüßungsklänge</string>
+    <string name="sounds_empty">Noch keine Klänge</string>
+    <string name="sounds_empty_details">Tippen Sie auf „Klänge hinzufügen“, um MP3-Dateien im Speicher oder auf einem USB-Stick auszuwählen.</string>
+    <string name="sounds_summary_none">Geladen: 0 Klänge.</string>
+    <string name="sounds_summary_one">Geladen: 1 Klang. Das Auto spielt ihn beim Einschalten ab.</string>
+    <plurals name="sounds_summary_many">
+        <item quantity="one">Geladen: %d Klang. Das Auto wählt zufällig einen davon aus.</item>
+        <item quantity="other">Geladen: %d Klänge. Das Auto wählt zufällig einen davon aus.</item>
+    </plurals>
+    <string name="sounds_conflict_title">Diese Klänge gibt es bereits</string>
+    <string name="sounds_conflict_one">Der Klang „%1$s“ ist bereits im Auto. Ersetzen?</string>
+    <string name="sounds_conflict_many">Bereits im Auto: %1$d von %2$d. Was soll mit ihnen geschehen?</string>
+    <string name="skip_them">Überspringen</string>
+    <string name="add_report">Hinzugefügt: %1$d</string>
+    <string name="add_report_skipped">, übersprungen: %1$d</string>
+    <string name="add_report_failed">, Fehler: %1$d</string>
+    <string name="sound_delete_title">Klang löschen?</string>
+    <string name="sound_delete_message">%1$s\n\nDas Auto spielt ihn dann nicht mehr ab.</string>
+
+    <!-- Dateiauswahl -->
+    <string name="picker_storages">Speicherorte</string>
+    <string name="picker_choose_folder">Diesen Ordner wählen</string>
+    <string name="picker_save_copy">Kopie speichern</string>
+    <string name="picker_storage_gone">Speicher %1$s wurde entfernt</string>
+    <string name="picker_no_usb">Kein USB-Stick gefunden. Stecken Sie einen ein und tippen Sie auf „Aktualisieren“.</string>
+    <string name="picker_folder_unavailable">Ordner nicht zugänglich</string>
+    <string name="picker_no_files">Hier gibt es keine passenden Dateien</string>
+    <string name="picker_no_folders">Hier gibt es keine Unterordner</string>
+    <string name="picker_need_files">Benötigt werden %1$s-Dateien. Öffnen Sie einen anderen Ordner oder Speicher.</string>
+    <string name="picker_checking">wird geprüft…</string>
+    <string name="picker_still_checking">Die Datei wird noch geprüft</string>
+    <string name="picker_nothing_here">In diesem Ordner gibt es nichts auszuwählen</string>
+    <string name="picker_save_into">Die Kopie wird im Ordner „%1$s“ gespeichert.</string>
+    <string name="picker_selected">Ausgewählt: %1$d</string>
+    <string name="picker_nothing_selected">Nichts ausgewählt</string>
+    <string name="picker_hint">Markieren Sie Dateien in der Liste. Die Auswahl bleibt erhalten, auch wenn Sie einen anderen Ordner öffnen.</string>
+    <string name="picker_long_one">Ein Klang ist länger als 6 Sekunden: Das Auto bricht ihn nach der 6. Sekunde ab.</string>
+    <string name="picker_long_many">Länger als 6 Sekunden: %1$d. Das Auto bricht sie nach der 6. Sekunde ab.</string>
+    <string name="picker_remove_desc">%1$s entfernen</string>
+    <string name="picker_not_writable">In diesen Ordner kann nicht geschrieben werden, wählen Sie einen anderen</string>
+    <string name="picker_long_title_one">Klang länger als 6 Sekunden</string>
+    <string name="picker_long_title_many">Klänge länger als 6 Sekunden</string>
+    <string name="picker_long_msg_one">„%1$s“ ist länger als 6 Sekunden. Das Auto spielt ihn an und bricht ihn nach der 6. Sekunde ab.</string>
+    <plurals name="picker_long_msg_many">
+        <item quantity="one">%d Klang ist länger als 6 Sekunden. Das Auto spielt ihn an und bricht ihn nach der 6. Sekunde ab.</item>
+        <item quantity="other">%d Klänge sind länger als 6 Sekunden. Das Auto spielt sie an und bricht sie nach der 6. Sekunde ab.</item>
+    </plurals>
+    <string name="picker_add_anyway">Trotzdem hinzufügen</string>
+    <string name="picker_without_it">Ohne ihn</string>
+    <string name="picker_without_them">Ohne sie</string>
+    <plurals name="picker_add_sounds">
+        <item quantity="one">%d Klang hinzufügen</item>
+        <item quantity="other">%d Klänge hinzufügen</item>
+    </plurals>
+    <plurals name="picker_add_pictures">
+        <item quantity="one">%d Bild hinzufügen</item>
+        <item quantity="other">%d Bilder hinzufügen</item>
+    </plurals>
+    <plurals name="picker_add_files">
+        <item quantity="one">%d Datei hinzufügen</item>
+        <item quantity="other">%d Dateien hinzufügen</item>
+    </plurals>
+    <string name="picker_image_ok">%1$d×%2$d</string>
+    <string name="picker_image_crop">%1$d×%2$d · wird zugeschnitten</string>
+    <string name="picker_image_bad">lässt sich nicht öffnen</string>
+
+    <!-- Bereich Bilder -->
+    <string name="pictures_section">Bilder</string>
+    <string name="pictures_header">Bilder im Auto</string>
+    <string name="pictures_switch_caption">Begrüßungsbilder</string>
+    <string name="pictures_on">Bilder anzeigen</string>
+    <string name="pictures_off">Keine Bilder anzeigen</string>
+    <string name="pictures_off_warning">Der Begrüßungsbildschirm bleibt dunkel. Die Bilder bleiben gespeichert und kommen zurück, wenn Sie die Anzeige wieder einschalten.</string>
+    <string name="pictures_tip">Bilder werden an den Autobildschirm (1920×720) angepasst; was über die Ränder hinausgeht, wird abgeschnitten.</string>
+    <string name="pictures_add">+  Bilder hinzufügen</string>
+    <string name="pictures_add_title">Bilder hinzufügen</string>
+    <string name="pictures_empty">Noch keine Bilder</string>
+    <string name="pictures_empty_details">Das Auto zeigt sein integriertes Bild. Tippen Sie auf „Bilder hinzufügen“, um eigene im Speicher oder auf einem USB-Stick auszuwählen.</string>
+    <string name="pictures_no_access">Kein Zugriff auf die Begrüßungsbilder</string>
+    <string name="pictures_summary_none">Geladen: 0 Bilder. Das Auto zeigt sein integriertes Bild.</string>
+    <string name="pictures_summary_one">Geladen: 1 Bild. Das Auto zeigt es beim Einschalten.</string>
+    <plurals name="pictures_summary_many">
+        <item quantity="one">Geladen: %d Bild. Das Auto wählt zufällig eines davon aus.</item>
+        <item quantity="other">Geladen: %d Bilder. Das Auto wählt zufällig eines davon aus.</item>
+    </plurals>
+    <plurals name="pictures_summary_partial">
+        <item quantity="one">Geladen: %1$d Bild, aktuell angezeigt: %2$d. Das Auto wählt zufällig eines davon aus.</item>
+        <item quantity="other">Geladen: %1$d Bilder, aktuell angezeigt: %2$d. Das Auto wählt zufällig eines davon aus.</item>
+    </plurals>
+    <plurals name="pictures_summary_off">
+        <item quantity="one">Geladen: %d Bild. Solange die Anzeige aus ist, wird es zurückgehalten.</item>
+        <item quantity="other">Geladen: %d Bilder. Solange die Anzeige aus ist, werden sie zurückgehalten.</item>
+    </plurals>
+    <string name="pictures_busy">Bilder werden verarbeitet…</string>
+    <string name="pictures_expired">Anzeigezeitraum abgelaufen</string>
+    <string name="pictures_not_started">noch nicht aktiv</string>
+    <string name="pictures_menu_save">Kopie speichern unter…</string>
+    <string name="pictures_menu_delete">Löschen</string>
+    <string name="pictures_delete_title">Bild löschen?</string>
+    <string name="pictures_delete_message">Das Auto zeigt es dann nicht mehr.</string>
+    <string name="pictures_delete_ok">Löschen</string>
+    <string name="pictures_deleted">Bild gelöscht</string>
+    <string name="pictures_added">Bilder hinzugefügt: %1$d</string>
+    <string name="pictures_add_failed">, fehlgeschlagen: %1$d</string>
+    <string name="pictures_restored">Vom Launcher gelöschte Bilder wiederhergestellt: %1$d</string>
+    <string name="pictures_saved">Gespeichert: %1$s</string>
+    <string name="pictures_save_failed">Das Bild konnte nicht gespeichert werden</string>
+    <string name="pictures_error">Fehler: %1$s</string>
+    <string name="pictures_help">Das Auto zeigt beim Einschalten ein Begrüßungsbild auf dem Bildschirm. Jedes Mal wählt es zufällig eines davon aus.\n\nTippen Sie auf ein Bild, um es groß zu sehen.\n⋮  Kopie im Speicher oder auf einem USB-Stick sichern, Bild löschen.\nBilder hinzufügen  PNG- oder JPG-Dateien im Speicher oder auf einem USB-Stick auswählen. Jedes Bild wird an den Bildschirm 1920×720 angepasst; was über die Ränder hinausgeht, wird abgeschnitten.\n\nDer Schalter rechts schaltet die Bilder aus: Der Begrüßungsbildschirm bleibt dunkel, die Bilder bleiben gespeichert und kommen beim Einschalten zurück.\n\nWenn sich das Auto mit dem Server des Herstellers verbindet, kann dieser hinzugefügte Bilder löschen. Die App bewahrt Kopien auf und stellt sie beim Start der App und beim Start des Autos wieder her.</string>
+    <string name="pictures_standard">Standardbilder</string>
+    <string name="pictures_desc_std_season">Standard, nach Jahreszeit</string>
+    <string name="pictures_desc_std_year">Standard, ganzjährig</string>
+    <string name="pictures_desc_added">Hinzugefügt am %1$s</string>
+    <string name="pictures_selected_header">Ausgewählt: %1$d von %2$d</string>
+    <string name="pictures_delete_selected">Löschen (%1$d)</string>
+    <string name="pictures_delete_many_title">Ausgewählte Bilder löschen?</string>
+    <plurals name="pictures_delete_many_message">
+        <item quantity="one">%d Bild. Das Auto zeigt es dann nicht mehr.</item>
+        <item quantity="other">%d Bilder. Das Auto zeigt sie dann nicht mehr.</item>
+    </plurals>
+    <string name="pictures_deleted_many">Bilder gelöscht: %1$d</string>
+    <string name="pictures_read_failed">Das Bild %1$s konnte nicht gelesen werden</string>
+    <string name="pictures_write_failed">%1$s konnte nicht geschrieben werden</string>
+    <string name="pictures_db_failed">Die Bilderdatenbank konnte nicht geöffnet werden: %1$s</string>
+    <string name="pictures_no_dir_access">Kein Zugriff auf %1$s</string>
+    <string name="pictures_prefs_failed">Die Bildeinstellungen konnten nicht gespeichert werden</string>
+
+    <!-- Jahreszeiten -->
+    <string name="season_winter">Winter</string>
+    <string name="season_spring">Frühling</string>
+    <string name="season_summer">Sommer</string>
+    <string name="season_autumn">Herbst</string>
+    <string name="season_now">jetzt aktiv</string>
+
+    <!-- Bildschirm Standardbilder -->
+    <string name="standard_title">Standardbilder</string>
+    <string name="standard_selected">Ausgewählt: %1$d</string>
+    <string name="standard_none_selected">Markierte Bilder werden für das ganze Jahr hinzugefügt.</string>
+    <string name="standard_add">Auswahl hinzufügen</string>
+    <string name="standard_added_mark">bereits hinzugefügt</string>
+    <string name="standard_seasonal_title">Nach Jahreszeit</string>
+    <string name="standard_seasonal_text">Alle 16 Bilder, jedes in seiner Jahreszeit: im Winter eines der vier Winterbilder und so weiter.</string>
+    <string name="standard_seasonal_on">Nach Jahreszeit einschalten</string>
+    <string name="standard_seasonal_off">Nach Jahreszeit ausschalten</string>
+    <string name="standard_seasonal_enabled">Derzeit eingeschaltet.</string>
+    <string name="standard_done_added">Standardbilder hinzugefügt: %1$d</string>
+    <string name="standard_done_seasonal_on">Bilder nach Jahreszeit eingeschaltet</string>
+    <string name="standard_done_seasonal_off">Bilder nach Jahreszeit ausgeschaltet</string>
+</resources>
