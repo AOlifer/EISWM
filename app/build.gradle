@@ -7,32 +7,49 @@ plugins {
     id 'com.android.application'
 }
 
-def keysDir = rootProject.file('keys')
-def privateKeyFile = new File(keysDir, 'platform_binary.pk8')
+// ---------------------------------------------------------------------------------------------
+// Platform signing
+//
+// Приложение работает с android:sharedUserId="android.uid.system", поэтому APK должен быть
+// подписан платформенным ключом прошивки. Ключи НЕ хранятся в репозитории.
+//
+// Где ищутся ключи (первое найденное):
+//   1. -Peiswm.keysDir=<путь>  или  eiswm.keysDir=<путь> в %USERPROFILE%\.gradle\gradle.properties
+//   2. переменная окружения EISWM_KEYS_DIR
+//   3. <корень проекта>/keys  (папка в .gitignore)
+// В папке нужны: platform.x509.pem и platform.pk8 (или platform_binary.pk8 — старое имя).
+//
+// PKCS#12 для Gradle собирается из них автоматически в build/signing/ и тоже не коммитится.
+// Без ключей проект открывается и компилируется, но упаковка APK останавливается с понятной ошибкой.
+// ---------------------------------------------------------------------------------------------
+def keysDirSetting = (project.findProperty('eiswm.keysDir') ?: System.getenv('EISWM_KEYS_DIR'))?.toString()
+def keysDir = keysDirSetting ? file(keysDirSetting) : rootProject.file('keys')
 def certFile = new File(keysDir, 'platform.x509.pem')
-def keystoreFile = new File(keysDir, 'platform.p12')
-def keystorePassword = 'android'
+def privateKeyFile = ['platform.pk8', 'platform_binary.pk8']
+        .collect { new File(keysDir, it) }
+        .find { it.exists() } ?: new File(keysDir, 'platform.pk8')
+def keystoreFile = rootProject.layout.buildDirectory.file('signing/platform.p12').get().asFile
+def keystorePassword = 'android'   // пароль локального временного p12, наружу файл не уходит
 def platformAlias = 'platform'
+def signingAvailable = privateKeyFile.exists() && certFile.exists()
 
-// Build the PKCS#12 keystore from the two AOSP platform key files.
-// This runs on the developer machine; the private key never needs to be checked in.
-if (privateKeyFile.exists() && certFile.exists() && !keystoreFile.exists()) {
-    println("Creating ${keystoreFile} from platform_binary.pk8 + platform.x509.pem")
-    byte[] keyBytes = privateKeyFile.bytes
-    def privateKey = KeyFactory.getInstance('RSA').generatePrivate(new PKCS8EncodedKeySpec(keyBytes))
-    def cf = CertificateFactory.getInstance('X.509')
-    def cert = cf.generateCertificate(new FileInputStream(certFile))
-    KeyStore ks = KeyStore.getInstance('PKCS12')
-    ks.load(null, keystorePassword.toCharArray())
-    ks.setKeyEntry(platformAlias, privateKey, keystorePassword.toCharArray(), [cert] as java.security.cert.Certificate[])
-    new FileOutputStream(keystoreFile).withCloseable { fos -> ks.store(fos, keystorePassword.toCharArray()) }
-}
-
-if (!privateKeyFile.exists() || !certFile.exists()) {
-    throw new GradleException("Missing platform signing files. Put platform_binary.pk8 and platform.x509.pem into ${keysDir.absolutePath}")
-}
-if (!keystoreFile.exists()) {
-    throw new GradleException("Could not create ${keystoreFile}. Check that platform_binary.pk8 is a binary PKCS#8 RSA key.")
+if (signingAvailable) {
+    boolean stale = !keystoreFile.exists() ||
+            keystoreFile.lastModified() < Math.max(privateKeyFile.lastModified(), certFile.lastModified())
+    if (stale) {
+        keystoreFile.parentFile.mkdirs()
+        def privateKey = KeyFactory.getInstance('RSA')
+                .generatePrivate(new PKCS8EncodedKeySpec(privateKeyFile.bytes))
+        def cert = certFile.withInputStream { CertificateFactory.getInstance('X.509').generateCertificate(it) }
+        KeyStore ks = KeyStore.getInstance('PKCS12')
+        ks.load(null, keystorePassword.toCharArray())
+        ks.setKeyEntry(platformAlias, privateKey, keystorePassword.toCharArray(),
+                [cert] as java.security.cert.Certificate[])
+        keystoreFile.withOutputStream { ks.store(it, keystorePassword.toCharArray()) }
+        logger.lifecycle("EISWM: platform keystore создан из ${keysDir}")
+    }
+} else {
+    logger.warn("EISWM: ключи платформы не найдены в ${keysDir} — APK не будет собран. См. README, раздел «Ключи».")
 }
 
 android {
@@ -47,28 +64,43 @@ android {
         versionName '1.3'
     }
 
-    signingConfigs {
-        create("platformTest") {
-            storeFile keystoreFile
-            storePassword keystorePassword
-            keyAlias platformAlias
-            keyPassword keystorePassword
-            storeType "PKCS12"
+    if (signingAvailable) {
+        signingConfigs {
+            create("platform") {
+                storeFile keystoreFile
+                storePassword keystorePassword
+                keyAlias platformAlias
+                keyPassword keystorePassword
+                storeType "PKCS12"
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.getByName("platformTest")
+            if (signingAvailable) signingConfig signingConfigs.getByName("platform")
         }
         release {
             minifyEnabled false
-            signingConfig signingConfigs.getByName("platformTest")
+            if (signingAvailable) signingConfig signingConfigs.getByName("platform")
         }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// Без платформенного ключа APK всё равно не установится на машину (sharedUserId=system),
+// поэтому вместо тихой подписи debug-ключом останавливаем упаковку с понятным сообщением.
+if (!signingAvailable) {
+    tasks.matching { it.name ==~ /^(package|install)(Debug|Release)$/ }.configureEach {
+        doFirst {
+            throw new GradleException(
+                    "Нет ключей платформы (platform.x509.pem + platform.pk8) в ${keysDir}.\n" +
+                    "Укажите eiswm.keysDir в %USERPROFILE%\\.gradle\\gradle.properties, " +
+                    "задайте EISWM_KEYS_DIR или положите файлы в папку keys/ проекта.")
+        }
     }
 }
