@@ -41,11 +41,37 @@ Android-приложение для головного устройства ав
 Проект использует Android Gradle Plugin 9.0.1, Gradle 9.3.0 и Java 17
 (как в протестированной v1.1; обновление до AGP 9.2.1 / Gradle 9.4.1 из v1.2 не переносилось).
 
-```bat
-gradlew.bat assembleDebug
+Отдельно ставить Java не нужно: подходит Java из Android Studio. В командной строке её
+достаточно указать через `JAVA_HOME` (PowerShell):
+
+```powershell
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+.\gradlew.bat assembleCarDebug
 ```
 
-Результат: `app/build/outputs/apk/debug/app-debug.apk`.
+Проект собирается в двух вариантах:
+
+| Вариант | Команда | Результат | Назначение |
+|---|---|---|---|
+| `car` | `gradlew.bat assembleCarDebug` | `app/build/outputs/apk/car/debug/app-car-debug.apk` | Для машины: system uid, платформенная подпись. |
+| `emulator` | `gradlew.bat assembleEmulatorDebug` | `app/build/outputs/apk/emulator/debug/app-emulator-debug.apk` | Для эмулятора Android Studio: только проверка интерфейса. |
+
+### Эмулятор
+
+Образ эмулятора подписан не ключом AOSP, поэтому вариант `car` на него не устанавливается
+(`INSTALL_FAILED_SHARED_USER_INCOMPATIBLE`). Вариант `emulator` собирается без
+`sharedUserId`, с обычной debug-подписью и `applicationId` `com.eiswm.emulator`, ключи для него
+не нужны. В нём работают экраны, навигация по папкам и прослушивание MP3. Запись в каталог
+приветствия лаунчера и переключатель приветствия требуют system uid и проверяются только на машине.
+
+Подходит эмулятор с образом Android 9 (API 28) Google APIs, экран 1920×720 в альбомной ориентации.
+Установка с выдачей разрешений на доступ к памяти:
+
+```bat
+adb install -r -g app\build\outputs\apk\emulator\debug\app-emulator-debug.apk
+```
+
+В Android Studio вариант выбирается в панели Build Variants (`emulatorDebug` или `carDebug`).
 
 ## Ключи
 

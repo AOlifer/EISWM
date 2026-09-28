@@ -76,13 +76,32 @@ android {
         }
     }
 
+    // Подпись задаётся во flavor'ах ниже; у build type она сброшена, иначе перекрыла бы flavor.
     buildTypes {
         debug {
-            if (signingAvailable) signingConfig signingConfigs.getByName("platform")
+            signingConfig null
         }
         release {
             minifyEnabled false
+            signingConfig null
+        }
+    }
+
+    // car      — APK для машины: system uid, платформенная подпись.
+    // emulator — APK для эмулятора Android Studio: без system uid (см. src/emulator/AndroidManifest.xml),
+    //            подпись обычным debug-ключом. Нужен только для проверки интерфейса: запись в каталог
+    //            приветствия лаунчера и переключатель приветствия в нём не работают.
+    flavorDimensions = ['target']
+    productFlavors {
+        car {
+            dimension 'target'
             if (signingAvailable) signingConfig signingConfigs.getByName("platform")
+        }
+        emulator {
+            dimension 'target'
+            applicationIdSuffix '.emulator'
+            versionNameSuffix '-emulator'
+            signingConfig signingConfigs.getByName('debug')
         }
     }
 
@@ -95,7 +114,7 @@ android {
 // Без платформенного ключа APK всё равно не установится на машину (sharedUserId=system),
 // поэтому вместо тихой подписи debug-ключом останавливаем упаковку с понятным сообщением.
 if (!signingAvailable) {
-    tasks.matching { it.name ==~ /^(package|install)(Debug|Release)$/ }.configureEach {
+    tasks.matching { it.name ==~ /^(package|install)Car(Debug|Release)$/ }.configureEach {
         doFirst {
             throw new GradleException(
                     "Нет ключей платформы (platform.x509.pem + platform.pk8) в ${keysDir}.\n" +

@@ -11,10 +11,14 @@
 - Файл `CHANGELOG.md` с историей изменений (перенесена из README).
 - Лицензия MIT (файл `LICENSE`) и раздел «Лицензия» в README.
 - Схема веток: `develop` для разработки, `master` для релизов (раздел «Ветки» в README).
+- Вариант сборки `emulator` для проверки интерфейса в эмуляторе Android Studio: без system uid,
+  с debug-подписью и `applicationId` `com.eiswm.emulator` (раздел «Эмулятор» в README).
 
 ### Изменено
 
 - `README.txt` заменён на `README.md` с разметкой Markdown.
+- APK для машины теперь собирается как вариант `car`: `assembleCarDebug`,
+  результат в `app/build/outputs/apk/car/debug/app-car-debug.apk`.
 
 ## [1.3]
 
