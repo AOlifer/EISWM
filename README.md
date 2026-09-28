@@ -87,6 +87,13 @@ gradlew.bat assembleDebug
 | `mipmap-xxhdpi` | 144×144 px |
 | `mipmap-xxxhdpi` | 192×192 px |
 
+## Лицензия
+
+Проект распространяется по лицензии MIT, полный текст в файле [LICENSE](LICENSE).
+
+Иконки динамика (`ic_volume_up.xml`, `ic_volume_off.xml`) взяты из Material Icons Google
+и распространяются по лицензии Apache 2.0. Скрипты и JAR Gradle Wrapper распространяются по лицензии Apache 2.0.
+
 ## История изменений
 
 ### v1.3 (база — протестированная v1.1)
