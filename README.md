@@ -150,7 +150,8 @@ adb install -r -g app\build\outputs\apk\emulator\debug\app-emulator-debug.apk
 
 Проект распространяется по лицензии MIT, полный текст в файле [LICENSE](LICENSE).
 
-Иконки динамика (`ic_volume_up.xml`, `ic_volume_off.xml`) взяты из Material Icons Google
+Векторные значки (`ic_volume_up.xml`, `ic_volume_off.xml`, `ic_section_pictures.xml`,
+`ic_storage_internal.xml`, `ic_storage_usb.xml`, `ic_folder.xml`) взяты из Material Icons Google
 и распространяются по лицензии Apache 2.0. Скрипты и JAR Gradle Wrapper распространяются по лицензии Apache 2.0.
 
 Файл `app/src/main/assets/welcome/welcome_0.mp3` — штатный звук приветствия производителя
