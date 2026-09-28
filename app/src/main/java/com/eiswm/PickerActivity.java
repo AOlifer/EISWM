@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -64,6 +65,10 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     private long maxDurationMs;
     private String[] itemForms;
     private boolean audio;
+    /** Режим картинок: превью и размер вместо прослушивания и длительности. */
+    private boolean images;
+    private final Map<File, int[]> imageSizes = new HashMap<>();
+    private final Map<File, Bitmap> thumbs = new HashMap<>();
 
     private List<File> roots;
     private File root, dir;
@@ -91,6 +96,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         CheckBox check;
         TextView pill;
         Button play;
+        ImageView thumb;
     }
 
     @Override protected void onCreate(Bundle b) {
@@ -107,6 +113,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         itemForms = in.getStringArrayExtra(EXTRA_ITEM_FORMS);
         if (itemForms == null || itemForms.length != 3) itemForms = new String[]{"файл", "файла", "файлов"};
         audio = Arrays.asList(extensions).contains("mp3");
+        images = Arrays.asList(extensions).contains("png");
 
         ((TextView) findViewById(R.id.pickerTitle)).setText(in.getStringExtra(EXTRA_TITLE));
         rootsBar = findViewById(R.id.rootsBar);
@@ -158,7 +165,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     // ---------------------------------------------------------------- Навигация
 
     private String lastDirKey() {
-        return "picker_last_dir_" + mode;
+        // Звуки и картинки обычно лежат в разных папках — помним их отдельно.
+        return "picker_last_dir_" + mode + (images ? "_images" : "");
     }
 
     private void openStartDir(String requested) {
@@ -285,6 +293,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         }
         updateSide();
         readDurations(files, gen);
+        readImages(files, gen);
     }
 
     private String extensionsText() {
@@ -339,6 +348,16 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             r.play.setContentDescription("Прослушать " + f.getName());
             r.play.setOnClickListener(v -> preview.toggle(f));
             row.addView(r.play, Ui.iconButtonParams(this));
+        } else if (images) {
+            // Превью в пропорциях экрана машины 8:3; картинка подгружается в фоне.
+            r.thumb = new ImageView(this);
+            r.thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            r.thumb.setBackgroundColor(0xFF000000);
+            Bitmap cached = thumbs.get(f);
+            if (cached != null) r.thumb.setImageBitmap(cached);
+            LinearLayout.LayoutParams thumbLp = new LinearLayout.LayoutParams(Ui.dp(this, 160), Ui.dp(this, 60));
+            thumbLp.setMarginStart(Ui.dp(this, 4));
+            row.addView(r.thumb, thumbLp);
         }
 
         LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, -2, 1);
@@ -381,6 +400,15 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         r.check.setEnabled(!pending(r.file));
         r.root.setBackgroundColor(isSelected ? getColor(R.color.row_active) : Color.TRANSPARENT);
 
+        if (images) {
+            int[] size = imageSizes.get(r.file);
+            if (size == null) Ui.setPill(r.pill, "…", Ui.PILL_NEUTRAL);
+            else if (size[0] <= 0) Ui.setPill(r.pill, getString(R.string.picker_image_bad), Ui.PILL_BAD);
+            else if (size[0] * WelcomePictures.HEIGHT == size[1] * WelcomePictures.WIDTH)
+                Ui.setPill(r.pill, getString(R.string.picker_image_ok, size[0], size[1]), Ui.PILL_OK);
+            else Ui.setPill(r.pill, getString(R.string.picker_image_crop, size[0], size[1]), Ui.PILL_WARN);
+            return;
+        }
         if (!needsDuration()) {
             Ui.setPill(r.pill, FileUtils.formatSize(r.file.length()), Ui.PILL_NEUTRAL);
             return;
@@ -388,6 +416,36 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         Long ms = durations.get(r.file);
         if (ms == null) Ui.setPill(r.pill, "проверка…", Ui.PILL_NEUTRAL);
         else Ui.setDurationPill(r.pill, ms, maxDurationMs);
+    }
+
+    /** Размер и превью картинок читаются в фоне: большие фото открываются заметное время. */
+    private void readImages(File[] files, int gen) {
+        if (!images) return;
+        final int thumbWidth = Ui.dp(this, 160);
+        io.execute(() -> {
+            for (File f : files) {
+                if (destroyed || gen != generation) return;
+                if (imageSizes.containsKey(f) && thumbs.containsKey(f)) continue;
+                int[] s = WelcomePictures.imageSize(f);
+                final int[] size = s != null ? s : new int[]{0, 0};
+                Bitmap b = null;
+                try {
+                    if (s != null) b = WelcomePictures.thumbnail(f, thumbWidth);
+                } catch (OutOfMemoryError ignored) {
+                }
+                final Bitmap thumb = b;
+                ui.post(() -> {
+                    imageSizes.put(f, size);
+                    if (thumb != null) thumbs.put(f, thumb);
+                    if (destroyed || gen != generation) return;
+                    FileRow r = rows.get(f);
+                    if (r != null) {
+                        if (thumb != null) r.thumb.setImageBitmap(thumb);
+                        applyRowState(r);
+                    }
+                });
+            }
+        });
     }
 
     private void readDurations(File[] files, int gen) {

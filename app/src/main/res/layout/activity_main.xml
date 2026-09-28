@@ -172,40 +172,112 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Раздел «Картинки приветствия» — место под будущее управление картинками. -->
+            <!-- Раздел «Картинки»: картинки приветствия; логика в PicturesPanel. -->
             <LinearLayout
                 android:id="@+id/picturesPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="32dp"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🖼"
-                    android:textSize="56sp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/surface"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Картинки приветствия"
-                    android:textColor="@color/text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        style="@style/EISWM.SectionHeader"
+                        android:text="@string/pictures_header" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:maxWidth="640dp"
-                    android:text="Здесь можно будет выбирать картинки, которые машина показывает при приветствии. Раздел в разработке."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="18sp" />
+                    <View style="@style/EISWM.Divider" />
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+
+                        <!-- Сетка превью: строки по две карточки создаются в коде. -->
+                        <LinearLayout
+                            android:id="@+id/pictureGrid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="8dp" />
+                    </ScrollView>
+                </LinearLayout>
+
+                <View style="@style/EISWM.VDivider" />
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="360dp"
+                    android:padding="16dp">
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:text="@string/pictures_switch_caption" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/picturesLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/picturesSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/pictures_switch_caption"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/picturesWarning"
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/pictures_off_warning"
+                        android:textColor="@color/pill_warn_fg"
+                        android:visibility="gone" />
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/picturesStatus"
+                        style="@style/EISWM.Caption"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/pictures_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnAddPictures"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/pictures_add" />
+                </LinearLayout>
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

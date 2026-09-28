@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Каталог звуков приветствия лаунчера. Вариант emulator переопределяет его в src/emulator. -->
+    <!-- Пути к данным приветствия лаунчера. Вариант emulator переопределяет их в src/emulator. -->
+
+    <!-- Звуки приветствия. -->
     <string name="welcome_sound_dir" translatable="false">/data/user_de/0/com.android.launcher3/files/welcome/message</string>
+
+    <!-- Картинки приветствия (показываются только те, что записаны в welcome_db). -->
+    <string name="welcome_picture_dir" translatable="false">/data/user_de/0/com.android.launcher3/files/welcome/advice</string>
+
+    <!-- База картинок лаунчера (BwDbHelper): берётся первый существующий путь, иначе первый. -->
+    <string-array name="welcome_db_paths" translatable="false">
+        <item>/data/user_de/0/com.android.launcher3/databases/welcome_db</item>
+        <item>/data/user/0/com.android.launcher3/databases/welcome_db</item>
+    </string-array>
 </resources>

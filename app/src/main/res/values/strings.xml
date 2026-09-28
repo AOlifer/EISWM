@@ -2,4 +2,42 @@
 <resources>
     <!-- Название в лаунчере и в заголовке приложения. -->
     <string name="app_name">Менеджер приветствия</string>
+
+    <!-- Раздел «Картинки». Остальные строки интерфейса пока в коде, их перенесём при локализации. -->
+    <string name="pictures_section">Картинки</string>
+    <string name="pictures_header">Картинки в машине</string>
+    <string name="pictures_switch_caption">Картинки при приветствии</string>
+    <string name="pictures_on">Показываются</string>
+    <string name="pictures_off">Выключены</string>
+    <string name="pictures_off_warning">При приветствии экран будет тёмным. Картинки сохранены и вернутся, когда вы включите показ.</string>
+    <string name="pictures_tip">Картинка подгоняется под экран машины 1920×720: лишнее по краям обрезается.</string>
+    <string name="pictures_add">+  Добавить картинки</string>
+    <string name="pictures_add_title">Добавить картинки</string>
+    <string name="pictures_empty">Картинок пока нет</string>
+    <string name="pictures_empty_details">Машина показывает встроенную картинку. Нажмите «Добавить картинки», чтобы выбрать свои в памяти или на флешке.</string>
+    <string name="pictures_no_access">Нет доступа к картинкам приветствия</string>
+    <string name="pictures_summary_one">1 картинка. Машина показывает её при приветствии.</string>
+    <string name="pictures_summary_many">%1$d %2$s. Машина выбирает одну из них случайно.</string>
+    <string name="pictures_summary_off">Отложено: %1$d %2$s.</string>
+    <string name="pictures_busy">Обработка картинок…</string>
+    <string name="pictures_expired">срок показа истёк</string>
+    <string name="pictures_not_started">ещё не показывается</string>
+    <string name="pictures_menu_save">Сохранить копию в…</string>
+    <string name="pictures_menu_delete">Удалить</string>
+    <string name="pictures_delete_title">Удалить картинку?</string>
+    <string name="pictures_delete_message">Машина больше не будет её показывать.</string>
+    <string name="pictures_delete_ok">Удалить</string>
+    <string name="pictures_deleted">Картинка удалена</string>
+    <string name="pictures_added">Добавлено картинок: %1$d</string>
+    <string name="pictures_add_failed">, не удалось: %1$d</string>
+    <string name="pictures_restored">Восстановлено картинок, стёртых лаунчером: %1$d</string>
+    <string name="pictures_saved">Сохранено: %1$s</string>
+    <string name="pictures_save_failed">Не удалось сохранить картинку</string>
+    <string name="pictures_error">Ошибка: %1$s</string>
+    <string name="pictures_help">Картинки приветствия машина показывает на экране при включении автомобиля. Каждый раз она выбирает одну из них случайно.\n\nНажмите на картинку, чтобы посмотреть её крупно.\n⋮  сохранить копию картинки в память или на флешку, удалить картинку.\n«Добавить картинки»  выбрать PNG или JPG в памяти устройства или на USB-флешке. Картинка подгоняется под экран 1920×720, лишнее по краям обрезается.\n\nПереключатель справа выключает картинки: при приветствии экран будет тёмным, а сами картинки сохранятся и вернутся при включении.\n\nЕсли машина подключится к серверу производителя, он может стереть добавленные картинки. Приложение хранит их копии и восстанавливает при запуске и при старте машины.</string>
+    <string name="picker_image_ok">%1$d×%2$d</string>
+    <string name="picker_image_crop">%1$d×%2$d · обрежется</string>
+    <string name="picker_image_bad">не открывается</string>
+    <string name="close">Закрыть</string>
+    <string name="cancel">Отмена</string>
 </resources>

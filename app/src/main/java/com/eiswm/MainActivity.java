@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 /**
  * EISWM — Evolute I-Space Welcome Manager.
  * Главный экран: колонка разделов слева, содержимое выбранного раздела справа.
- * Раздел «Звуки приветствия» работает, «Картинки приветствия» — в разработке.
+ * Разделы: «Звуки» (этот класс) и «Картинки» ({@link PicturesPanel}).
  * Новый раздел = панель в activity_main.xml + запись в {@link #setupSections()}.
  * Файлы добавляются через {@link PickerActivity}.
  */
@@ -80,6 +80,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private final Map<File, SoundRow> rows = new HashMap<>();
     private File pendingSave;
     private SharedPreferences prefs;
+    private PicturesPanel picturesPanel;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     /** Один фоновый поток: копирование и чтение длительности не блокируют интерфейс. */
@@ -135,6 +136,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         welcomeWarning = findViewById(R.id.welcomeWarning);
         findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
+        picturesPanel = new PicturesPanel(this);
         showSection(prefs.getInt(PREF_SECTION, 0));
         updateWelcomeSwitch();
         loadSounds();
@@ -167,6 +169,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     @Override protected void onDestroy() {
         destroyed = true;
         preview.release();
+        if (picturesPanel != null) picturesPanel.destroy();
         io.shutdownNow();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
@@ -184,13 +187,13 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
      * копирование при выходе доделается в фоне, но итог «Добавлено: N» никто не увидит.
      */
     private void exitApp() {
-        if (!busy) {
+        if (!busy && (picturesPanel == null || !picturesPanel.isBusy())) {
             finishAndRemoveTask();
             return;
         }
         new AlertDialog.Builder(this)
                 .setTitle("Идёт копирование")
-                .setMessage("Звуки ещё копируются. Если выйти сейчас, копирование закончится в фоне, "
+                .setMessage("Файлы ещё копируются. Если выйти сейчас, копирование закончится в фоне, "
                         + "но вы не увидите, всё ли прошло успешно.")
                 .setPositiveButton("Дождаться", null)
                 .setNegativeButton("Выйти сейчас", (d, w) -> finishAndRemoveTask())
@@ -221,10 +224,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                         + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
                         + "Переключатель справа включает и выключает звуковое приветствие. "
                         + "Когда оно выключено, машина не проигрывает звук при включении автомобиля."));
-        sections.add(new Section(R.drawable.ic_section_pictures, "Картинки", findViewById(R.id.picturesPanel),
-                "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
-                        + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
-                        + "и какого размера они должны быть."));
+        sections.add(new Section(R.drawable.ic_section_pictures, getString(R.string.pictures_section),
+                findViewById(R.id.picturesPanel), getString(R.string.pictures_help)));
 
         LinearLayout rail = findViewById(R.id.sectionRail);
         for (int i = 0; i < sections.size(); i++) {
@@ -544,6 +545,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (picturesPanel != null && picturesPanel.onActivityResult(requestCode, resultCode, data)) return;
         if (resultCode != RESULT_OK || data == null) return;
         if (requestCode == REQ_ADD_SOUNDS) {
             ArrayList<String> paths = data.getStringArrayListExtra(PickerActivity.EXTRA_PATHS);
