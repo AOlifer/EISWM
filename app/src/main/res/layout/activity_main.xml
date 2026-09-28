@@ -58,7 +58,9 @@
         <LinearLayout
             android:id="@+id/sectionRail"
             style="@style/EISWM.SidePanel"
-            android:layout_width="230dp" />
+            android:layout_width="120dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
 
         <View style="@style/EISWM.VDivider" />
 

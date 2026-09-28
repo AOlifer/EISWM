@@ -1,7 +1,9 @@
 package com.eiswm;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -120,25 +122,41 @@ final class Ui {
         parent.addView(box, new LinearLayout.LayoutParams(-1, -2));
     }
 
-    /** Пункт боковой колонки: значок и подпись, выбранный подсвечивается. */
-    static TextView railItem(Context c, String icon, String label) {
+    /**
+     * Пункт боковой колонки: значок и подпись, выбранный подсвечивается.
+     * vertical — значок над подписью (узкая колонка разделов), иначе значок слева.
+     */
+    static TextView railItem(Context c, int iconRes, String label, boolean vertical) {
         TextView v = new TextView(c, null, 0, R.style.EISWM_RailItem);
-        v.setText(icon + "   " + label);
+        v.setText(label);
+        Drawable icon = c.getDrawable(iconRes).mutate();
+        int size = dp(c, vertical ? 32 : 26);
+        icon.setBounds(0, 0, size, size);
+        if (vertical) {
+            v.setCompoundDrawables(null, icon, null, null);
+            v.setGravity(Gravity.CENTER);
+            v.setPadding(dp(c, 4), dp(c, 12), dp(c, 4), dp(c, 10));
+            v.setCompoundDrawablePadding(dp(c, 6));
+            v.setTextSize(16);
+        } else {
+            v.setCompoundDrawables(icon, null, null, null);
+        }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-        lp.bottomMargin = dp(c, 4);
+        lp.bottomMargin = dp(c, 6);
         v.setLayoutParams(lp);
         return v;
     }
 
     static void setSelected(TextView item, boolean selected) {
         Context c = item.getContext();
+        int color = c.getColor(selected ? R.color.accent : R.color.text_secondary);
+        item.setTextColor(color);
+        item.setCompoundDrawableTintList(ColorStateList.valueOf(color));
         if (selected) {
             item.setBackgroundResource(R.drawable.tab_selected);
-            item.setTextColor(c.getColor(R.color.accent));
             item.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
             item.setBackgroundResource(selectableBackground(c));
-            item.setTextColor(c.getColor(R.color.text_secondary));
             item.setTypeface(Typeface.DEFAULT);
         }
     }

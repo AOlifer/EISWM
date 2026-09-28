@@ -3,6 +3,7 @@ package com.eiswm;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -201,7 +203,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         rootsBar.removeAllViews();
         for (File r : roots) {
             boolean internal = r.equals(FileUtils.INTERNAL_ROOT);
-            TextView item = Ui.railItem(this, internal ? "📱" : "💾", FileUtils.rootLabel(r));
+            TextView item = Ui.railItem(this, internal ? R.drawable.ic_storage_internal : R.drawable.ic_storage_usb,
+                    FileUtils.rootLabel(r), false);
             Ui.setSelected(item, r.equals(root));
             item.setOnClickListener(v -> {
                 root = r;
@@ -295,11 +298,12 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     private void addFolderRow(File d) {
         LinearLayout row = Ui.row(this);
-        TextView icon = new TextView(this);
-        icon.setText("📁");
-        icon.setTextSize(24);
-        icon.setGravity(Gravity.CENTER);
-        row.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 64), -2));
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(R.drawable.ic_folder);
+        icon.setImageTintList(ColorStateList.valueOf(getColor(R.color.accent)));
+        icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        icon.setPadding(Ui.dp(this, 16), 0, Ui.dp(this, 16), 0);
+        row.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 64), Ui.dp(this, 32)));
         LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, -2, 1);
         nameLp.setMarginStart(Ui.dp(this, 8));
         row.addView(Ui.title(this, d.getName()), nameLp);

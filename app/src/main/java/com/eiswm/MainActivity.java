@@ -53,11 +53,12 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
-        final String icon, title, helpText;
+        final int icon;
+        final String title, helpText;
         final View panel;
         TextView railItem;
 
-        Section(String icon, String title, View panel, String helpText) {
+        Section(int icon, String title, View panel, String helpText) {
             this.icon = icon;
             this.title = title;
             this.panel = panel;
@@ -175,7 +176,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     // ---------------------------------------------------------------- Разделы, справка, тема
 
     private void setupSections() {
-        sections.add(new Section("🔊", "Звуки", findViewById(R.id.soundsPanel),
+        sections.add(new Section(R.drawable.ic_volume_up, "Звуки", findViewById(R.id.soundsPanel),
                 "Звуки приветствия — это MP3-файлы, которые машина проигрывает, когда вы подходите "
                         + "к ней или садитесь. Каждый раз она выбирает один из них случайно.\n\n"
                         + "▶  прослушать звук, повторное нажатие останавливает его.\n"
@@ -184,7 +185,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                         + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
                         + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
                         + "Переключатель справа включает и выключает звуковое приветствие."));
-        sections.add(new Section("🖼", "Картинки", findViewById(R.id.picturesPanel),
+        sections.add(new Section(R.drawable.ic_section_pictures, "Картинки", findViewById(R.id.picturesPanel),
                 "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
                         + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
                         + "и какого размера они должны быть."));
@@ -193,7 +194,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         for (int i = 0; i < sections.size(); i++) {
             final int index = i;
             Section s = sections.get(i);
-            s.railItem = Ui.railItem(this, s.icon, s.title);
+            s.railItem = Ui.railItem(this, s.icon, s.title, true);
             s.railItem.setOnClickListener(v -> showSection(index));
             rail.addView(s.railItem);
         }
