@@ -5,6 +5,8 @@
 -->
 <resources>
     <string name="app_name">Welcome Manager</string>
+    <!-- Короткое имя под значком в лаунчере (длинное app_name не помещается). -->
+    <string name="app_label">Welcome</string>
 
     <!-- Common -->
     <string name="help">Help</string>

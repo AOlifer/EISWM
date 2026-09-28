@@ -2,6 +2,8 @@
 <!-- Deutsche Übersetzung. Standardsprache ist Englisch (values/strings.xml). -->
 <resources>
     <string name="app_name">Begrüßungsmanager</string>
+    <!-- Короткое имя под значком в лаунчере (длинное app_name не помещается). -->
+    <string name="app_label">Begrüßung</string>
 
     <!-- Allgemein -->
     <string name="help">Hilfe</string>

@@ -62,6 +62,9 @@ final class WelcomePictures {
     private static final String SEASON_PREFIX = "eiswm_season_";
     private static final String PREF_STD = "pictures_std";
     private static final String PREF_SEASONAL = "pictures_seasonal";
+    private static final String PREF_FIRST_RUN_DONE = "pictures_first_run_done";
+    /** Картинка по умолчанию при первой установке — та же, что лаунчер показывает, когда своих нет. */
+    private static final String DEFAULT_PICTURE = "bw_welcome_summer2.png";
     static final String[] SEASONS = {"winter", "spring", "summer", "autumn"};
     private static final int[] SEASON_START_MONTH = {Calendar.DECEMBER, Calendar.MARCH, Calendar.JUNE, Calendar.SEPTEMBER};
 
@@ -386,6 +389,24 @@ final class WelcomePictures {
     /** Имена стандартных картинок, добавленных навсегда. */
     Set<String> standardAdded() {
         return new HashSet<>(prefs.getStringSet(PREF_STD, Collections.emptySet()));
+    }
+
+    /**
+     * Первый запуск после установки: если в базе лаунчера нет ни одной записи и в папке картинок
+     * нет ни одного файла, ставим стандартную картинку по умолчанию на круглый год, чтобы она
+     * была видна и управлялась в приложении. Проверка выполняется один раз.
+     * @return true, если картинка по умолчанию добавлена.
+     */
+    boolean installDefaultOnFirstRun() throws IOException {
+        if (prefs.getBoolean(PREF_FIRST_RUN_DONE, false)) return false;
+        File[] files = adviceDir.listFiles(f -> f.isFile() && !f.getName().startsWith("."));
+        boolean empty = readRows().isEmpty() && (files == null || files.length == 0);
+        if (empty && standardNames().contains(DEFAULT_PICTURE)) {
+            addStandard(Collections.singletonList(DEFAULT_PICTURE));
+        }
+        // Флаг ставим только после успешной проверки: если база была недоступна, повторим в следующий раз.
+        prefs.edit().putBoolean(PREF_FIRST_RUN_DONE, true).commit();
+        return empty;
     }
 
     boolean isSeasonal() {

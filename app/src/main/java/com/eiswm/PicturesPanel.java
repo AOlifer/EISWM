@@ -112,6 +112,8 @@ final class PicturesPanel {
         io.execute(() -> {
             int restored;
             try {
+                // Первая установка без единой картинки — ставим стандартную по умолчанию.
+                pictures.installDefaultOnFirstRun();
                 restored = pictures.restore();
             } catch (Exception e) {
                 restored = 0;

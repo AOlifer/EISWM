@@ -2,6 +2,8 @@
 <!-- Русский перевод. Основной язык (по умолчанию) — английский, values/strings.xml. -->
 <resources>
     <string name="app_name">Менеджер приветствия</string>
+    <!-- Короткое имя под значком в лаунчере (длинное app_name не помещается). -->
+    <string name="app_label">Приветствие</string>
 
     <!-- Общее -->
     <string name="help">Помощь</string>
