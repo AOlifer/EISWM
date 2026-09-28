@@ -69,7 +69,9 @@
     <string name="home_open_pictures">Pictures</string>
     <string name="home_developer">Developer: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLicense PolyForm Noncommercial: non-commercial use only</string>
     <string name="home_help">Choose a section on the left or with a button on this screen:\n\nSounds: MP3 files the car plays at start-up.\nPictures: images on the welcome screen.\n\nEach section has its own Help. Tap the logo or the title at the top to return to this screen.</string>
-
+    <string name="home_disclaimer_short">⚠ Unofficial app, use at your own risk. Details…</string>
+    <string name="disclaimer_title">Disclaimer</string>
+    <string name="disclaimer_text">EISWM is an unofficial application. It is not affiliated with, endorsed or supported by the Evolute car manufacturer, its dealers or the head unit suppliers.\n\nThe application runs with system privileges and changes data of the stock software: the launcher’s files and database and the welcome settings.\n\nThe software is provided “as is”, without warranty of any kind. You install and use it at your own risk. The author is not liable for any damage, including malfunction of the head unit or other vehicle systems, loss of data or settings, the need to reset or reflash the unit, refusal of warranty service, and any consequences while operating the vehicle.\n\nFirmware updates or the manufacturer’s server may change or remove the settings made.\n\nDo not use the application while driving — only while the vehicle is stationary.</string>
     <!-- Sounds section -->
     <string name="sounds_section">Sounds</string>
     <string name="sounds_header">Sounds in the car</string>

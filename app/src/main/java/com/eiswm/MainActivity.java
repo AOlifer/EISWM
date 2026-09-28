@@ -51,6 +51,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private static final int REQ_ADD_SOUNDS = 1;
     private static final int REQ_SAVE_FOLDER = 2;
     private static final String STATE_SECTION = "section";
+    private static final String PREF_DISCLAIMER_SHOWN = "disclaimer_shown";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -141,6 +142,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         picturesPanel = new PicturesPanel(this);
         // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
         showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
+        if (b == null && !prefs.getBoolean(PREF_DISCLAIMER_SHOWN, false)) showDisclaimer(true);
         updateWelcomeSwitch();
         loadSounds();
     }
@@ -272,8 +274,23 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         ((TextView) findViewById(R.id.homeVersion)).setText(getString(R.string.home_version, version));
         findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
         findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
+        findViewById(R.id.homeDisclaimer).setOnClickListener(v -> showDisclaimer(false));
         findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
         findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
+    }
+
+    /**
+     * Отказ от ответственности (полный текст — DISCLAIMER.md в репозитории).
+     * @param firstRun показывается сам при первом запуске; после «Понятно» больше не появляется.
+     */
+    private void showDisclaimer(boolean firstRun) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_text)
+                .setCancelable(!firstRun)
+                .setPositiveButton(R.string.got_it, (d, w) ->
+                        prefs.edit().putBoolean(PREF_DISCLAIMER_SHOWN, true).apply())
+                .show();
     }
 
     /** Помощь по тому разделу, который сейчас открыт (или общая — на стартовом экране). */

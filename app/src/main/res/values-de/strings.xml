@@ -66,7 +66,9 @@
     <string name="home_open_pictures">Bilder</string>
     <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
     <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten abspielt.\nBilder: Bilder auf dem Begrüßungsbildschirm.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
-
+    <string name="home_disclaimer_short">⚠ Inoffizielle App, Nutzung auf eigenes Risiko. Details…</string>
+    <string name="disclaimer_title">Haftungsausschluss</string>
+    <string name="disclaimer_text">EISWM ist eine inoffizielle Anwendung. Sie steht in keiner Verbindung zum Fahrzeughersteller Evolute, seinen Händlern oder den Lieferanten des Infotainmentsystems und wird von ihnen weder unterstützt noch gebilligt.\n\nDie Anwendung läuft mit Systemrechten und ändert Daten der Serien-Software: Dateien und Datenbank des Launchers sowie die Begrüßungseinstellungen.\n\nDie Software wird „wie besehen“ ohne jegliche Gewährleistung bereitgestellt. Installation und Nutzung erfolgen auf eigenes Risiko. Der Autor haftet nicht für Schäden jeglicher Art, einschließlich Fehlfunktionen des Infotainmentsystems oder anderer Fahrzeugsysteme, Verlust von Daten oder Einstellungen, notwendiger Zurücksetzung oder Neuinstallation der Firmware, verweigerter Garantieleistungen und jeglicher Folgen während des Fahrzeugbetriebs.\n\nFirmware-Updates oder der Server des Herstellers können vorgenommene Einstellungen ändern oder entfernen.\n\nNutzen Sie die Anwendung nicht während der Fahrt – nur bei stehendem Fahrzeug.</string>
     <!-- Bereich Klänge -->
     <string name="sounds_section">Klänge</string>
     <string name="sounds_header">Klänge im Auto</string>

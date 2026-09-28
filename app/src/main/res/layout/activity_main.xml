@@ -138,8 +138,17 @@
 
                     <TextView
                         style="@style/EISWM.Caption"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="16dp"
                         android:text="@string/home_developer" />
+
+                    <!-- Кратко об отказе от ответственности; нажатие открывает полный текст. -->
+                    <TextView
+                        android:id="@+id/homeDisclaimer"
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="6dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:text="@string/home_disclaimer_short"
+                        android:textColor="@color/pill_warn_fg" />
                 </LinearLayout>
             </LinearLayout>
 
