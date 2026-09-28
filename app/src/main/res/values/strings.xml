@@ -7,8 +7,8 @@
     <string name="pictures_section">Картинки</string>
     <string name="pictures_header">Картинки в машине</string>
     <string name="pictures_switch_caption">Картинки при приветствии</string>
-    <string name="pictures_on">Показываются</string>
-    <string name="pictures_off">Выключены</string>
+    <string name="pictures_on">Показывать картинки</string>
+    <string name="pictures_off">Не показывать картинки</string>
     <string name="pictures_off_warning">При приветствии экран будет тёмным. Картинки сохранены и вернутся, когда вы включите показ.</string>
     <string name="pictures_tip">Картинка подгоняется под экран машины 1920×720: лишнее по краям обрезается.</string>
     <string name="pictures_add">+  Добавить картинки</string>
@@ -16,10 +16,19 @@
     <string name="pictures_empty">Картинок пока нет</string>
     <string name="pictures_empty_details">Машина показывает встроенную картинку. Нажмите «Добавить картинки», чтобы выбрать свои в памяти или на флешке.</string>
     <string name="pictures_no_access">Нет доступа к картинкам приветствия</string>
-    <string name="pictures_summary_one">1 картинка. Машина показывает её при приветствии.</string>
-    <string name="pictures_summary_many">%1$d %2$s. Машина выбирает одну из них случайно.</string>
-    <string name="pictures_summary_partial">%1$d %2$s, сейчас показываются %3$d. Машина выбирает одну из них случайно.</string>
-    <string name="pictures_summary_off">Отложено: %1$d %2$s.</string>
+    <string name="pictures_summary_none">Загружено: 0 картинок. Машина показывает встроенную картинку.</string>
+    <string name="pictures_summary_one">Загружено: 1 картинка. Машина показывает её при приветствии.</string>
+    <string name="pictures_summary_many">Загружено: %1$d %2$s. Машина выбирает одну из них случайно.</string>
+    <string name="pictures_summary_partial">Загружено: %1$d %2$s, сейчас показываются %3$d. Машина выбирает одну из них случайно.</string>
+    <string name="pictures_summary_off">Загружено: %1$d %2$s. Пока показ выключен, они отложены.</string>
+
+    <!-- Стартовый экран. -->
+    <string name="home_version">Версия %1$s</string>
+    <string name="home_description">Звуки и картинки, которыми Evolute i-Space встречает водителя при включении: добавляйте свои, выбирайте стандартные по временам года, включайте и выключайте приветствие.</string>
+    <string name="home_open_sounds">Звуки</string>
+    <string name="home_open_pictures">Картинки</string>
+    <string name="home_developer">Разработчик: AOlifer · github.com/AOlifer/EISWM\nЛицензия MIT</string>
+    <string name="home_help">Выберите раздел слева или кнопкой на этом экране:\n\n«Звуки» — MP3, которые машина проигрывает при включении.\n«Картинки» — картинки на экране приветствия.\n\nВ каждом разделе есть своя «Помощь». Нажатие на логотип или название вверху возвращает на этот экран.</string>
     <string name="pictures_busy">Обработка картинок…</string>
     <string name="pictures_expired">срок показа истёк</string>
     <string name="pictures_not_started">ещё не показывается</string>

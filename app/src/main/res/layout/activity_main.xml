@@ -21,7 +21,9 @@
             android:scaleType="fitCenter"
             android:src="@drawable/logo_header" />
 
+        <!-- Нажатие на логотип или название возвращает на стартовый экран. -->
         <TextView
+            android:id="@+id/appTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -66,12 +68,88 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
+            <!-- Стартовый экран: ни один раздел не выбран. -->
+            <LinearLayout
+                android:id="@+id/homePanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/surface"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="24dp">
+
+                <ImageView
+                    android:id="@+id/homeImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/home_card"
+                    android:contentDescription="Evolute i-Space"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/home_car" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textColor="@color/text_primary"
+                        android:textSize="32sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/homeVersion"
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="2dp"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_description"
+                        android:textColor="@color/text_primary"
+                        android:textSize="19sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/homeSounds"
+                            style="@style/EISWM.PrimaryButton"
+                            android:layout_width="220dp"
+                            android:layout_marginEnd="16dp"
+                            android:text="@string/home_open_sounds" />
+
+                        <Button
+                            android:id="@+id/homePictures"
+                            style="@style/EISWM.PrimaryButton"
+                            android:layout_width="220dp"
+                            android:text="@string/home_open_pictures" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="24dp"
+                        android:text="@string/home_developer" />
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- Раздел «Звуки приветствия». -->
             <LinearLayout
                 android:id="@+id/soundsPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -251,9 +329,6 @@
                     android:layout_width="360dp"
                     android:padding="16dp">
 
-                    <TextView
-                        style="@style/EISWM.Caption"
-                        android:text="@string/pictures_switch_caption" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

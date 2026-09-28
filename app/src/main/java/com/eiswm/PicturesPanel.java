@@ -236,7 +236,7 @@ final class PicturesPanel {
     private String summary(int n, int active) {
         String forms = FileUtils.plural(n, "картинка", "картинки", "картинок");
         if (pictures.isDisabled()) return n == 0 ? "" : activity.getString(R.string.pictures_summary_off, n, forms);
-        if (n == 0) return "";
+        if (n == 0) return activity.getString(R.string.pictures_summary_none);
         if (active != n) {
             return activity.getString(R.string.pictures_summary_partial, n, forms, active);
         }

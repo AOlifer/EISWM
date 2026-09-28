@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     static final String[] SOUND_EXTENSIONS = {"mp3"};
     private static final int REQ_ADD_SOUNDS = 1;
     private static final int REQ_SAVE_FOLDER = 2;
-    private static final String PREF_SECTION = "section";
+    private static final String STATE_SECTION = "section";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -68,7 +68,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     private final List<Section> sections = new ArrayList<>();
-    private int currentSection = 0;
+    private int currentSection = -1;
+    private View homePanel;
 
     private File soundDir;
     private TextView welcomeLabel, welcomeWarning, soundStatus;
@@ -136,8 +137,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         welcomeWarning = findViewById(R.id.welcomeWarning);
         findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
+        setupHome();
         picturesPanel = new PicturesPanel(this);
-        showSection(prefs.getInt(PREF_SECTION, 0));
+        // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
+        showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
         updateWelcomeSwitch();
         loadSounds();
     }
@@ -246,20 +249,51 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         rail.addView(theme);
     }
 
+    /** @param index номер раздела; -1 — стартовый экран, где ни один раздел не выбран. */
     private void showSection(int index) {
-        if (index < 0 || index >= sections.size()) index = 0;
+        if (index >= sections.size()) index = -1;
         currentSection = index;
+        homePanel.setVisibility(index < 0 ? View.VISIBLE : View.GONE);
         for (int i = 0; i < sections.size(); i++) {
             Section s = sections.get(i);
             Ui.setSelected(s.railItem, i == index);
             s.panel.setVisibility(i == index ? View.VISIBLE : View.GONE);
         }
         if (index != 0) preview.stop();
-        prefs.edit().putInt(PREF_SECTION, index).apply();
     }
 
-    /** Помощь по тому разделу, который сейчас открыт. */
+    /** Состояние раздела переживает пересоздание экрана (например, смену темы). */
+    @Override protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putInt(STATE_SECTION, currentSection);
+    }
+
+    /** Стартовый экран: картинка, описание, версия, разработчик и быстрый переход в разделы. */
+    private void setupHome() {
+        homePanel = findViewById(R.id.homePanel);
+        findViewById(R.id.homeImage).setClipToOutline(true);
+        String version = "";
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception ignored) {
+        }
+        ((TextView) findViewById(R.id.homeVersion)).setText(getString(R.string.home_version, version));
+        findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
+        findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
+        findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
+        findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
+    }
+
+    /** Помощь по тому разделу, который сейчас открыт (или общая — на стартовом экране). */
     private void showHelp() {
+        if (currentSection < 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.home_help)
+                    .setPositiveButton("Понятно", null)
+                    .show();
+            return;
+        }
         Section s = sections.get(currentSection);
         new AlertDialog.Builder(this)
                 .setTitle(s.title)
