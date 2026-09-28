@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.Space;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,7 +71,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private int currentSection = 0;
 
     private File soundDir;
-    private TextView welcomeLabel, soundStatus;
+    private TextView welcomeLabel, welcomeWarning, soundStatus;
     private Switch welcomeSwitch;
     private LinearLayout soundList;
     private Button btnAddSounds;
@@ -130,10 +131,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         btnAddSounds.setOnClickListener(v -> openSoundPicker());
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
         findViewById(R.id.btnExit).setOnClickListener(v -> finishAndRemoveTask());
-        Button btnTheme = findViewById(R.id.btnTheme);
-        btnTheme.setText("Тема: " + THEME_NAMES[themeMode(this)]);
-        btnTheme.setOnClickListener(v -> switchTheme());
-
+        welcomeWarning = findViewById(R.id.welcomeWarning);
         findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
         showSection(prefs.getInt(PREF_SECTION, 0));
@@ -173,18 +171,19 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         super.onDestroy();
     }
 
-    // ---------------------------------------------------------------- Разделы, справка, тема
+    // ---------------------------------------------------------------- Разделы, помощь, тема
 
     private void setupSections() {
         sections.add(new Section(R.drawable.ic_volume_up, "Звуки", findViewById(R.id.soundsPanel),
-                "Звуки приветствия — это MP3-файлы, которые машина проигрывает, когда вы подходите "
-                        + "к ней или садитесь. Каждый раз она выбирает один из них случайно.\n\n"
+                "Звуки приветствия — это MP3-файлы, которые машина проигрывает при включении автомобиля. "
+                        + "Каждый раз она выбирает один из них случайно.\n\n"
                         + "▶  прослушать звук, повторное нажатие останавливает его.\n"
                         + "⋮  сохранить копию звука в память или на флешку, удалить звук.\n"
                         + "«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\n"
                         + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
                         + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
-                        + "Переключатель справа включает и выключает звуковое приветствие."));
+                        + "Переключатель справа включает и выключает звуковое приветствие. "
+                        + "Когда оно выключено, машина не проигрывает звук при включении автомобиля."));
         sections.add(new Section(R.drawable.ic_section_pictures, "Картинки", findViewById(R.id.picturesPanel),
                 "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
                         + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
@@ -198,6 +197,15 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             s.railItem.setOnClickListener(v -> showSection(index));
             rail.addView(s.railItem);
         }
+
+        // Тема — внизу колонки, под разделами.
+        rail.addView(new Space(this), new LinearLayout.LayoutParams(-1, 0, 1));
+        TextView theme = Ui.railItem(this, R.drawable.ic_theme, "Тема\n" + THEME_NAMES[themeMode(this)], true);
+        Ui.setSelected(theme, false);
+        theme.setContentDescription("Тема оформления: " + THEME_NAMES[themeMode(this)]);
+        theme.setOnClickListener(v -> switchTheme());
+        ((LinearLayout.LayoutParams) theme.getLayoutParams()).bottomMargin = 0;
+        rail.addView(theme);
     }
 
     private void showSection(int index) {
@@ -212,7 +220,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         prefs.edit().putInt(PREF_SECTION, index).apply();
     }
 
-    /** Справка того раздела, который сейчас открыт. */
+    /** Помощь по тому разделу, который сейчас открыт. */
     private void showHelp() {
         Section s = sections.get(currentSection);
         new AlertDialog.Builder(this)
@@ -245,6 +253,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             welcomeSwitch.setEnabled(false);
             welcomeLabel.setText("Состояние неизвестно");
         }
+        welcomeWarning.setVisibility(state == 0 ? View.VISIBLE : View.GONE);
         updatingSwitch = false;
     }
 

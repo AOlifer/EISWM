@@ -31,14 +31,11 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnTheme"
-            style="@style/EISWM.TextButton" />
 
         <Button
             android:id="@+id/btnHelp"
             style="@style/EISWM.TextButton"
-            android:text="Справка" />
+            android:text="Помощь" />
 
         <Button
             android:id="@+id/btnExit"
@@ -54,7 +51,7 @@
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <!-- Разделы приложения; пункты создаются в MainActivity.setupSections(). -->
+        <!-- Разделы приложения и внизу кнопка темы; пункты создаются в MainActivity.setupSections(). -->
         <LinearLayout
             android:id="@+id/sectionRail"
             style="@style/EISWM.SidePanel"
@@ -132,10 +129,20 @@
                             android:id="@+id/welcomeSwitch"
                             android:layout_width="wrap_content"
                             android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
                             android:contentDescription="Звуковое приветствие"
                             android:scaleX="1.3"
                             android:scaleY="1.3" />
                     </LinearLayout>
+
+                    <!-- Показывается, когда приветствие выключено. -->
+                    <TextView
+                        android:id="@+id/welcomeWarning"
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="2dp"
+                        android:text="Машина не будет проигрывать звук приветствия при включении автомобиля."
+                        android:textColor="@color/pill_warn_fg"
+                        android:visibility="gone" />
 
                     <View
                         style="@style/EISWM.Divider"
