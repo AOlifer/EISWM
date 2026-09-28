@@ -10,7 +10,7 @@
         <Button
             android:id="@+id/btnBack"
             style="@style/EISWM.TextButton"
-            android:text="←  Назад" />
+            android:text="@string/back" />
 
         <TextView
             android:layout_width="0dp"

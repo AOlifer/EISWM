@@ -3,6 +3,7 @@ package com.eiswm;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -217,8 +218,7 @@ final class PicturesPanel {
         int n = victims.size();
         new AlertDialog.Builder(activity)
                 .setTitle(R.string.pictures_delete_many_title)
-                .setMessage(activity.getString(R.string.pictures_delete_many_message, n,
-                        FileUtils.plural(n, "картинка", "картинки", "картинок")))
+                .setMessage(activity.getResources().getQuantityString(R.plurals.pictures_delete_many_message, n, n))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.pictures_delete_ok, (d, w) -> run(() -> {
                     int deleted = 0;
@@ -234,14 +234,12 @@ final class PicturesPanel {
 
     /** @param active сколько из них показывается сейчас (у сезонных и просроченных срок не сегодня). */
     private String summary(int n, int active) {
-        String forms = FileUtils.plural(n, "картинка", "картинки", "картинок");
-        if (pictures.isDisabled()) return n == 0 ? "" : activity.getString(R.string.pictures_summary_off, n, forms);
+        Resources r = activity.getResources();
         if (n == 0) return activity.getString(R.string.pictures_summary_none);
-        if (active != n) {
-            return activity.getString(R.string.pictures_summary_partial, n, forms, active);
-        }
+        if (pictures.isDisabled()) return r.getQuantityString(R.plurals.pictures_summary_off, n, n);
+        if (active != n) return r.getQuantityString(R.plurals.pictures_summary_partial, n, n, active);
         if (n == 1) return activity.getString(R.string.pictures_summary_one);
-        return activity.getString(R.string.pictures_summary_many, n, forms);
+        return r.getQuantityString(R.plurals.pictures_summary_many, n, n);
     }
 
     /** Карточка: превью 8:3 (как экран машины), подпись и меню ⋮. */
@@ -322,12 +320,15 @@ final class PicturesPanel {
         return image;
     }
 
-    private static String describe(WelcomePictures.Picture p) {
+    private String describe(WelcomePictures.Picture p) {
         if (WelcomePictures.isStandard(p)) {
-            return WelcomePictures.seasonOf(p) >= 0 ? "Стандартная, по сезону" : "Стандартная, круглый год";
+            return activity.getString(WelcomePictures.seasonOf(p) >= 0
+                    ? R.string.pictures_desc_std_season : R.string.pictures_desc_std_year);
         }
         if (p.created <= 0) return "";
-        return "Добавлена " + android.text.format.DateFormat.format("dd.MM.yyyy", p.created);
+        // Формат даты — по языку системы (28.09.2026 / 9/28/2026).
+        String date = android.text.format.DateFormat.getDateFormat(activity).format(new java.util.Date(p.created));
+        return activity.getString(R.string.pictures_desc_added, date);
     }
 
     private void loadThumbnails(List<WelcomePictures.Picture> list, List<ImageView> images, int gen) {
@@ -414,7 +415,7 @@ final class PicturesPanel {
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.pictures_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, WelcomePictures.EXTENSIONS)
-                .putExtra(PickerActivity.EXTRA_ITEM_FORMS, new String[]{"картинку", "картинки", "картинок"})
+                .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_pictures)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
                         new File(FileUtils.INTERNAL_ROOT, "Pictures").getAbsolutePath());
         activity.startActivityForResult(i, REQ_ADD);
@@ -425,9 +426,9 @@ final class PicturesPanel {
         pendingSave = p;
         Intent i = new Intent(activity, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FOLDER)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Куда сохранить копию")
+                .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, copyName(p))
-                .putExtra(PickerActivity.EXTRA_ACTION, "Сохранить сюда");
+                .putExtra(PickerActivity.EXTRA_ACTION, activity.getString(R.string.save_here));
         activity.startActivityForResult(i, REQ_SAVE);
     }
 

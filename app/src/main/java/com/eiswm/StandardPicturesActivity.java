@@ -204,7 +204,7 @@ public class StandardPicturesActivity extends BaseActivity {
         hint.setVisibility(View.VISIBLE);
         btnAdd.setEnabled(n > 0 && !busy);
         btnAdd.setText(n > 0
-                ? getString(R.string.standard_add_n, n, FileUtils.plural(n, "картинку", "картинки", "картинок"))
+                ? getResources().getQuantityString(R.plurals.picker_add_pictures, n, n)
                 : getString(R.string.standard_add));
         boolean seasonal = pictures.isSeasonal();
         seasonalState.setVisibility(seasonal ? View.VISIBLE : View.GONE);

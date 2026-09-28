@@ -37,12 +37,12 @@
         <Button
             android:id="@+id/btnHelp"
             style="@style/EISWM.TextButton"
-            android:text="Помощь" />
+            android:text="@string/help" />
 
         <Button
             android:id="@+id/btnExit"
             style="@style/EISWM.TextButton"
-            android:text="Выход" />
+            android:text="@string/exit" />
     </LinearLayout>
 
     <View style="@style/EISWM.Divider" />
@@ -160,7 +160,7 @@
 
                     <TextView
                         style="@style/EISWM.SectionHeader"
-                        android:text="Звуки в машине" />
+                        android:text="@string/sounds_header" />
 
                     <View style="@style/EISWM.Divider" />
 
@@ -184,10 +184,6 @@
                     android:layout_width="360dp"
                     android:padding="16dp">
 
-                    <TextView
-                        style="@style/EISWM.Caption"
-                        android:text="Звуковое приветствие" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
@@ -208,7 +204,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="56dp"
                             android:layout_marginEnd="8dp"
-                            android:contentDescription="Звуковое приветствие"
+                            android:contentDescription="@string/sounds_switch_desc"
                             android:scaleX="1.3"
                             android:scaleY="1.3" />
                     </LinearLayout>
@@ -218,7 +214,7 @@
                         android:id="@+id/welcomeWarning"
                         style="@style/EISWM.Caption"
                         android:layout_marginTop="2dp"
-                        android:text="Машина не будет проигрывать звук приветствия при включении автомобиля."
+                        android:text="@string/sounds_off_warning"
                         android:textColor="@color/pill_warn_fg"
                         android:visibility="gone" />
 
@@ -236,7 +232,7 @@
                     <TextView
                         style="@style/EISWM.Caption"
                         android:layout_marginTop="10dp"
-                        android:text="Машина играет звук не дольше 6 секунд: более длинный она обрывает на 6-й секунде." />
+                        android:text="@string/sounds_tip" />
 
                     <Space
                         android:layout_width="match_parent"
@@ -246,7 +242,7 @@
                     <Button
                         android:id="@+id/btnAddSounds"
                         style="@style/EISWM.PrimaryButton"
-                        android:text="+  Добавить звуки" />
+                        android:text="@string/sounds_add" />
                 </LinearLayout>
             </LinearLayout>
 

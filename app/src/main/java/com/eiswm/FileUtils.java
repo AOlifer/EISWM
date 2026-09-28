@@ -1,5 +1,6 @@
 package com.eiswm;
 
+import android.content.Context;
 import android.media.MediaMetadataRetriever;
 
 import java.io.File;
@@ -16,8 +17,6 @@ import java.util.Locale;
 /** Файловые операции и форматирование, общие для главного экрана и экрана выбора файлов. */
 final class FileUtils {
     static final File INTERNAL_ROOT = new File("/storage/emulated/0");
-    /** Дробная часть через запятую, как принято по-русски, независимо от языка системы. */
-    private static final Locale RU = new Locale("ru");
 
     private FileUtils() {}
 
@@ -46,8 +45,10 @@ final class FileUtils {
         return roots;
     }
 
-    static String rootLabel(File root) {
-        return root.equals(INTERNAL_ROOT) ? "Память" : "USB " + root.getName();
+    static String rootLabel(Context c, File root) {
+        return root.equals(INTERNAL_ROOT)
+                ? c.getString(R.string.storage_internal)
+                : c.getString(R.string.storage_usb, root.getName());
     }
 
     /** @return накопитель, внутри которого лежит dir, или null. */
@@ -106,26 +107,18 @@ final class FileUtils {
         }
     }
 
-    static String formatSize(long b) {
-        if (b < 1024) return b + " Б";
-        if (b < 1048576) return String.format(RU, "%.1f КБ", b / 1024.0);
-        return String.format(RU, "%.1f МБ", b / 1048576.0);
+    /** Размер файла; единицы и десятичный разделитель — по языку системы (getString форматирует по нему). */
+    static String formatSize(Context c, long b) {
+        if (b < 1024) return c.getString(R.string.size_b, (int) b);
+        if (b < 1048576) return c.getString(R.string.size_kb, b / 1024.0);
+        return c.getString(R.string.size_mb, b / 1048576.0);
     }
 
-    /** Короткие звуки — в секундах с десятыми («4,8 с»), длинные — в минутах («3:45»). */
-    static String formatDuration(long ms) {
+    /** Короткие звуки — в секундах с десятыми («4,8 с» / «4.8 s»), длинные — в минутах («3:45»). */
+    static String formatDuration(Context c, long ms) {
         if (ms < 0) return "?";
-        if (ms < 60000) return String.format(RU, "%.1f с", ms / 1000.0);
+        if (ms < 60000) return c.getString(R.string.duration_s, ms / 1000.0);
         long totalSec = Math.round(ms / 1000.0);
-        return String.format(RU, "%d:%02d", totalSec / 60, totalSec % 60);
-    }
-
-    /** Русское множественное число: plural(2, "звук", "звука", "звуков") → «звука». */
-    static String plural(int n, String one, String few, String many) {
-        int mod100 = n % 100, mod10 = n % 10;
-        if (mod100 >= 11 && mod100 <= 14) return many;
-        if (mod10 == 1) return one;
-        if (mod10 >= 2 && mod10 <= 4) return few;
-        return many;
+        return String.format(Locale.ROOT, "%d:%02d", totalSec / 60, totalSec % 60);
     }
 }

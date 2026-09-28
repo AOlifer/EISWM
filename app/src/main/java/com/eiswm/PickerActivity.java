@@ -49,8 +49,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     static final String EXTRA_EXTENSIONS = "extensions";
     /** Длительность, после которой машина обрывает звук; 0 — не проверять. */
     static final String EXTRA_MAX_DURATION_MS = "maxDurationMs";
-    /** Формы слова для кнопки «Добавить N …»: {"звук", "звука", "звуков"}. */
-    static final String EXTRA_ITEM_FORMS = "itemForms";
+    /** Ресурс plurals для кнопки «Добавить N …», например R.plurals.picker_add_sounds. */
+    static final String EXTRA_ITEM_PLURAL = "itemPlural";
     static final String EXTRA_START_DIR = "startDir";
     /** Результат режима файлов: ArrayList&lt;String&gt; путей. */
     static final String EXTRA_PATHS = "paths";
@@ -63,7 +63,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     private String mode;
     private String[] extensions;
     private long maxDurationMs;
-    private String[] itemForms;
+    private int itemPlural;
     private boolean audio;
     /** Режим картинок: превью и размер вместо прослушивания и длительности. */
     private boolean images;
@@ -110,9 +110,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         extensions = in.getStringArrayExtra(EXTRA_EXTENSIONS);
         if (extensions == null) extensions = new String[0];
         maxDurationMs = in.getLongExtra(EXTRA_MAX_DURATION_MS, 0);
-        itemForms = in.getStringArrayExtra(EXTRA_ITEM_FORMS);
-        if (itemForms == null || itemForms.length != 3) itemForms = new String[]{"файл", "файла", "файлов"};
-        audio = Arrays.asList(extensions).contains("mp3");
+        itemPlural = in.getIntExtra(EXTRA_ITEM_PLURAL, R.plurals.picker_add_files);
+       audio = Arrays.asList(extensions).contains("mp3");
         images = Arrays.asList(extensions).contains("png");
 
         ((TextView) findViewById(R.id.pickerTitle)).setText(in.getStringExtra(EXTRA_TITLE));
@@ -135,8 +134,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         if (MODE_FOLDER.equals(mode)) {
             findViewById(R.id.selectionButtons).setVisibility(View.GONE);
             String action = in.getStringExtra(EXTRA_ACTION);
-            btnAction.setText(action != null ? action : "Выбрать эту папку");
-            sideTitle.setText("Сохранить копию");
+            btnAction.setText(action != null ? action : getString(R.string.picker_choose_folder));
+            sideTitle.setText(R.string.picker_save_copy);
             String subject = in.getStringExtra(EXTRA_SUBJECT);
             if (subject != null) sideList.addView(sideText(subject, true));
         }
@@ -191,7 +190,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         roots = FileUtils.storageRoots();
         File r = dir != null ? FileUtils.findRoot(dir, roots) : null;
         if (r == null || !dir.isDirectory()) {
-            if (root != null && !roots.contains(root)) toast("Накопитель " + FileUtils.rootLabel(root) + " отключён");
+            if (root != null && !roots.contains(root)) toast(getString(R.string.picker_storage_gone, FileUtils.rootLabel(this, root)));
             root = FileUtils.INTERNAL_ROOT;
             open(root);
         } else {
@@ -214,7 +213,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         for (File r : roots) {
             boolean internal = r.equals(FileUtils.INTERNAL_ROOT);
             TextView item = Ui.railItem(this, internal ? R.drawable.ic_storage_internal : R.drawable.ic_storage_usb,
-                    FileUtils.rootLabel(r), false);
+                    FileUtils.rootLabel(this, r), false);
             Ui.setSelected(item, r.equals(root));
             item.setOnClickListener(v -> {
                 root = r;
@@ -224,7 +223,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         }
         if (roots.size() == 1) {
             TextView hint = new TextView(this);
-            hint.setText("Флешка не найдена. Вставьте её и нажмите «Обновить».");
+            hint.setText(R.string.picker_no_usb);
             hint.setTextSize(15);
             hint.setTextColor(getColor(R.color.text_secondary));
             hint.setPadding(Ui.dp(this, 16), Ui.dp(this, 8), Ui.dp(this, 8), 0);
@@ -250,7 +249,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
                 crumbs.addView(sep);
             }
             TextView part = new TextView(this);
-            part.setText(i == 0 ? FileUtils.rootLabel(root) : f.getName());
+            part.setText(i == 0 ? FileUtils.rootLabel(this, root) : f.getName());
             part.setTextSize(18);
             part.setGravity(Gravity.CENTER_VERTICAL);
             part.setPadding(Ui.dp(this, 10), 0, Ui.dp(this, 10), 0);
@@ -274,7 +273,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
         File[] dirs = dir.listFiles(f -> f.isDirectory() && !f.isHidden());
         if (dirs == null) {
-            Ui.emptyState(list, "Папка недоступна", dir.getAbsolutePath());
+            Ui.emptyState(list, getString(R.string.picker_folder_unavailable), dir.getAbsolutePath());
             updateSide();
             return;
         }
@@ -290,8 +289,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         }
 
         if (dirs.length == 0 && files.length == 0) {
-            Ui.emptyState(list, MODE_FILES.equals(mode) ? "Здесь нет подходящих файлов" : "Здесь нет вложенных папок",
-                    MODE_FILES.equals(mode) ? "Нужны файлы " + extensionsText() + ". Откройте другую папку или накопитель." : null);
+            Ui.emptyState(list, getString(MODE_FILES.equals(mode) ? R.string.picker_no_files : R.string.picker_no_folders),
+                    MODE_FILES.equals(mode) ? getString(R.string.picker_need_files, extensionsText()) : null);
         }
         updateSide();
         readDurations(files, gen);
@@ -347,7 +346,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
         if (audio) {
             r.play = Ui.iconButton(this, "▶");
-            r.play.setContentDescription("Прослушать " + f.getName());
+            r.play.setContentDescription(getString(R.string.play_desc, f.getName()));
             r.play.setOnClickListener(v -> preview.toggle(f));
             row.addView(r.play, Ui.iconButtonParams(this));
         } else if (images) {
@@ -412,11 +411,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             return;
         }
         if (!needsDuration()) {
-            Ui.setPill(r.pill, FileUtils.formatSize(r.file.length()), Ui.PILL_NEUTRAL);
+            Ui.setPill(r.pill, FileUtils.formatSize(this, r.file.length()), Ui.PILL_NEUTRAL);
             return;
         }
         Long ms = durations.get(r.file);
-        if (ms == null) Ui.setPill(r.pill, "проверка…", Ui.PILL_NEUTRAL);
+        if (ms == null) Ui.setPill(r.pill, getString(R.string.picker_checking), Ui.PILL_NEUTRAL);
         else Ui.setDurationPill(r.pill, ms, maxDurationMs);
     }
 
@@ -471,7 +470,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     // ---------------------------------------------------------------- Выбор
 
     private void onFileRowClick(FileRow r) {
-        if (pending(r.file)) { toast("Файл ещё проверяется"); return; }
+        if (pending(r.file)) { toast(getString(R.string.picker_still_checking)); return; }
         if (!selected.remove(r.file)) selected.add(r.file);
         applyRowState(r);
         updateSide();
@@ -487,7 +486,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     /** Выделить все подходящие файлы открытой папки. */
     private void selectAllHere() {
         List<File> here = selectableHere();
-        if (here.isEmpty()) { toast("В этой папке нечего выбрать"); return; }
+        if (here.isEmpty()) { toast(getString(R.string.picker_nothing_here)); return; }
         selected.addAll(here);
         for (FileRow r : rows.values()) applyRowState(r);
         updateSide();
@@ -510,11 +509,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     /** Правая колонка: список выбранного (в режиме файлов) и кнопки. */
     private void updateSide() {
         if (MODE_FOLDER.equals(mode)) {
-            status.setText("Копия будет сохранена в папку «" + (dir.equals(root) ? FileUtils.rootLabel(root) : dir.getName()) + "».");
+            status.setText(getString(R.string.picker_save_into, dir.equals(root) ? FileUtils.rootLabel(this, root) : dir.getName()));
             return;
         }
         int n = selected.size();
-        sideTitle.setText(n > 0 ? "Выбрано: " + n : "Ничего не выбрано");
+        sideTitle.setText(n > 0 ? getString(R.string.picker_selected, n) : getString(R.string.picker_nothing_selected));
         sideList.removeAllViews();
         int longCount = 0;
         for (File f : selected) {
@@ -522,17 +521,17 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             sideList.addView(selectedRow(f));
         }
         if (n == 0) {
-            sideList.addView(sideText("Отметьте файлы в списке. Выбор сохраняется, даже если перейти в другую папку.", false));
+            sideList.addView(sideText(getString(R.string.picker_hint), false));
         }
 
         List<File> here = selectableHere();
         btnSelectAll.setEnabled(!here.isEmpty() && !selected.containsAll(here));
         btnClearSelection.setEnabled(n > 0);
         btnAction.setEnabled(n > 0);
-        btnAction.setText(n > 0 ? "Добавить " + n + " " + FileUtils.plural(n, itemForms[0], itemForms[1], itemForms[2]) : "Добавить");
+        btnAction.setText(n > 0 ? getResources().getQuantityString(itemPlural, n, n) : getString(R.string.add));
         status.setText(longCount == 1
-                ? "Один звук длиннее 6 секунд: машина оборвёт его на 6-й секунде."
-                : "Длиннее 6 секунд: " + longCount + ". Машина оборвёт их на 6-й секунде.");
+                ? getString(R.string.picker_long_one)
+                : getString(R.string.picker_long_many, longCount));
         status.setVisibility(longCount > 0 ? View.VISIBLE : View.GONE);
     }
 
@@ -548,7 +547,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         row.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
         Button remove = Ui.iconButton(this, "✕");
         remove.setTextSize(18);
-        remove.setContentDescription("Убрать " + f.getName());
+        remove.setContentDescription(getString(R.string.picker_remove_desc, f.getName()));
         remove.setOnClickListener(v -> unselect(f));
         row.addView(remove, new LinearLayout.LayoutParams(Ui.dp(this, 52), Ui.dp(this, 48)));
         return row;
@@ -566,7 +565,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     private void finishWithResult() {
         if (MODE_FOLDER.equals(mode)) {
-            if (!dir.canWrite()) { toast("В эту папку нельзя записывать, выберите другую"); return; }
+            if (!dir.canWrite()) { toast(getString(R.string.picker_not_writable)); return; }
             setResult(RESULT_OK, new Intent().putExtra(EXTRA_FOLDER, dir.getAbsolutePath()));
             finish();
             return;
@@ -577,14 +576,14 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
         int n = longOnes.size();
         AlertDialog.Builder b = new AlertDialog.Builder(this)
-                .setTitle(n == 1 ? "Звук длиннее 6 секунд" : "Звуки длиннее 6 секунд")
-                .setMessage((n == 1 ? "«" + longOnes.get(0).getName() + "»" : n + " " + FileUtils.plural(n, itemForms[0], itemForms[1], itemForms[2]))
-                        + (n == 1 ? " длиннее 6 секунд. Машина начнёт его играть и оборвёт на 6-й секунде."
-                                  : " длиннее 6 секунд. Машина начнёт их играть и оборвёт на 6-й секунде."))
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Всё равно добавить", (d, w) -> returnFiles(false));
+                .setTitle(n == 1 ? R.string.picker_long_title_one : R.string.picker_long_title_many)
+                .setMessage(n == 1
+                        ? getString(R.string.picker_long_msg_one, longOnes.get(0).getName())
+                        : getResources().getQuantityString(R.plurals.picker_long_msg_many, n, n))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.picker_add_anyway, (d, w) -> returnFiles(false));
         if (selected.size() > n) {
-            b.setNeutralButton(n == 1 ? "Без него" : "Без них", (d, w) -> returnFiles(true));
+            b.setNeutralButton(n == 1 ? R.string.picker_without_it : R.string.picker_without_them, (d, w) -> returnFiles(true));
         }
         b.show();
     }
@@ -610,7 +609,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     }
 
     @Override public void onPreviewError(File file) {
-        toast("Не удалось воспроизвести " + file.getName());
+        toast(getString(R.string.cannot_play, file.getName()));
     }
 
     private void toast(String s) {

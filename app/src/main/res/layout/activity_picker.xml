@@ -10,7 +10,7 @@
         <Button
             android:id="@+id/btnBack"
             style="@style/EISWM.TextButton"
-            android:text="←  Назад" />
+            android:text="@string/back" />
 
         <TextView
             android:id="@+id/pickerTitle"
@@ -26,7 +26,7 @@
         <Button
             android:id="@+id/btnRefresh"
             style="@style/EISWM.TextButton"
-            android:text="Обновить" />
+            android:text="@string/refresh" />
     </LinearLayout>
 
     <View style="@style/EISWM.Divider" />
@@ -45,7 +45,7 @@
                 style="@style/EISWM.Caption"
                 android:paddingStart="16dp"
                 android:paddingBottom="6dp"
-                android:text="Накопители" />
+                android:text="@string/picker_storages" />
 
             <LinearLayout
                 android:id="@+id/rootsBar"
@@ -154,7 +154,7 @@
             <Button
                 android:id="@+id/btnAction"
                 style="@style/EISWM.PrimaryButton"
-                android:text="Добавить" />
+                android:text="@string/add" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -195,11 +195,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             return;
         }
         new AlertDialog.Builder(this)
-                .setTitle("Идёт копирование")
-                .setMessage("Файлы ещё копируются. Если выйти сейчас, копирование закончится в фоне, "
-                        + "но вы не увидите, всё ли прошло успешно.")
-                .setPositiveButton("Дождаться", null)
-                .setNegativeButton("Выйти сейчас", (d, w) -> finishAndRemoveTask())
+                .setTitle(R.string.exit_busy_title)
+                .setMessage(R.string.exit_busy_message)
+                .setPositiveButton(R.string.exit_wait, null)
+                .setNegativeButton(R.string.exit_now, (d, w) -> finishAndRemoveTask())
                 .show();
     }
 
@@ -217,16 +216,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     // ---------------------------------------------------------------- Разделы, помощь, тема
 
     private void setupSections() {
-        sections.add(new Section(R.drawable.ic_volume_up, "Звуки", findViewById(R.id.soundsPanel),
-                "Звуки приветствия — это MP3-файлы, которые машина проигрывает при включении автомобиля. "
-                        + "Каждый раз она выбирает один из них случайно.\n\n"
-                        + "▶  прослушать звук, повторное нажатие останавливает его.\n"
-                        + "⋮  сохранить копию звука в память или на флешку, удалить звук.\n"
-                        + "«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\n"
-                        + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
-                        + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
-                        + "Переключатель справа включает и выключает звуковое приветствие. "
-                        + "Когда оно выключено, машина не проигрывает звук при включении автомобиля."));
+        sections.add(new Section(R.drawable.ic_volume_up, getString(R.string.sounds_section),
+                findViewById(R.id.soundsPanel), getString(R.string.sounds_help)));
         sections.add(new Section(R.drawable.ic_section_pictures, getString(R.string.pictures_section),
                 findViewById(R.id.picturesPanel), getString(R.string.pictures_help)));
 
@@ -241,9 +232,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
         // Тема — внизу колонки, под разделами.
         rail.addView(new Space(this), new LinearLayout.LayoutParams(-1, 0, 1));
-        TextView theme = Ui.railItem(this, R.drawable.ic_theme, "Тема\n" + THEME_NAMES[themeMode(this)], true);
+        String themeName = themeName(themeMode(this));
+        TextView theme = Ui.railItem(this, R.drawable.ic_theme, getString(R.string.theme_rail, themeName), true);
         Ui.setSelected(theme, false);
-        theme.setContentDescription("Тема оформления: " + THEME_NAMES[themeMode(this)]);
+        theme.setContentDescription(getString(R.string.theme_desc, themeName));
         theme.setOnClickListener(v -> switchTheme());
         ((LinearLayout.LayoutParams) theme.getLayoutParams()).bottomMargin = 0;
         rail.addView(theme);
@@ -290,7 +282,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.home_help)
-                    .setPositiveButton("Понятно", null)
+                    .setPositiveButton(R.string.got_it, null)
                     .show();
             return;
         }
@@ -298,15 +290,15 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         new AlertDialog.Builder(this)
                 .setTitle(s.title)
                 .setMessage(s.helpText)
-                .setPositiveButton("Понятно", null)
+                .setPositiveButton(R.string.got_it, null)
                 .show();
     }
 
     /** Авто → светлая → тёмная → авто; экран пересоздаётся с новой темой. */
     private void switchTheme() {
-        int next = (themeMode(this) + 1) % THEME_NAMES.length;
+        int next = (themeMode(this) + 1) % THEME_COUNT;
         prefs.edit().putInt(PREF_THEME, next).apply();
-        toast("Тема: " + THEME_NAMES[next]);
+        toast(getString(R.string.theme_toast, themeName(next)));
         recreate();
     }
 
@@ -319,11 +311,11 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         if (state == 0 || state == 1) {
             welcomeSwitch.setEnabled(true);
             welcomeSwitch.setChecked(state == 1);
-            welcomeLabel.setText(state == 1 ? "Включено" : "Выключено");
+            welcomeLabel.setText(state == 1 ? R.string.sounds_on : R.string.sounds_off);
         } else {
             welcomeSwitch.setChecked(false);
             welcomeSwitch.setEnabled(false);
-            welcomeLabel.setText("Состояние неизвестно");
+            welcomeLabel.setText(R.string.sounds_unknown);
         }
         welcomeWarning.setVisibility(state == 0 ? View.VISIBLE : View.GONE);
         updatingSwitch = false;
@@ -331,9 +323,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void setWelcomeSwitch(int target) {
         if (!writeWelcomeSwitch(target)) {
-            toast("Не удалось изменить состояние приветствия");
+            toast(getString(R.string.sounds_switch_failed));
         } else if (readWelcomeSwitch() != target) {
-            toast("Состояние не изменилось");
+            toast(getString(R.string.sounds_switch_unchanged));
         }
         updateWelcomeSwitch();
     }
@@ -395,7 +387,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
         File targetDir = new File(FileUtils.INTERNAL_ROOT, "Notifications");
         if (!targetDir.exists() && !targetDir.mkdirs()) {
-            toast("Не удалось создать папку Notifications");
+            toast(getString(R.string.sounds_notifications_failed));
             return;
         }
 
@@ -425,10 +417,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             }
             prefs.edit().putBoolean("bundled_welcome_files_copied", true).apply();
             if (copied > 0) {
-                toast("Добавлено встроенных звуков: " + copied);
+                toast(getString(R.string.sounds_bundled_added, copied));
             }
         } catch (IOException e) {
-            toast("Ошибка копирования встроенных звуков");
+            toast(getString(R.string.sounds_bundled_failed));
         }
     }
 
@@ -444,14 +436,14 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         // Сначала создаём каталог, потом читаем список.
         File[] files = soundDir.isDirectory() || soundDir.mkdirs() ? listSounds() : null;
         if (files == null) {
-            Ui.emptyState(soundList, "Нет доступа к папке звуков приветствия", soundDir.getAbsolutePath());
+            Ui.emptyState(soundList, getString(R.string.sounds_no_access), soundDir.getAbsolutePath());
             setStatus("");
             return;
         }
         FileUtils.sortByName(files);
         if (files.length == 0) {
-            Ui.emptyState(soundList, "Звуков пока нет",
-                    "Нажмите «Добавить звуки», чтобы выбрать MP3 в памяти или на флешке.");
+            Ui.emptyState(soundList, getString(R.string.sounds_empty),
+                    getString(R.string.sounds_empty_details));
         }
         if (!busy) setStatus(summary(files.length));
 
@@ -474,9 +466,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     private String summary(int count) {
-        if (count == 0) return "Звуков пока нет.";
-        return count + " " + FileUtils.plural(count, "звук", "звука", "звуков")
-                + (count == 1 ? ". Машина проигрывает его при приветствии." : ". Машина выбирает один из них случайно.");
+        if (count == 0) return getString(R.string.sounds_summary_none);
+        if (count == 1) return getString(R.string.sounds_summary_one);
+        return getResources().getQuantityString(R.plurals.sounds_summary_many, count, count);
     }
 
     /** @return метка длительности, которую заполнит фоновый поток. */
@@ -486,7 +478,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         SoundRow r = new SoundRow();
         r.root = row;
         r.play = Ui.iconButton(this, "▶");
-        r.play.setContentDescription("Прослушать " + f.getName());
+        r.play.setContentDescription(getString(R.string.play_desc, f.getName()));
         r.play.setOnClickListener(v -> preview.toggle(f));
         row.addView(r.play, Ui.iconButtonParams(this));
 
@@ -506,7 +498,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         row.addView(pill);
 
         Button more = Ui.iconButton(this, "⋮");
-        more.setContentDescription("Действия с " + f.getName());
+        more.setContentDescription(getString(R.string.actions_desc, f.getName()));
         more.setOnClickListener(v -> showSoundMenu(v, f));
         LinearLayout.LayoutParams moreLp = Ui.iconButtonParams(this);
         moreLp.setMarginStart(Ui.dp(this, 8));
@@ -521,8 +513,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void showSoundMenu(View anchor, File f) {
         PopupMenu menu = new PopupMenu(this, anchor);
-        menu.getMenu().add(0, 1, 0, "Сохранить копию в…");
-        menu.getMenu().add(0, 2, 1, "Удалить");
+        menu.getMenu().add(0, 1, 0, R.string.menu_save_copy);
+        menu.getMenu().add(0, 2, 1, R.string.delete);
         menu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) openSaveFolderPicker(f);
             else confirmDelete(f);
@@ -548,7 +540,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     @Override public void onPreviewError(File file) {
-        toast("Не удалось воспроизвести " + file.getName());
+        toast(getString(R.string.cannot_play, file.getName()));
     }
 
     // ---------------------------------------------------------------- Добавление и сохранение
@@ -557,10 +549,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         if (busy) return;
         Intent i = new Intent(this, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Добавить звуки")
+                .putExtra(PickerActivity.EXTRA_TITLE, getString(R.string.sounds_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, SOUND_EXTENSIONS)
                 .putExtra(PickerActivity.EXTRA_MAX_DURATION_MS, MAX_SOUND_DURATION_MS)
-                .putExtra(PickerActivity.EXTRA_ITEM_FORMS, new String[]{"звук", "звука", "звуков"})
+                .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_sounds)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
                         new File(FileUtils.INTERNAL_ROOT, "Notifications").getAbsolutePath());
         startActivityForResult(i, REQ_ADD_SOUNDS);
@@ -571,9 +563,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         pendingSave = f;
         Intent i = new Intent(this, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FOLDER)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Куда сохранить копию")
+                .putExtra(PickerActivity.EXTRA_TITLE, getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, f.getName())
-                .putExtra(PickerActivity.EXTRA_ACTION, "Сохранить сюда");
+                .putExtra(PickerActivity.EXTRA_ACTION, getString(R.string.save_here));
         startActivityForResult(i, REQ_SAVE_FOLDER);
     }
 
@@ -593,7 +585,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             final File src = pendingSave;
             final File dst = new File(folder, src.getName());
             pendingSave = null;
-            if (dst.equals(src)) { toast("Файл уже лежит в этой папке"); return; }
+            if (dst.equals(src)) { toast(getString(R.string.file_already_here)); return; }
             confirmReplaceThen(dst, () -> copySingle(src, dst));
         }
     }
@@ -607,22 +599,22 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             return;
         }
         String message = files.size() == 1
-                ? "Звук «" + files.get(0).getName() + "» уже есть в машине. Заменить его?"
-                : "Уже есть в машине: " + conflicts + " из " + files.size() + ". Что сделать с ними?";
+                ? getString(R.string.sounds_conflict_one, files.get(0).getName())
+                : getString(R.string.sounds_conflict_many, conflicts, files.size());
         AlertDialog.Builder b = new AlertDialog.Builder(this)
-                .setTitle("Такие звуки уже есть")
+                .setTitle(R.string.sounds_conflict_title)
                 .setMessage(message)
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Заменить", (d, w) -> runAdd(files, true));
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.replace, (d, w) -> runAdd(files, true));
         if (files.size() > conflicts) {
-            b.setNeutralButton("Пропустить их", (d, w) -> runAdd(files, false));
+            b.setNeutralButton(R.string.skip_them, (d, w) -> runAdd(files, false));
         }
         b.show();
     }
 
     private void runAdd(List<File> files, boolean replace) {
         preview.stop();
-        setBusy(true, "Копирование…");
+        setBusy(true, getString(R.string.copying));
         io.execute(() -> {
             int copied = 0, skipped = 0, failed = 0;
             for (File f : files) {
@@ -630,9 +622,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                 if (dst.exists() && !replace) { skipped++; continue; }
                 if (FileUtils.copyFileQuiet(f, dst)) copied++; else failed++;
             }
-            final String report = "Добавлено: " + copied
-                    + (skipped > 0 ? ", пропущено: " + skipped : "")
-                    + (failed > 0 ? ", ошибок: " + failed : "");
+            final String report = getString(R.string.add_report, copied)
+                    + (skipped > 0 ? getString(R.string.add_report_skipped, skipped) : "")
+                    + (failed > 0 ? getString(R.string.add_report_failed, failed) : "");
             ui.post(() -> {
                 if (destroyed) return;
                 setBusy(false, null);
@@ -645,39 +637,39 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private void confirmReplaceThen(File dst, Runnable next) {
         if (!dst.exists()) { next.run(); return; }
         new AlertDialog.Builder(this)
-                .setTitle("Файл уже существует")
-                .setMessage(dst.getAbsolutePath() + "\n\nЗаменить его?")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Заменить", (d, w) -> next.run())
+                .setTitle(R.string.file_exists_title)
+                .setMessage(getString(R.string.file_exists_message, dst.getAbsolutePath()))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.replace, (d, w) -> next.run())
                 .show();
     }
 
     private void copySingle(File src, File dst) {
         if (dst.equals(preview.current())) preview.stop();
-        setBusy(true, "Копирование…");
+        setBusy(true, getString(R.string.copying));
         io.execute(() -> {
             boolean ok = FileUtils.copyFileQuiet(src, dst);
             ui.post(() -> {
                 if (destroyed) return;
                 setBusy(false, null);
                 loadSounds();
-                toast(ok ? "Сохранено: " + dst.getAbsolutePath() : "Не удалось сохранить " + dst.getName());
+                toast(ok ? getString(R.string.saved, dst.getAbsolutePath()) : getString(R.string.save_failed, dst.getName()));
             });
         });
     }
 
     private void confirmDelete(File f) {
         new AlertDialog.Builder(this)
-                .setTitle("Удалить звук?")
-                .setMessage(f.getName() + "\n\nМашина больше не будет его проигрывать.")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Удалить", (d, w) -> {
+                .setTitle(R.string.sound_delete_title)
+                .setMessage(getString(R.string.sound_delete_message, f.getName()))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (d, w) -> {
                     if (f.equals(preview.current())) preview.stop();
                     if (f.delete()) {
                         loadSounds();
-                        toast("Удалено: " + f.getName());
+                        toast(getString(R.string.deleted, f.getName()));
                     } else {
-                        toast("Не удалось удалить " + f.getName());
+                        toast(getString(R.string.delete_failed, f.getName()));
                     }
                 })
                 .show();

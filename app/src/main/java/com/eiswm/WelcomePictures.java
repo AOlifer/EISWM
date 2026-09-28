@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -89,9 +90,12 @@ final class WelcomePictures {
     private final File backupDir;
     private final SharedPreferences prefs;
     private final AssetManager assets;
+    /** Строки ошибок на языке системы. */
+    private final Resources res;
 
     WelcomePictures(Context c) {
         assets = c.getAssets();
+        res = c.getResources();
         adviceDir = new File(c.getString(R.string.welcome_picture_dir));
         dbFile = resolveDbFile(c);
         backupDir = new File(c.getFilesDir(), "pictures");
@@ -245,7 +249,7 @@ final class WelcomePictures {
         }
         Picture p = new Picture();
         p.id = BLACK_ID;
-        p.title = "EISWM: картинки выключены";
+        p.title = "EISWM: pictures off";
         p.url = "";
         p.fileName = f.getName();
         p.start = 0;
@@ -392,7 +396,7 @@ final class WelcomePictures {
     void addStandard(List<String> names) throws IOException {
         Set<String> set = standardAdded();
         set.addAll(names);
-        if (!prefs.edit().putStringSet(PREF_STD, set).commit()) throw new IOException("Не удалось сохранить выбор");
+        if (!prefs.edit().putStringSet(PREF_STD, set).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
         restore();
     }
 
@@ -403,7 +407,7 @@ final class WelcomePictures {
     void setSeasonal(boolean on) throws IOException {
         if (on) {
             Set<String> all = new HashSet<>(standardNames());
-            if (!prefs.edit().putStringSet(PREF_SEASONAL, all).commit()) throw new IOException("Не удалось сохранить выбор");
+            if (!prefs.edit().putStringSet(PREF_SEASONAL, all).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
             restore();
             return;
         }
@@ -511,7 +515,7 @@ final class WelcomePictures {
     private SQLiteDatabase openDb() throws IOException {
         File dir = dbFile.getParentFile();
         if (dir != null && !dir.isDirectory() && !dir.mkdirs()) {
-            throw new IOException("Нет доступа к " + dir);
+            throw new IOException(res.getString(R.string.pictures_no_dir_access, dir));
         }
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(dbFile.getPath(), null,
@@ -521,7 +525,7 @@ final class WelcomePictures {
                     + "type integer,sort integer,start_time integer,end_time integer,create_time integer,file_name text)");
             return db;
         } catch (RuntimeException e) {
-            throw new IOException("Не удалось открыть базу " + dbFile + ": " + e.getMessage(), e);
+            throw new IOException(res.getString(R.string.pictures_db_failed, dbFile + ": " + e.getMessage()), e);
         }
     }
 
@@ -610,7 +614,7 @@ final class WelcomePictures {
             throw new IOException(e);
         }
         if (!prefs.edit().putString(PREF_PARKED, arr.toString()).commit()) {
-            throw new IOException("Не удалось сохранить список картинок");
+            throw new IOException(res.getString(R.string.pictures_prefs_failed));
         }
     }
 
@@ -638,13 +642,13 @@ final class WelcomePictures {
      * Подогнать картинку под экран 1920×720: масштабировать так, чтобы она заполнила экран,
      * и обрезать лишнее по центру.
      */
-    static Bitmap fitToScreen(File src) throws IOException {
+    Bitmap fitToScreen(File src) throws IOException {
         int[] size = imageSize(src);
-        if (size == null) throw new IOException("Не удалось прочитать картинку " + src.getName());
+        if (size == null) throw new IOException(res.getString(R.string.pictures_read_failed, src.getName()));
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inSampleSize = sampleSize(size[0], size[1], WIDTH, HEIGHT);
         Bitmap in = BitmapFactory.decodeFile(src.getAbsolutePath(), o);
-        if (in == null) throw new IOException("Не удалось прочитать картинку " + src.getName());
+        if (in == null) throw new IOException(res.getString(R.string.pictures_read_failed, src.getName()));
         try {
             float scale = Math.max(WIDTH / (float) in.getWidth(), HEIGHT / (float) in.getHeight());
             int cropW = Math.round(WIDTH / scale), cropH = Math.round(HEIGHT / scale);
@@ -668,12 +672,12 @@ final class WelcomePictures {
     }
 
     /** Запись PNG через временный файл, чтобы лаунчер не увидел недописанную картинку. */
-    private static void savePng(Bitmap b, File dst) throws IOException {
+    private void savePng(Bitmap b, File dst) throws IOException {
         File dir = dst.getParentFile();
-        if (dir != null && !dir.isDirectory() && !dir.mkdirs()) throw new IOException("Нет доступа к " + dir);
+        if (dir != null && !dir.isDirectory() && !dir.mkdirs()) throw new IOException(res.getString(R.string.pictures_no_dir_access, dir));
         File tmp = new File(dir, "." + dst.getName() + ".tmp");
         try (FileOutputStream out = new FileOutputStream(tmp)) {
-            if (!b.compress(Bitmap.CompressFormat.PNG, 100, out)) throw new IOException("Не удалось сохранить PNG");
+            if (!b.compress(Bitmap.CompressFormat.PNG, 100, out)) throw new IOException(res.getString(R.string.pictures_write_failed, dst.getName()));
             out.flush();
             out.getFD().sync();
         } catch (IOException e) {
@@ -682,7 +686,7 @@ final class WelcomePictures {
         }
         if (!tmp.renameTo(dst) && !(dst.delete() && tmp.renameTo(dst))) {
             tmp.delete();
-            throw new IOException("Не удалось записать " + dst);
+            throw new IOException(res.getString(R.string.pictures_write_failed, dst));
         }
     }
 }

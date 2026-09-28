@@ -1,83 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Основной язык приложения — английский (используется, если для языка системы нет перевода).
+    Переводы: values-ru/strings.xml (русский). Новый язык = values-<код>/strings.xml с теми же ключами.
+-->
 <resources>
-    <!-- Название в лаунчере и в заголовке приложения. -->
-    <string name="app_name">Менеджер приветствия</string>
+    <string name="app_name">Welcome Manager</string>
 
-    <!-- Раздел «Картинки». Остальные строки интерфейса пока в коде, их перенесём при локализации. -->
-    <string name="pictures_section">Картинки</string>
-    <string name="pictures_header">Картинки в машине</string>
-    <string name="pictures_switch_caption">Картинки при приветствии</string>
-    <string name="pictures_on">Показывать картинки</string>
-    <string name="pictures_off">Не показывать картинки</string>
-    <string name="pictures_off_warning">При приветствии экран будет тёмным. Картинки сохранены и вернутся, когда вы включите показ.</string>
-    <string name="pictures_tip">Картинка подгоняется под экран машины 1920×720: лишнее по краям обрезается.</string>
-    <string name="pictures_add">+  Добавить картинки</string>
-    <string name="pictures_add_title">Добавить картинки</string>
-    <string name="pictures_empty">Картинок пока нет</string>
-    <string name="pictures_empty_details">Машина показывает встроенную картинку. Нажмите «Добавить картинки», чтобы выбрать свои в памяти или на флешке.</string>
-    <string name="pictures_no_access">Нет доступа к картинкам приветствия</string>
-    <string name="pictures_summary_none">Загружено: 0 картинок. Машина показывает встроенную картинку.</string>
-    <string name="pictures_summary_one">Загружено: 1 картинка. Машина показывает её при приветствии.</string>
-    <string name="pictures_summary_many">Загружено: %1$d %2$s. Машина выбирает одну из них случайно.</string>
-    <string name="pictures_summary_partial">Загружено: %1$d %2$s, сейчас показываются %3$d. Машина выбирает одну из них случайно.</string>
-    <string name="pictures_summary_off">Загружено: %1$d %2$s. Пока показ выключен, они отложены.</string>
+    <!-- Common -->
+    <string name="help">Help</string>
+    <string name="exit">Exit</string>
+    <string name="back">←  Back</string>
+    <string name="refresh">Refresh</string>
+    <string name="got_it">Got it</string>
+    <string name="replace">Replace</string>
+    <string name="delete">Delete</string>
+    <string name="add">Add</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_all">Select all</string>
+    <string name="clear_selection">Clear</string>
+    <string name="copying">Copying…</string>
+    <string name="menu_save_copy">Save a copy to…</string>
+    <string name="save_where_title">Where to save the copy</string>
+    <string name="save_here">Save here</string>
+    <string name="saved">Saved: %1$s</string>
+    <string name="save_failed">Could not save %1$s</string>
+    <string name="play_desc">Play %1$s</string>
+    <string name="actions_desc">Actions for %1$s</string>
+    <string name="cannot_play">Could not play %1$s</string>
+    <string name="deleted">Deleted: %1$s</string>
+    <string name="delete_failed">Could not delete %1$s</string>
+    <string name="file_exists_title">File already exists</string>
+    <string name="file_exists_message">%1$s\n\nReplace it?</string>
+    <string name="file_already_here">The file is already in this folder</string>
 
-    <!-- Стартовый экран. -->
-    <string name="home_version">Версия %1$s</string>
-    <string name="home_description">Звуки и картинки, которыми Evolute i-Space встречает водителя при включении: добавляйте свои, выбирайте стандартные по временам года, включайте и выключайте приветствие.</string>
-    <string name="home_open_sounds">Звуки</string>
-    <string name="home_open_pictures">Картинки</string>
-    <string name="home_developer">Разработчик: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nЛицензия PolyForm Noncommercial: только некоммерческое использование</string>
-    <string name="home_help">Выберите раздел слева или кнопкой на этом экране:\n\n«Звуки» — MP3, которые машина проигрывает при включении.\n«Картинки» — картинки на экране приветствия.\n\nВ каждом разделе есть своя «Помощь». Нажатие на логотип или название вверху возвращает на этот экран.</string>
-    <string name="pictures_busy">Обработка картинок…</string>
-    <string name="pictures_expired">срок показа истёк</string>
-    <string name="pictures_not_started">ещё не показывается</string>
-    <string name="pictures_menu_save">Сохранить копию в…</string>
-    <string name="pictures_menu_delete">Удалить</string>
-    <string name="pictures_delete_title">Удалить картинку?</string>
-    <string name="pictures_delete_message">Машина больше не будет её показывать.</string>
-    <string name="pictures_delete_ok">Удалить</string>
-    <string name="pictures_deleted">Картинка удалена</string>
-    <string name="pictures_added">Добавлено картинок: %1$d</string>
-    <string name="pictures_add_failed">, не удалось: %1$d</string>
-    <string name="pictures_restored">Восстановлено картинок, стёртых лаунчером: %1$d</string>
-    <string name="pictures_saved">Сохранено: %1$s</string>
-    <string name="pictures_save_failed">Не удалось сохранить картинку</string>
-    <string name="pictures_error">Ошибка: %1$s</string>
-    <string name="pictures_help">Картинки приветствия машина показывает на экране при включении автомобиля. Каждый раз она выбирает одну из них случайно.\n\nНажмите на картинку, чтобы посмотреть её крупно.\n⋮  сохранить копию картинки в память или на флешку, удалить картинку.\n«Добавить картинки»  выбрать PNG или JPG в памяти устройства или на USB-флешке. Картинка подгоняется под экран 1920×720, лишнее по краям обрезается.\n\nПереключатель справа выключает картинки: при приветствии экран будет тёмным, а сами картинки сохранятся и вернутся при включении.\n\nЕсли машина подключится к серверу производителя, он может стереть добавленные картинки. Приложение хранит их копии и восстанавливает при запуске и при старте машины.</string>
-    <string name="pictures_standard">Стандартные картинки</string>
-    <string name="season_winter">Зима</string>
-    <string name="season_spring">Весна</string>
-    <string name="season_summer">Лето</string>
-    <string name="season_autumn">Осень</string>
-    <string name="season_now">сейчас его сезон</string>
-    <string name="season_pill">%1$s</string>
+    <!-- Theme -->
+    <string name="theme_rail">Theme\n%1$s</string>
+    <string name="theme_desc">Theme: %1$s</string>
+    <string name="theme_toast">Theme: %1$s</string>
+    <string-array name="theme_names">
+        <item>auto</item>
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
 
-    <!-- Экран «Стандартные картинки». -->
-    <string name="standard_title">Стандартные картинки</string>
-    <string name="standard_selected">Выбрано: %1$d</string>
-    <string name="standard_none_selected">Отмеченные добавятся на круглый год.</string>
-    <string name="standard_add">Добавить выбранные</string>
-    <string name="standard_add_n">Добавить %1$d %2$s</string>
-    <string name="standard_added_mark">уже добавлена</string>
-    <string name="standard_seasonal_title">По временам года</string>
-    <string name="standard_seasonal_text">Все 16 картинок, каждая в свой сезон: зимой — одна из четырёх зимних и так далее.</string>
-    <string name="standard_seasonal_on">Включить по сезонам</string>
-    <string name="standard_seasonal_off">Выключить по сезонам</string>
-    <string name="standard_seasonal_enabled">Сейчас включено.</string>
-    <string name="standard_done_added">Добавлено стандартных картинок: %1$d</string>
-    <string name="standard_done_seasonal_on">Картинки по временам года включены</string>
-    <string name="standard_done_seasonal_off">Картинки по временам года выключены</string>
+    <!-- Units and storage -->
+    <string name="size_b">%1$d B</string>
+    <string name="size_kb">%1$.1f KB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="duration_s">%1$.1f s</string>
+    <string name="duration_unknown">unknown length</string>
+    <string name="duration_cut">%1$s · cut at 6 s</string>
+    <string name="storage_internal">Internal</string>
+    <string name="storage_usb">USB %1$s</string>
+
+    <!-- Exit -->
+    <string name="exit_busy_title">Copying in progress</string>
+    <string name="exit_busy_message">Files are still being copied. If you exit now, copying will finish in the background, but you will not see whether it succeeded.</string>
+    <string name="exit_wait">Wait</string>
+    <string name="exit_now">Exit now</string>
+
+    <!-- Home screen -->
+    <string name="home_version">Version %1$s</string>
+    <string name="home_description">The sounds and pictures Evolute i-Space greets the driver with at start-up: add your own, pick standard ones by season, turn the greeting on and off.</string>
+    <string name="home_open_sounds">Sounds</string>
+    <string name="home_open_pictures">Pictures</string>
+    <string name="home_developer">Developer: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLicense PolyForm Noncommercial: non-commercial use only</string>
+    <string name="home_help">Choose a section on the left or with a button on this screen:\n\nSounds: MP3 files the car plays at start-up.\nPictures: images on the welcome screen.\n\nEach section has its own Help. Tap the logo or the title at the top to return to this screen.</string>
+
+    <!-- Sounds section -->
+    <string name="sounds_section">Sounds</string>
+    <string name="sounds_header">Sounds in the car</string>
+    <string name="sounds_switch_desc">Welcome sound</string>
+    <string name="sounds_on">Play welcome sound</string>
+    <string name="sounds_off">Do not play welcome sound</string>
+    <string name="sounds_unknown">Welcome sound state is unknown</string>
+    <string name="sounds_off_warning">The car will not play a welcome sound at start-up.</string>
+    <string name="sounds_tip">The car plays a sound for up to 6 seconds and cuts off anything longer at the 6th second.</string>
+    <string name="sounds_add">+  Add sounds</string>
+    <string name="sounds_add_title">Add sounds</string>
+    <string name="sounds_help">Welcome sounds are MP3 files the car plays at start-up. Each time it picks one of them at random.\n\n▶  play a sound; tap again to stop.\n⋮  save a copy to internal memory or a USB drive, delete the sound.\nAdd sounds  choose MP3 files in internal memory or on a USB drive.\n\nThe car plays a sound for up to 6 seconds and cuts off anything longer at the 6th second. Such sounds are marked with a yellow “cut at 6 s” label.\n\nThe switch on the right turns the welcome sound on and off. When it is off, the car plays no sound at start-up.</string>
+    <string name="sounds_switch_failed">Could not change the welcome sound setting</string>
+    <string name="sounds_switch_unchanged">The setting did not change</string>
+    <string name="sounds_notifications_failed">Could not create the Notifications folder</string>
+    <string name="sounds_bundled_added">Built-in sounds added: %1$d</string>
+    <string name="sounds_bundled_failed">Could not copy the built-in sounds</string>
+    <string name="sounds_no_access">No access to the welcome sounds folder</string>
+    <string name="sounds_empty">No sounds yet</string>
+    <string name="sounds_empty_details">Tap Add sounds to choose MP3 files in internal memory or on a USB drive.</string>
+    <string name="sounds_summary_none">Loaded: 0 sounds.</string>
+    <string name="sounds_summary_one">Loaded: 1 sound. The car plays it at start-up.</string>
+    <plurals name="sounds_summary_many">
+        <item quantity="one">Loaded: %d sound. The car picks one of them at random.</item>
+        <item quantity="other">Loaded: %d sounds. The car picks one of them at random.</item>
+    </plurals>
+    <string name="sounds_conflict_title">These sounds already exist</string>
+    <string name="sounds_conflict_one">The sound “%1$s” is already in the car. Replace it?</string>
+    <string name="sounds_conflict_many">Already in the car: %1$d of %2$d. What should be done with them?</string>
+    <string name="skip_them">Skip them</string>
+    <string name="add_report">Added: %1$d</string>
+    <string name="add_report_skipped">, skipped: %1$d</string>
+    <string name="add_report_failed">, errors: %1$d</string>
+    <string name="sound_delete_title">Delete the sound?</string>
+    <string name="sound_delete_message">%1$s\n\nThe car will no longer play it.</string>
+
+    <!-- File picker -->
+    <string name="picker_storages">Storage</string>
+    <string name="picker_choose_folder">Choose this folder</string>
+    <string name="picker_save_copy">Save a copy</string>
+    <string name="picker_storage_gone">Storage %1$s was removed</string>
+    <string name="picker_no_usb">No USB drive found. Insert one and tap Refresh.</string>
+    <string name="picker_folder_unavailable">Folder is not accessible</string>
+    <string name="picker_no_files">No suitable files here</string>
+    <string name="picker_no_folders">No subfolders here</string>
+    <string name="picker_need_files">%1$s files are needed. Open another folder or drive.</string>
+    <string name="picker_checking">checking…</string>
+    <string name="picker_still_checking">The file is still being checked</string>
+    <string name="picker_nothing_here">Nothing to select in this folder</string>
+    <string name="picker_save_into">The copy will be saved to “%1$s”.</string>
+    <string name="picker_selected">Selected: %1$d</string>
+    <string name="picker_nothing_selected">Nothing selected</string>
+    <string name="picker_hint">Tick files in the list. The selection is kept when you open another folder.</string>
+    <string name="picker_long_one">One sound is longer than 6 seconds: the car will cut it off at the 6th second.</string>
+    <string name="picker_long_many">Longer than 6 seconds: %1$d. The car will cut them off at the 6th second.</string>
+    <string name="picker_remove_desc">Remove %1$s</string>
+    <string name="picker_not_writable">This folder is read-only, choose another one</string>
+    <string name="picker_long_title_one">Sound longer than 6 seconds</string>
+    <string name="picker_long_title_many">Sounds longer than 6 seconds</string>
+    <string name="picker_long_msg_one">“%1$s” is longer than 6 seconds. The car will start playing it and cut it off at the 6th second.</string>
+    <plurals name="picker_long_msg_many">
+        <item quantity="one">%d sound is longer than 6 seconds. The car will start playing it and cut it off at the 6th second.</item>
+        <item quantity="other">%d sounds are longer than 6 seconds. The car will start playing them and cut them off at the 6th second.</item>
+    </plurals>
+    <string name="picker_add_anyway">Add anyway</string>
+    <string name="picker_without_it">Without it</string>
+    <string name="picker_without_them">Without them</string>
+    <plurals name="picker_add_sounds">
+        <item quantity="one">Add %d sound</item>
+        <item quantity="other">Add %d sounds</item>
+    </plurals>
+    <plurals name="picker_add_pictures">
+        <item quantity="one">Add %d picture</item>
+        <item quantity="other">Add %d pictures</item>
+    </plurals>
+    <plurals name="picker_add_files">
+        <item quantity="one">Add %d file</item>
+        <item quantity="other">Add %d files</item>
+    </plurals>
     <string name="picker_image_ok">%1$d×%2$d</string>
-    <string name="picker_image_crop">%1$d×%2$d · обрежется</string>
-    <string name="picker_image_bad">не открывается</string>
-    <string name="select_all">Выделить все</string>
-    <string name="clear_selection">Очистить</string>
-    <string name="pictures_selected_header">Выделено: %1$d из %2$d</string>
-    <string name="pictures_delete_selected">Удалить (%1$d)</string>
-    <string name="pictures_delete_many_title">Удалить выделенные картинки?</string>
-    <string name="pictures_delete_many_message">%1$d %2$s. Машина больше не будет их показывать.</string>
-    <string name="pictures_deleted_many">Удалено картинок: %1$d</string>
-    <string name="close">Закрыть</string>
-    <string name="cancel">Отмена</string>
+    <string name="picker_image_crop">%1$d×%2$d · will be cropped</string>
+    <string name="picker_image_bad">cannot be opened</string>
+
+    <!-- Pictures section -->
+    <string name="pictures_section">Pictures</string>
+    <string name="pictures_header">Pictures in the car</string>
+    <string name="pictures_switch_caption">Welcome pictures</string>
+    <string name="pictures_on">Show pictures</string>
+    <string name="pictures_off">Do not show pictures</string>
+    <string name="pictures_off_warning">The welcome screen will be dark. The pictures are kept and come back when you turn the display on.</string>
+    <string name="pictures_tip">Pictures are fitted to the car screen (1920×720); anything beyond the edges is cropped.</string>
+    <string name="pictures_add">+  Add pictures</string>
+    <string name="pictures_add_title">Add pictures</string>
+    <string name="pictures_empty">No pictures yet</string>
+    <string name="pictures_empty_details">The car shows its built-in picture. Tap Add pictures to choose your own in internal memory or on a USB drive.</string>
+    <string name="pictures_no_access">No access to the welcome pictures</string>
+    <string name="pictures_summary_none">Loaded: 0 pictures. The car shows its built-in picture.</string>
+    <string name="pictures_summary_one">Loaded: 1 picture. The car shows it at start-up.</string>
+    <plurals name="pictures_summary_many">
+        <item quantity="one">Loaded: %d picture. The car picks one of them at random.</item>
+        <item quantity="other">Loaded: %d pictures. The car picks one of them at random.</item>
+    </plurals>
+    <plurals name="pictures_summary_partial">
+        <item quantity="one">Loaded: %1$d picture, %2$d shown now. The car picks one of them at random.</item>
+        <item quantity="other">Loaded: %1$d pictures, %2$d shown now. The car picks one of them at random.</item>
+    </plurals>
+    <plurals name="pictures_summary_off">
+        <item quantity="one">Loaded: %d picture. It is set aside while the display is off.</item>
+        <item quantity="other">Loaded: %d pictures. They are set aside while the display is off.</item>
+    </plurals>
+    <string name="pictures_busy">Processing pictures…</string>
+    <string name="pictures_expired">display period ended</string>
+    <string name="pictures_not_started">not shown yet</string>
+    <string name="pictures_menu_save">Save a copy to…</string>
+    <string name="pictures_menu_delete">Delete</string>
+    <string name="pictures_delete_title">Delete the picture?</string>
+    <string name="pictures_delete_message">The car will no longer show it.</string>
+    <string name="pictures_delete_ok">Delete</string>
+    <string name="pictures_deleted">Picture deleted</string>
+    <string name="pictures_added">Pictures added: %1$d</string>
+    <string name="pictures_add_failed">, failed: %1$d</string>
+    <string name="pictures_restored">Pictures restored after the launcher erased them: %1$d</string>
+    <string name="pictures_saved">Saved: %1$s</string>
+    <string name="pictures_save_failed">Could not save the picture</string>
+    <string name="pictures_error">Error: %1$s</string>
+    <string name="pictures_help">The car shows a welcome picture on its screen at start-up. Each time it picks one of them at random.\n\nTap a picture to see it large.\n⋮  save a copy to internal memory or a USB drive, delete the picture.\nAdd pictures  choose PNG or JPG files in internal memory or on a USB drive. Each picture is fitted to the 1920×720 screen; anything beyond the edges is cropped.\n\nThe switch on the right turns pictures off: the welcome screen becomes dark, and the pictures are kept and come back when you turn them on.\n\nIf the car connects to the manufacturer’s server, the server may erase added pictures. The app keeps copies and restores them when it starts and when the car starts.</string>
+    <string name="pictures_standard">Standard pictures</string>
+    <string name="pictures_desc_std_season">Standard, by season</string>
+    <string name="pictures_desc_std_year">Standard, all year</string>
+    <string name="pictures_desc_added">Added %1$s</string>
+    <string name="pictures_selected_header">Selected: %1$d of %2$d</string>
+    <string name="pictures_delete_selected">Delete (%1$d)</string>
+    <string name="pictures_delete_many_title">Delete the selected pictures?</string>
+    <plurals name="pictures_delete_many_message">
+        <item quantity="one">%d picture. The car will no longer show it.</item>
+        <item quantity="other">%d pictures. The car will no longer show them.</item>
+    </plurals>
+    <string name="pictures_deleted_many">Pictures deleted: %1$d</string>
+    <string name="pictures_read_failed">Could not read the picture %1$s</string>
+    <string name="pictures_write_failed">Could not write %1$s</string>
+    <string name="pictures_db_failed">Could not open the picture database: %1$s</string>
+    <string name="pictures_no_dir_access">No access to %1$s</string>
+    <string name="pictures_prefs_failed">Could not save the picture settings</string>
+
+    <!-- Seasons -->
+    <string name="season_winter">Winter</string>
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_autumn">Autumn</string>
+    <string name="season_now">in season now</string>
+
+    <!-- Standard pictures screen -->
+    <string name="standard_title">Standard pictures</string>
+    <string name="standard_selected">Selected: %1$d</string>
+    <string name="standard_none_selected">Ticked pictures are added for the whole year.</string>
+    <string name="standard_add">Add selected</string>
+    <string name="standard_added_mark">already added</string>
+    <string name="standard_seasonal_title">By season</string>
+    <string name="standard_seasonal_text">All 16 pictures, each in its own season: in winter one of the four winter ones, and so on.</string>
+    <string name="standard_seasonal_on">Turn on by season</string>
+    <string name="standard_seasonal_off">Turn off by season</string>
+    <string name="standard_seasonal_enabled">On now.</string>
+    <string name="standard_done_added">Standard pictures added: %1$d</string>
+    <string name="standard_done_seasonal_on">Pictures by season are on</string>
+    <string name="standard_done_seasonal_off">Pictures by season are off</string>
 </resources>
