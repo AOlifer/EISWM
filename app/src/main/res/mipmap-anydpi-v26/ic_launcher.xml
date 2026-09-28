@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Адаптивная иконка (Android 8+): лаунчер сам обрезает её по своей форме (круг, скруглённый квадрат).
+    Картинка занимает внутренние 72 из 108 dp, фон вокруг — цвет краёв иконки.
+    На Android 7 и ниже используется обычная ic_launcher.png.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

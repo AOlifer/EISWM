@@ -128,16 +128,25 @@ adb install -r -g app\build\outputs\apk\emulator\debug\app-emulator-debug.apk
 
 ## Иконка приложения
 
-Для Android 9 достаточно обычной PNG-иконки. Имя файла во всех папках — `ic_launcher.png`;
-иконка подключена в `AndroidManifest.xml` через `android:icon="@mipmap/ic_launcher"`.
+Иконка подключена в `AndroidManifest.xml` через `android:icon="@mipmap/ic_launcher"`.
 
-| Папка | Размер |
-|---|---|
-| `mipmap-mdpi` | 48×48 px |
-| `mipmap-hdpi` | 72×72 px |
-| `mipmap-xhdpi` | 96×96 px |
-| `mipmap-xxhdpi` | 144×144 px |
-| `mipmap-xxxhdpi` | 192×192 px |
+На Android 8 и новее (в том числе на машине с Android 9) используется адаптивная иконка
+`mipmap-anydpi-v26/ic_launcher.xml`: лаунчер сам обрезает её по своей форме (круг, скруглённый
+квадрат), а не вписывает уменьшенную картинку в белый круг. Она состоит из двух слоёв:
+
+- фон — цвет `ic_launcher_background` (#011638, цвет краёв картинки);
+- передний план — `ic_launcher_foreground.png`: картинка иконки во внутренних 72 из 108 dp,
+  белые уголки исходника закрашены цветом фона.
+
+Для Android 7 и ниже остаётся обычная `ic_launcher.png`.
+
+| Папка | `ic_launcher.png` | `ic_launcher_foreground.png` |
+|---|---|---|
+| `mipmap-mdpi` | 48×48 px | 108×108 px |
+| `mipmap-hdpi` | 72×72 px | 162×162 px |
+| `mipmap-xhdpi` | 96×96 px | 216×216 px |
+| `mipmap-xxhdpi` | 144×144 px | 324×324 px |
+| `mipmap-xxxhdpi` | 192×192 px | 432×432 px |
 
 ## Ветки
 
