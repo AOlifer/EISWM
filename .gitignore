@@ -1,0 +1,135 @@
+# =========================
+# Android / Gradle
+# =========================
+
+.gradle/
+build/
+**/build/
+
+# Gradle local configuration
+local.properties
+
+# Generated Gradle files
+.gradle/
+
+# =========================
+# Android Studio / IntelliJ IDEA
+# =========================
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Android Studio caches
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# =========================
+# APK / AAB / generated files
+# =========================
+
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Generated mapping / reports
+mapping.txt
+output-metadata.json
+
+# =========================
+# Keystore / signing
+# =========================
+
+*.jks
+*.keystore
+*.p12
+
+# Do not commit signing configuration
+keystore.properties
+
+# =========================
+# Kotlin
+# =========================
+
+*.kotlin_module
+
+# =========================
+# Java
+# =========================
+
+*.class
+
+# =========================
+# OS
+# =========================
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# =========================
+# Logs
+# =========================
+
+*.log
+
+# =========================
+# Temporary files
+# =========================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# =========================
+# Firebase / Google services
+# =========================
+
+# Uncomment if these files contain private project credentials:
+# google-services.json
+
+# =========================
+# Secrets / environment
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# Generated Android resources
+# =========================
+
+/captures/
+/.externalNativeBuild/
+.cxx/
+
+# =========================
+# Native build
+# =========================
+
+*.so
+
+# =========================
+# Fastlane
+# =========================
+
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
