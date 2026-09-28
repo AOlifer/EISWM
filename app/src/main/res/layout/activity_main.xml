@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:gravity="center_vertical"
-            android:text="Приветствие: ВКЛ"
+            android:text="Приветствие: ?"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -40,6 +40,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="Включить или выключить приветствие"
             android:padding="8dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_volume_up" />
 
         <Button
