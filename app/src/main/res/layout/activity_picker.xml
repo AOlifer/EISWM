@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Три колонки: накопители слева, папка по центру, выбранное и кнопка действия справа. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Верхняя панель: возврат, заголовок и выбор накопителя. -->
     <LinearLayout style="@style/EISWM.TopBar">
 
         <Button
@@ -14,21 +14,14 @@
 
         <TextView
             android:id="@+id/pickerTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="24dp"
-            android:singleLine="true"
-            android:textColor="@color/text_primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:id="@+id/rootsBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:orientation="horizontal" />
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btnRefresh"
@@ -38,59 +31,114 @@
 
     <View style="@style/EISWM.Divider" />
 
-    <!-- Путь к текущей папке: каждая часть нажимается и возвращает в эту папку. -->
-    <HorizontalScrollView
-        android:id="@+id/crumbsScroll"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:id="@+id/crumbs"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="16dp" />
-    </HorizontalScrollView>
-
-    <View style="@style/EISWM.Divider" />
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/surface">
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/pickerList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+            style="@style/EISWM.SidePanel"
+            android:layout_width="230dp">
 
-    <View style="@style/EISWM.Divider" />
+            <TextView
+                style="@style/EISWM.Caption"
+                android:paddingStart="16dp"
+                android:paddingBottom="6dp"
+                android:text="Накопители" />
 
-    <LinearLayout style="@style/EISWM.BottomBar">
+            <LinearLayout
+                android:id="@+id/rootsBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/pickerStatus"
+        <View style="@style/EISWM.VDivider" />
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp" />
+            android:background="@color/surface"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnSelectAll"
-            style="@style/EISWM.TextButton"
-            android:layout_marginEnd="8dp"
-            android:text="Выбрать все подходящие" />
+            <!-- Путь к текущей папке: каждая часть нажимается и возвращает в эту папку. -->
+            <HorizontalScrollView
+                android:id="@+id/crumbsScroll"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:scrollbars="none">
 
-        <Button
-            android:id="@+id/btnAction"
-            style="@style/EISWM.PrimaryButton"
-            android:text="Добавить" />
+                <LinearLayout
+                    android:id="@+id/crumbs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="16dp" />
+            </HorizontalScrollView>
+
+            <View style="@style/EISWM.Divider" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:id="@+id/pickerList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
+        <View style="@style/EISWM.VDivider" />
+
+        <LinearLayout
+            style="@style/EISWM.SidePanel"
+            android:layout_width="360dp"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/sideTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:id="@+id/sideList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+
+            <TextView
+                android:id="@+id/pickerStatus"
+                style="@style/EISWM.Caption"
+                android:layout_marginBottom="4dp" />
+
+            <Button
+                android:id="@+id/btnSelectAll"
+                style="@style/EISWM.TextButton"
+                android:layout_width="match_parent"
+                android:text="Выбрать все в папке" />
+
+            <Button
+                android:id="@+id/btnAction"
+                style="@style/EISWM.PrimaryButton"
+                android:text="Добавить" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

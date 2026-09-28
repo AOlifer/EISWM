@@ -15,6 +15,8 @@ import java.util.Locale;
 /** Файловые операции и форматирование, общие для главного экрана и экрана выбора файлов. */
 final class FileUtils {
     static final File INTERNAL_ROOT = new File("/storage/emulated/0");
+    /** Дробная часть через запятую, как принято по-русски, независимо от языка системы. */
+    private static final Locale RU = new Locale("ru");
 
     private FileUtils() {}
 
@@ -96,16 +98,16 @@ final class FileUtils {
 
     static String formatSize(long b) {
         if (b < 1024) return b + " Б";
-        if (b < 1048576) return String.format("%.1f КБ", b / 1024.0);
-        return String.format("%.1f МБ", b / 1048576.0);
+        if (b < 1048576) return String.format(RU, "%.1f КБ", b / 1024.0);
+        return String.format(RU, "%.1f МБ", b / 1048576.0);
     }
 
     /** Короткие звуки — в секундах с десятыми («4,8 с»), длинные — в минутах («3:45»). */
     static String formatDuration(long ms) {
         if (ms < 0) return "?";
-        if (ms < 60000) return String.format("%.1f с", ms / 1000.0);
+        if (ms < 60000) return String.format(RU, "%.1f с", ms / 1000.0);
         long totalSec = Math.round(ms / 1000.0);
-        return String.format("%d:%02d", totalSec / 60, totalSec % 60);
+        return String.format(RU, "%d:%02d", totalSec / 60, totalSec % 60);
     }
 
     /** Русское множественное число: plural(2, "звук", "звука", "звуков") → «звука». */

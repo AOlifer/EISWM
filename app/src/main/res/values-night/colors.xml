@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Тёмная тема: включается ночным режимом системы или вручную кнопкой «Тема». -->
+<resources>
+    <color name="accent">#8AB4F8</color>
+    <color name="on_accent">#202124</color>
+    <color name="accent_tint">#263A5C</color>
+    <color name="background">#17181A</color>
+    <color name="surface">#202124</color>
+    <color name="status_bar">#17181A</color>
+    <color name="text_primary">#E8EAED</color>
+    <color name="text_secondary">#9AA0A6</color>
+    <color name="text_disabled">#5F6368</color>
+    <color name="divider">#33FFFFFF</color>
+    <color name="row_active">#268AB4F8</color>
+
+    <color name="pill_ok_bg">#1E3A2A</color>
+    <color name="pill_ok_fg">#81C995</color>
+    <color name="pill_bad_bg">#4A2320</color>
+    <color name="pill_bad_fg">#F28B82</color>
+    <color name="pill_warn_bg">#3F3217</color>
+    <color name="pill_warn_fg">#FDD663</color>
+    <color name="pill_neutral_bg">#2D2E30</color>
+    <color name="pill_neutral_fg">#BDC1C6</color>
+</resources>

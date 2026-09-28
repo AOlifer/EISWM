@@ -34,21 +34,42 @@ import java.util.concurrent.Executors;
 
 /**
  * EISWM — Evolute I-Space Welcome Manager.
- * Главный экран: вкладка «Звуки» (файлы приветствия в машине) и вкладка «Картинки» (в разработке).
+ * Главный экран: колонка разделов слева, содержимое выбранного раздела справа.
+ * Раздел «Звуки приветствия» работает, «Картинки приветствия» — в разработке.
+ * Новый раздел = панель в activity_main.xml + запись в {@link #setupSections()}.
  * Файлы добавляются через {@link PickerActivity}.
  */
-public class MainActivity extends Activity implements AudioPreview.Listener {
+public class MainActivity extends BaseActivity implements AudioPreview.Listener {
     private static final String WELCOME_SWITCH = "bw_welcome_voice_switch";
-    /** Автомобиль поддерживает звуки не длиннее 6 с; 0,5 с — допуск на неточность метаданных MP3. */
+    /**
+     * Машина играет звук приветствия не дольше 6 с и обрывает более длинный;
+     * 0,5 с — допуск на неточность метаданных MP3.
+     */
     static final long MAX_SOUND_DURATION_MS = 6500;
     static final String[] SOUND_EXTENSIONS = {"mp3"};
     private static final int REQ_ADD_SOUNDS = 1;
     private static final int REQ_SAVE_FOLDER = 2;
-    private static final String PREF_TAB = "tab";
+    private static final String PREF_SECTION = "section";
+
+    /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
+    private static final class Section {
+        final String icon, title, helpText;
+        final View panel;
+        TextView railItem;
+
+        Section(String icon, String title, View panel, String helpText) {
+            this.icon = icon;
+            this.title = title;
+            this.panel = panel;
+            this.helpText = helpText;
+        }
+    }
+
+    private final List<Section> sections = new ArrayList<>();
+    private int currentSection = 0;
 
     private File soundDir;
-    private TextView tabSounds, tabPictures, welcomeLabel, soundStatus;
-    private View soundsPanel, picturesPanel;
+    private TextView welcomeLabel, soundStatus;
     private Switch welcomeSwitch;
     private LinearLayout soundList;
     private Button btnAddSounds;
@@ -91,31 +112,29 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_main);
-        prefs = getSharedPreferences("eiswm", MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         soundDir = new File(getString(R.string.welcome_sound_dir));
         preview = new AudioPreview(this);
         copyBundledWelcomeFilesOnce();
 
-        tabSounds = findViewById(R.id.tabSounds);
-        tabPictures = findViewById(R.id.tabPictures);
-        soundsPanel = findViewById(R.id.soundsPanel);
-        picturesPanel = findViewById(R.id.picturesPanel);
         welcomeLabel = findViewById(R.id.welcomeLabel);
         welcomeSwitch = findViewById(R.id.welcomeSwitch);
         soundList = findViewById(R.id.soundList);
         soundStatus = findViewById(R.id.soundStatus);
         btnAddSounds = findViewById(R.id.btnAddSounds);
 
-        tabSounds.setOnClickListener(v -> showTab(0));
-        tabPictures.setOnClickListener(v -> showTab(1));
         welcomeSwitch.setOnCheckedChangeListener((v, checked) -> {
             if (!updatingSwitch) setWelcomeSwitch(checked ? 1 : 0);
         });
         btnAddSounds.setOnClickListener(v -> openSoundPicker());
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
         findViewById(R.id.btnExit).setOnClickListener(v -> finishAndRemoveTask());
+        Button btnTheme = findViewById(R.id.btnTheme);
+        btnTheme.setText("Тема: " + THEME_NAMES[themeMode(this)]);
+        btnTheme.setOnClickListener(v -> switchTheme());
 
-        showTab(prefs.getInt(PREF_TAB, 0));
+        setupSections();
+        showSection(prefs.getInt(PREF_SECTION, 0));
         updateWelcomeSwitch();
         loadSounds();
     }
@@ -152,31 +171,61 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
         super.onDestroy();
     }
 
-    // ---------------------------------------------------------------- Вкладки и справка
+    // ---------------------------------------------------------------- Разделы, справка, тема
 
-    private void showTab(int tab) {
-        boolean sounds = tab != 1;
-        Ui.setTabSelected(tabSounds, sounds);
-        Ui.setTabSelected(tabPictures, !sounds);
-        soundsPanel.setVisibility(sounds ? View.VISIBLE : View.GONE);
-        picturesPanel.setVisibility(sounds ? View.GONE : View.VISIBLE);
-        if (!sounds) preview.stop();
-        prefs.edit().putInt(PREF_TAB, sounds ? 0 : 1).apply();
+    private void setupSections() {
+        sections.add(new Section("🔊", "Звуки приветствия", findViewById(R.id.soundsPanel),
+                "Звуки приветствия — это MP3-файлы, которые машина проигрывает, когда вы подходите "
+                        + "к ней или садитесь. Каждый раз она выбирает один из них случайно.\n\n"
+                        + "▶  прослушать звук, повторное нажатие останавливает его.\n"
+                        + "⋮  сохранить копию звука в память или на флешку, удалить звук.\n"
+                        + "«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\n"
+                        + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
+                        + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
+                        + "Переключатель справа включает и выключает звуковое приветствие."));
+        sections.add(new Section("🖼", "Картинки приветствия", findViewById(R.id.picturesPanel),
+                "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
+                        + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
+                        + "и какого размера они должны быть."));
+
+        LinearLayout rail = findViewById(R.id.sectionRail);
+        for (int i = 0; i < sections.size(); i++) {
+            final int index = i;
+            Section s = sections.get(i);
+            s.railItem = Ui.railItem(this, s.icon, s.title);
+            s.railItem.setOnClickListener(v -> showSection(index));
+            rail.addView(s.railItem);
+        }
     }
 
+    private void showSection(int index) {
+        if (index < 0 || index >= sections.size()) index = 0;
+        currentSection = index;
+        for (int i = 0; i < sections.size(); i++) {
+            Section s = sections.get(i);
+            Ui.setSelected(s.railItem, i == index);
+            s.panel.setVisibility(i == index ? View.VISIBLE : View.GONE);
+        }
+        if (index != 0) preview.stop();
+        prefs.edit().putInt(PREF_SECTION, index).apply();
+    }
+
+    /** Справка того раздела, который сейчас открыт. */
     private void showHelp() {
+        Section s = sections.get(currentSection);
         new AlertDialog.Builder(this)
-                .setTitle("Звуки приветствия")
-                .setMessage("Это MP3-файлы, которые машина проигрывает при приветствии. "
-                        + "Каждый раз она выбирает один из них случайно.\n\n"
-                        + "▶  прослушать звук, повторное нажатие останавливает его.\n"
-                        + "⋮  удалить звук или сохранить его копию в память или на флешку.\n"
-                        + "«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\n"
-                        + "Машина проигрывает только MP3 длительностью не больше 6 секунд, "
-                        + "более длинные файлы добавить нельзя.\n\n"
-                        + "Переключатель вверху включает и выключает звуковое приветствие.")
+                .setTitle(s.title)
+                .setMessage(s.helpText)
                 .setPositiveButton("Понятно", null)
                 .show();
+    }
+
+    /** Авто → светлая → тёмная → авто; экран пересоздаётся с новой темой. */
+    private void switchTheme() {
+        int next = (themeMode(this) + 1) % THEME_NAMES.length;
+        prefs.edit().putInt(PREF_THEME, next).apply();
+        toast("Тема: " + THEME_NAMES[next]);
+        recreate();
     }
 
     // ---------------------------------------------------------------- Переключатель приветствия
@@ -188,11 +237,11 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
         if (state == 0 || state == 1) {
             welcomeSwitch.setEnabled(true);
             welcomeSwitch.setChecked(state == 1);
-            welcomeLabel.setText(state == 1 ? "Звуковое приветствие включено" : "Звуковое приветствие выключено");
+            welcomeLabel.setText(state == 1 ? "Включено" : "Выключено");
         } else {
             welcomeSwitch.setChecked(false);
             welcomeSwitch.setEnabled(false);
-            welcomeLabel.setText("Звуковое приветствие: не удалось узнать, включено ли оно");
+            welcomeLabel.setText("Состояние неизвестно");
         }
         updatingSwitch = false;
     }
@@ -335,16 +384,14 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
                 final TextView pill = pills.get(i);
                 ui.post(() -> {
                     if (destroyed || generation != listGeneration) return;
-                    if (ms < 0) Ui.setPill(pill, "длительность неизвестна", Ui.PILL_WARN);
-                    else if (ms > MAX_SOUND_DURATION_MS) Ui.setPill(pill, FileUtils.formatDuration(ms) + ", не прозвучит", Ui.PILL_BAD);
-                    else Ui.setPill(pill, FileUtils.formatDuration(ms), Ui.PILL_OK);
+                    Ui.setDurationPill(pill, ms, MAX_SOUND_DURATION_MS);
                 });
             }
         });
     }
 
     private String summary(int count) {
-        if (count == 0) return "";
+        if (count == 0) return "Звуков пока нет.";
         return count + " " + FileUtils.plural(count, "звук", "звука", "звуков")
                 + (count == 1 ? ". Машина проигрывает его при приветствии." : ". Машина выбирает один из них случайно.");
     }
@@ -411,7 +458,7 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
             r.play.setText(playing ? "■" : "▶");
             r.progress.setVisibility(playing ? View.VISIBLE : View.GONE);
             if (!playing) r.progress.setProgress(0);
-            r.root.setBackgroundColor(playing ? Ui.ROW_PLAYING : Color.TRANSPARENT);
+            r.root.setBackgroundColor(playing ? getColor(R.color.row_active) : Color.TRANSPARENT);
         }
         ui.removeCallbacks(progressTick);
         if (current != null) ui.post(progressTick);
@@ -441,7 +488,8 @@ public class MainActivity extends Activity implements AudioPreview.Listener {
         pendingSave = f;
         Intent i = new Intent(this, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FOLDER)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Куда сохранить " + f.getName())
+                .putExtra(PickerActivity.EXTRA_TITLE, "Куда сохранить копию")
+                .putExtra(PickerActivity.EXTRA_SUBJECT, f.getName())
                 .putExtra(PickerActivity.EXTRA_ACTION, "Сохранить сюда");
         startActivityForResult(i, REQ_SAVE_FOLDER);
     }

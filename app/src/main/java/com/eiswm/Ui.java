@@ -3,6 +3,7 @@ package com.eiswm;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -13,9 +14,8 @@ import android.widget.TextView;
 /** Общие элементы интерфейса, которые создаются из кода: строки списков, метки, кнопки. */
 final class Ui {
     static final int PILL_OK = 0, PILL_BAD = 1, PILL_WARN = 2, PILL_NEUTRAL = 3;
-    private static final int[] PILL_BG = {0xFFE6F4EA, 0xFFFCE8E6, 0xFFFEF7E0, 0xFFF1F3F4};
-    private static final int[] PILL_FG = {0xFF137333, 0xFFC5221F, 0xFF8A5300, 0xFF5F6368};
-    static final int ROW_PLAYING = 0x141A73E8;
+    private static final int[] PILL_BG = {R.color.pill_ok_bg, R.color.pill_bad_bg, R.color.pill_warn_bg, R.color.pill_neutral_bg};
+    private static final int[] PILL_FG = {R.color.pill_ok_fg, R.color.pill_bad_fg, R.color.pill_warn_fg, R.color.pill_neutral_fg};
 
     private Ui() {}
 
@@ -23,7 +23,7 @@ final class Ui {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, c.getResources().getDisplayMetrics()));
     }
 
-    /** Строка списка высотой не меньше 64 dp — удобно нажимать пальцем в машине. */
+    /** Строка списка высотой не меньше 68 dp — удобно нажимать пальцем в машине. */
     static LinearLayout row(Context c) {
         LinearLayout row = new LinearLayout(c);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -39,7 +39,7 @@ final class Ui {
         v.setTextSize(19);
         v.setTextColor(c.getColor(R.color.text_primary));
         v.setSingleLine(true);
-        v.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        v.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         return v;
     }
 
@@ -47,21 +47,30 @@ final class Ui {
         TextView v = new TextView(c);
         v.setTextSize(15);
         v.setTypeface(Typeface.DEFAULT_BOLD);
+        v.setSingleLine(true);
         v.setPadding(dp(c, 10), dp(c, 4), dp(c, 10), dp(c, 4));
         setPill(v, "…", PILL_NEUTRAL);
         return v;
     }
 
     static void setPill(TextView v, String text, int kind) {
+        Context c = v.getContext();
         GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(dp(v.getContext(), 8));
-        bg.setColor(PILL_BG[kind]);
+        bg.setCornerRadius(dp(c, 8));
+        bg.setColor(c.getColor(PILL_BG[kind]));
         v.setBackground(bg);
-        v.setTextColor(PILL_FG[kind]);
+        v.setTextColor(c.getColor(PILL_FG[kind]));
         v.setText(text);
     }
 
-    /** Кнопка-значок без рамки (▶, ⋮) размером под палец. */
+    /** Метка длительности звука: зелёная — до предела, жёлтая — машина оборвёт звук. */
+    static void setDurationPill(TextView v, long ms, long maxMs) {
+        if (ms < 0) setPill(v, "длительность неизвестна", PILL_WARN);
+        else if (ms > maxMs) setPill(v, FileUtils.formatDuration(ms) + " · оборвётся на 6 с", PILL_WARN);
+        else setPill(v, FileUtils.formatDuration(ms), PILL_OK);
+    }
+
+    /** Кнопка-значок без рамки (▶, ⋮, ✕) размером под палец. */
     static Button iconButton(Context c, String text) {
         Button b = new Button(c, null, 0, android.R.style.Widget_Material_Button_Borderless_Colored);
         b.setText(text);
@@ -77,10 +86,11 @@ final class Ui {
     }
 
     static void divider(LinearLayout parent) {
-        View v = new View(parent.getContext());
-        v.setBackgroundColor(parent.getContext().getColor(R.color.divider));
+        Context c = parent.getContext();
+        View v = new View(c);
+        v.setBackgroundColor(c.getColor(R.color.divider));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, 1);
-        lp.setMarginStart(dp(parent.getContext(), 16));
+        lp.setMarginStart(dp(c, 16));
         parent.addView(v, lp);
     }
 
@@ -110,19 +120,32 @@ final class Ui {
         parent.addView(box, new LinearLayout.LayoutParams(-1, -2));
     }
 
-    /** Вкладка или кнопка накопителя: выбранная подсвечивается фоном и цветом. */
-    static void setTabSelected(TextView tab, boolean selected) {
-        Context c = tab.getContext();
+    /** Пункт боковой колонки: значок и подпись, выбранный подсвечивается. */
+    static TextView railItem(Context c, String icon, String label) {
+        TextView v = new TextView(c, null, 0, R.style.EISWM_RailItem);
+        v.setText(icon + "   " + label);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+        lp.bottomMargin = dp(c, 4);
+        v.setLayoutParams(lp);
+        return v;
+    }
+
+    static void setSelected(TextView item, boolean selected) {
+        Context c = item.getContext();
         if (selected) {
-            tab.setBackgroundResource(R.drawable.tab_selected);
-            tab.setTextColor(c.getColor(R.color.accent));
-            tab.setTypeface(Typeface.DEFAULT_BOLD);
+            item.setBackgroundResource(R.drawable.tab_selected);
+            item.setTextColor(c.getColor(R.color.accent));
+            item.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
-            TypedValue tv = new TypedValue();
-            c.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
-            tab.setBackgroundResource(tv.resourceId);
-            tab.setTextColor(c.getColor(R.color.text_secondary));
-            tab.setTypeface(Typeface.DEFAULT);
+            item.setBackgroundResource(selectableBackground(c));
+            item.setTextColor(c.getColor(R.color.text_secondary));
+            item.setTypeface(Typeface.DEFAULT);
         }
+    }
+
+    static int selectableBackground(Context c) {
+        TypedValue tv = new TypedValue();
+        c.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
+        return tv.resourceId;
     }
 }
