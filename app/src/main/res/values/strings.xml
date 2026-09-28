@@ -27,7 +27,7 @@
     <string name="home_description">Звуки и картинки, которыми Evolute i-Space встречает водителя при включении: добавляйте свои, выбирайте стандартные по временам года, включайте и выключайте приветствие.</string>
     <string name="home_open_sounds">Звуки</string>
     <string name="home_open_pictures">Картинки</string>
-    <string name="home_developer">Разработчик: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM · Лицензия MIT</string>
+    <string name="home_developer">Разработчик: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM · Лицензия PolyForm Noncommercial: только некоммерческое использование</string>
     <string name="home_help">Выберите раздел слева или кнопкой на этом экране:\n\n«Звуки» — MP3, которые машина проигрывает при включении.\n«Картинки» — картинки на экране приветствия.\n\nВ каждом разделе есть своя «Помощь». Нажатие на логотип или название вверху возвращает на этот экран.</string>
     <string name="pictures_busy">Обработка картинок…</string>
     <string name="pictures_expired">срок показа истёк</string>
