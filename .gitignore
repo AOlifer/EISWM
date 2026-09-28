@@ -1,135 +1,65 @@
 # =========================
-# Android / Gradle
+# Ключи подписи — НИКОГДА не коммитить
 # =========================
+# Платформенные ключи (platform.pk8 / platform_binary.pk8 / platform.x509.pem) лежат вне репозитория
+# или в локальной папке keys/. Сгенерированный platform.p12 создаётся в build/signing/.
+/keys/
+*.pk8
+*.p12
+*.jks
+*.keystore
+keystore.properties
+signing.properties
 
+# =========================
+# Gradle / Android build
+# =========================
 .gradle/
+.kotlin/
 build/
-**/build/
+/captures/
+.cxx/
+.externalNativeBuild/
 
-# Gradle local configuration
+# Локальный путь к SDK
 local.properties
 
-# Generated Gradle files
-.gradle/
+# Готовые сборки
+*.apk
+*.aab
+*.ap_
+*.dex
+*.idsig
+/app/release/
+/app/debug/
+output-metadata.json
+mapping.txt
 
 # =========================
 # Android Studio / IntelliJ IDEA
 # =========================
-
 .idea/
 *.iml
 *.ipr
 *.iws
 
-# Android Studio caches
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-
 # =========================
-# APK / AAB / generated files
+# OS / редакторы / временные
 # =========================
-
-*.apk
-*.aab
-*.ap_
-*.dex
-
-# Generated mapping / reports
-mapping.txt
-output-metadata.json
-
-# =========================
-# Keystore / signing
-# =========================
-
-*.jks
-*.keystore
-*.p12
-
-# Do not commit signing configuration
-keystore.properties
-
-# =========================
-# Kotlin
-# =========================
-
-*.kotlin_module
-
-# =========================
-# Java
-# =========================
-
-*.class
-
-# =========================
-# OS
-# =========================
-
-# Windows
 Thumbs.db
-Thumbs.db:encryptable
 ehthumbs.db
 Desktop.ini
-
-# macOS
 .DS_Store
-
-# Linux
 *~
-
-# =========================
-# Logs
-# =========================
-
+*.swp
+*.swo
+*.tmp
+*.temp
 *.log
 
 # =========================
-# Temporary files
+# Секреты окружения
 # =========================
-
-*.tmp
-*.temp
-*.swp
-*.swo
-
-# =========================
-# Firebase / Google services
-# =========================
-
-# Uncomment if these files contain private project credentials:
-# google-services.json
-
-# =========================
-# Secrets / environment
-# =========================
-
 .env
 .env.*
 !.env.example
-
-# =========================
-# Generated Android resources
-# =========================
-
-/captures/
-/.externalNativeBuild/
-.cxx/
-
-# =========================
-# Native build
-# =========================
-
-*.so
-
-# =========================
-# Fastlane
-# =========================
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/
-fastlane/test_output/

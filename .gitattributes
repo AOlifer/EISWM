@@ -1,0 +1,15 @@
+# Единые переводы строк независимо от настроек git на машине
+* text=auto
+
+# Unix-скрипт должен быть с LF, иначе ./gradlew не запустится в Linux/CI
+gradlew text eol=lf
+*.sh    text eol=lf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Бинарные файлы
+*.jar   binary
+*.png   binary
+*.mp3   binary
+*.pk8   binary
+*.p12   binary
