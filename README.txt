@@ -56,7 +56,23 @@ EISWM v1.3 (versionCode 3)
 Сборка
 Проект использует Android Gradle Plugin 9.0.1, Gradle 9.3.0 и Java 17
 (как в протестированной v1.1; обновление до AGP 9.2.1 / Gradle 9.4.1 из v1.2 не переносилось).
-Для platform signing необходимы файлы platform_binary.pk8 и platform.x509.pem в папке keys/.
+  gradlew.bat assembleDebug      -> app/build/outputs/apk/debug/app-debug.apk
+
+Ключи
+Приложение использует android:sharedUserId="android.uid.system", поэтому APK подписывается
+платформенным ключом прошивки. На Evolute I-Space это публичный тестовый ключ AOSP
+(сертификат CN=Android, android@android.com, серийный B3998086D056CFFA), тот же, что лежит в
+исходниках AOSP: build/make/target/product/security/platform.pk8 и platform.x509.pem.
+
+Ключи в репозиторий не коммитятся (см. .gitignore). Gradle ищет их по порядку:
+  1. свойство eiswm.keysDir — удобнее всего один раз прописать в
+     %USERPROFILE%\.gradle\gradle.properties, например:
+        eiswm.keysDir=D:/Keys/evolute-platform
+  2. переменная окружения EISWM_KEYS_DIR (для CI);
+  3. папка keys/ в корне проекта (игнорируется git).
+Нужны файлы platform.x509.pem и platform.pk8 (старое имя platform_binary.pk8 тоже принимается).
+Файл platform.p12 создаётся автоматически в build/signing/ — хранить его не нужно.
+Без ключей проект открывается и компилируется, но упаковка APK останавливается с сообщением.
 
 Новое имя приложения
 - Название проекта: EISWM
