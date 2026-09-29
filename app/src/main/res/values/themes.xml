@@ -92,5 +92,9 @@
         <item name="android:layout_height">56dp</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textAllCaps">false</item>
+        <!-- В узком окне подпись не переносится на вторую строку. -->
+        <item name="android:singleLine">true</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
     </style>
 </resources>

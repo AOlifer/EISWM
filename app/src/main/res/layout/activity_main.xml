@@ -78,21 +78,29 @@
                 android:orientation="horizontal"
                 android:padding="24dp">
 
+                <!-- Размер картинки задаёт MainActivity.fitHomeImage(): окно может быть уже экрана. -->
                 <ImageView
                     android:id="@+id/homeImage"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/home_card"
                     android:contentDescription="Evolute i-Space"
                     android:scaleType="fitCenter"
                     android:src="@drawable/home_car" />
 
-                <LinearLayout
+                <!-- Текст прокручивается, если окно ниже экрана машины. -->
+                <ScrollView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginStart="40dp"
                     android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:scrollbarStyle="outsideOverlay">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="vertical">
 
                     <TextView
@@ -100,12 +108,12 @@
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
                         android:textColor="@color/text_primary"
-                        android:textSize="32sp"
+                        android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <!-- Версия и обновления: «Проверить обновления» / «Доступна версия N. Подробнее…». -->
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:gravity="center_vertical"
@@ -114,11 +122,14 @@
                         <TextView
                             android:id="@+id/homeVersion"
                             style="@style/EISWM.Caption"
+                            android:layout_width="wrap_content"
                             android:textSize="17sp" />
 
                         <TextView
                             android:id="@+id/homeUpdate"
                             style="@style/EISWM.Caption"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_marginStart="20dp"
                             android:background="?android:attr/selectableItemBackground"
                             android:text="@string/update_check"
@@ -131,10 +142,10 @@
                         android:layout_marginTop="16dp"
                         android:text="@string/home_description"
                         android:textColor="@color/text_primary"
-                        android:textSize="19sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:orientation="horizontal">
@@ -142,14 +153,16 @@
                         <Button
                             android:id="@+id/homeSounds"
                             style="@style/EISWM.PrimaryButton"
-                            android:layout_width="220dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_marginEnd="16dp"
                             android:text="@string/home_open_sounds" />
 
                         <Button
                             android:id="@+id/homePictures"
                             style="@style/EISWM.PrimaryButton"
-                            android:layout_width="220dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:text="@string/home_open_pictures" />
                     </LinearLayout>
 
@@ -157,16 +170,8 @@
                         style="@style/EISWM.Caption"
                         android:layout_marginTop="16dp"
                         android:text="@string/home_developer" />
-
-                    <!-- Кратко об отказе от ответственности; нажатие открывает полный текст. -->
-                    <TextView
-                        android:id="@+id/homeDisclaimer"
-                        style="@style/EISWM.Caption"
-                        android:layout_marginTop="6dp"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:text="@string/home_disclaimer_short"
-                        android:textColor="@color/pill_warn_fg" />
                 </LinearLayout>
+                </ScrollView>
             </LinearLayout>
 
             <!-- Раздел «Звуки приветствия». -->
@@ -205,9 +210,16 @@
 
                 <View style="@style/EISWM.VDivider" />
 
+                <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
+                <ScrollView
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true">
+
                 <LinearLayout
                     style="@style/EISWM.SidePanel"
-                    android:layout_width="360dp"
+                    android:layout_width="match_parent"
                     android:padding="16dp">
 
                     <LinearLayout
@@ -270,6 +282,7 @@
                         style="@style/EISWM.PrimaryButton"
                         android:text="@string/sounds_add" />
                 </LinearLayout>
+                </ScrollView>
             </LinearLayout>
 
             <!-- Раздел «Картинки»: картинки приветствия; логика в PicturesPanel. -->
@@ -304,8 +317,9 @@
                             android:singleLine="true"
                             android:text="@string/pictures_header" />
 
-                        <!-- «Удалить» слева и скрыт через invisible: соседние кнопки не сдвигаются,
-                             и нажатие мимо не попадёт в удаление. -->
+                        <!-- «Удалить» появляется слева от остальных кнопок и сжимает заголовок,
+                             поэтому «Выделить все» и «Очистить» не сдвигаются. Пока ничего не
+                             выделено, он скрыт совсем, чтобы в узком окне заголовку хватало места. -->
                         <Button
                             android:id="@+id/btnPicturesDelete"
                             style="@style/EISWM.TextButton"
@@ -346,9 +360,16 @@
 
                 <View style="@style/EISWM.VDivider" />
 
+                <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
+                <ScrollView
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true">
+
                 <LinearLayout
                     style="@style/EISWM.SidePanel"
-                    android:layout_width="360dp"
+                    android:layout_width="match_parent"
                     android:padding="16dp">
 
 
@@ -417,6 +438,7 @@
                         style="@style/EISWM.PrimaryButton"
                         android:text="@string/pictures_add" />
                 </LinearLayout>
+                </ScrollView>
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

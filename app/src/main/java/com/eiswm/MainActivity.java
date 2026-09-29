@@ -274,6 +274,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private void setupHome() {
         homePanel = findViewById(R.id.homePanel);
         findViewById(R.id.homeImage).setClipToOutline(true);
+        homePanel.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (r - l != or - ol || b - t != ob - ot) v.post(this::fitHomeImage);
+        });
         String version = "";
         try {
             version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -282,7 +285,6 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         ((TextView) findViewById(R.id.homeVersion)).setText(getString(R.string.home_version, version));
         findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
         findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
-        findViewById(R.id.homeDisclaimer).setOnClickListener(v -> showDisclaimer(false));
         findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
         findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
 
@@ -435,6 +437,26 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     /**
+     * Картинка стартового экрана во всю высоту панели, но не шире 40% её ширины: приложение
+     * бывает открыто не во весь экран (например, рядом с панелью лаунчера), и тексту нужно место.
+     */
+    private void fitHomeImage() {
+        View image = findViewById(R.id.homeImage);
+        android.graphics.drawable.Drawable d = ((android.widget.ImageView) image).getDrawable();
+        int availH = homePanel.getHeight() - homePanel.getPaddingTop() - homePanel.getPaddingBottom();
+        int availW = homePanel.getWidth() - homePanel.getPaddingLeft() - homePanel.getPaddingRight();
+        if (d == null || availH <= 0 || availW <= 0 || d.getIntrinsicHeight() <= 0) return;
+        float aspect = (float) d.getIntrinsicWidth() / d.getIntrinsicHeight();
+        int w = Math.min(Math.round(availH * aspect), Math.round(availW * 0.4f));
+        int h = Math.round(w / aspect);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) image.getLayoutParams();
+        if (lp.width == w && lp.height == h) return;
+        lp.width = w;
+        lp.height = h;
+        image.setLayoutParams(lp);
+    }
+
+    /**
      * Отказ от ответственности (полный текст — DISCLAIMER.md в репозитории).
      * @param firstRun показывается сам при первом запуске; после «Понятно» больше не появляется.
      */
@@ -453,8 +475,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         if (currentSection < 0) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
-                    .setMessage(R.string.home_help)
+                    .setMessage(getString(R.string.home_help) + "\n\n" + getString(R.string.home_disclaimer_short))
                     .setPositiveButton(R.string.got_it, null)
+                    .setNeutralButton(R.string.disclaimer_title, (d, w) -> showDisclaimer(false))
                     .show();
             return;
         }

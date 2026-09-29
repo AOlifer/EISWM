@@ -39,7 +39,7 @@
 
         <LinearLayout
             style="@style/EISWM.SidePanel"
-            android:layout_width="230dp">
+            android:layout_width="@dimen/picker_storage_width">
 
             <TextView
                 style="@style/EISWM.Caption"
@@ -99,7 +99,7 @@
 
         <LinearLayout
             style="@style/EISWM.SidePanel"
-            android:layout_width="360dp"
+            android:layout_width="@dimen/side_panel_width"
             android:padding="16dp">
 
             <TextView

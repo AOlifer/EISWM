@@ -208,7 +208,7 @@ final class PicturesPanel {
                 : activity.getString(R.string.pictures_header));
         btnSelectAll.setEnabled(!busy && !current.isEmpty() && n < current.size());
         btnClear.setEnabled(!busy && n > 0);
-        btnDelete.setVisibility(n > 0 ? View.VISIBLE : View.INVISIBLE);
+        btnDelete.setVisibility(n > 0 ? View.VISIBLE : View.GONE);
         btnDelete.setEnabled(!busy);
         btnDelete.setText(activity.getString(R.string.pictures_delete_selected, n));
     }
@@ -294,6 +294,7 @@ final class PicturesPanel {
         date.setTextSize(15);
         date.setTextColor(activity.getColor(R.color.text_secondary));
         date.setSingleLine(true);
+        date.setEllipsize(android.text.TextUtils.TruncateAt.END);
         date.setText(describe(p));
         LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(0, -2, 1);
         dateLp.setMarginStart(Ui.dp(activity, 4));

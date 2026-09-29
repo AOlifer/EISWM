@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Узкое окно: приложение открыто не во весь экран (например, рядом с панелью лаунчера). -->
+    <dimen name="side_panel_width">300dp</dimen>
+    <dimen name="picker_storage_width">190dp</dimen>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Окно во всю ширину экрана машины (1920×720). -->
+    <dimen name="side_panel_width">360dp</dimen>
+    <dimen name="picker_storage_width">230dp</dimen>
+</resources>

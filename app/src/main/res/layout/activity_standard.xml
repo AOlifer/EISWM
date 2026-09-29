@@ -49,9 +49,16 @@
 
         <View style="@style/EISWM.VDivider" />
 
+        <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
+        <ScrollView
+            android:layout_width="@dimen/side_panel_width"
+            android:layout_height="match_parent"
+            android:background="@color/background"
+            android:fillViewport="true">
+
         <LinearLayout
             style="@style/EISWM.SidePanel"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:padding="16dp">
 
             <TextView
@@ -129,5 +136,6 @@
                 style="@style/EISWM.PrimaryButton"
                 android:text="@string/standard_seasonal_on" />
         </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 </LinearLayout>
