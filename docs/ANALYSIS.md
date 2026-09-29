@@ -146,9 +146,9 @@ MP3-файлы лежат в каталоге
 ### Где лежат обновления
 
 - JSON последней версии — файл `docs/updates/latest` (без расширения, UTF-8 без BOM).
-  GitHub Pages публикует папку `docs/` ветки `master` по адресу `https://eiswm.olifers.ru/`
-  (Settings → Pages: Deploy from a branch, `master`, `/docs`, Custom domain
-  `eiswm.olifers.ru`, файл `docs/CNAME`; в DNS запись CNAME `eiswm` → `aolifer.github.io`).
+  GitHub Pages публикует папку `docs/` ветки `master` на домене из файла `docs/CNAME`
+  (Settings → Pages: Deploy from a branch, `master`, `/docs`, Custom domain; в DNS — запись
+  CNAME на `<логин>.github.io`).
   Поэтому машины видят только выпущенную версию: изменения `latest` в `develop` попадают
   на сайт вместе со слиянием в `master`.
 - APK — файл выпуска на GitHub (Releases, тег версии). В JSON в `apk` ссылка вида
