@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Основной язык приложения — английский (используется, если для языка системы нет перевода).
-    Переводы: values-ru/strings.xml (русский). Новый язык = values-<код>/strings.xml с теми же ключами.
+    Переводы: values-ru (русский), values-de (немецкий), values-zh (китайский). Новый язык = values-<код>/strings.xml с теми же ключами.
 -->
 <resources>
     <string name="app_name">Welcome Manager</string>
