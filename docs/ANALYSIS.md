@@ -145,15 +145,17 @@ MP3-файлы лежат в каталоге
 
 ### Где лежат обновления
 
-- JSON последней версии — файл `docs/updates/latest` в ветке `develop` (без расширения,
-  UTF-8 без BOM). GitHub Pages публикует папку `docs/` ветки `develop` по адресу
-  `https://eiswm.olifers.ru/` (Settings → Pages: Deploy from a branch, `develop`, `/docs`,
-  Custom domain `eiswm.olifers.ru`; в DNS запись CNAME `eiswm` → `aolifer.github.io`).
+- JSON последней версии — файл `docs/updates/latest` (без расширения, UTF-8 без BOM).
+  GitHub Pages публикует папку `docs/` ветки `master` по адресу `https://eiswm.olifers.ru/`
+  (Settings → Pages: Deploy from a branch, `master`, `/docs`, Custom domain
+  `eiswm.olifers.ru`, файл `docs/CNAME`; в DNS запись CNAME `eiswm` → `aolifer.github.io`).
+  Поэтому машины видят только выпущенную версию: изменения `latest` в `develop` попадают
+  на сайт вместе со слиянием в `master`.
 - APK — файл выпуска на GitHub (Releases, тег версии). В JSON в `apk` ссылка вида
   `https://github.com/AOlifer/EISWM/releases/download/v1.6/EISWM-1.6.apk`; GitHub
   перенаправляет её на своё хранилище, приложение идёт по перенаправлению.
-- Порядок публикации: сначала выпуск с APK, потом изменение `docs/updates/latest`, чтобы
-  машина не увидела ссылку на ещё не загруженный файл. Pages кэширует файлы до 10 минут.
+- Порядок публикации: сначала выпуск с APK, потом слияние в `master`, чтобы машина не увидела
+  ссылку на ещё не загруженный файл. Pages кэширует файлы до 10 минут.
 
 ## 5. Языки
 
@@ -259,10 +261,14 @@ Android 7 и ниже остаётся обычная `ic_launcher.png`.
 | `master` | Только релизы. Сюда сливается `develop`, когда готова новая версия. |
 
 Каждое изменение сразу записывается в `CHANGELOG.md` в раздел «Не выпущено». Выпуск версии:
-в `develop` обновить `versionCode`/`versionName` в `app/build.gradle`, переименовать раздел
-«Не выпущено» в номер версии с датой, затем слить `develop` в `master` и поставить тег версии
-(например, `v1.6`). После этого создать на GitHub выпуск (Releases) с этим тегом, приложить
-к нему APK варианта `car` и обновить `docs/updates/latest` (раздел «Обновления»).
+
+1. В `develop` обновить `versionCode`/`versionName` в `app/build.gradle`, переименовать раздел
+   «Не выпущено» в номер версии с датой.
+2. Собрать APK варианта `car`, посчитать размер и SHA-256, записать новую версию в
+   `docs/updates/latest` (раздел «Обновления»), запушить `develop`.
+3. Создать на GitHub выпуск (Releases) с новым тегом (например, `v1.6`) на ветке `develop`
+   и приложить к нему APK.
+4. Слить `develop` в `master` и запушить: сайт обновлений покажет новую версию.
 
 ## 11. Сторонние материалы
 
