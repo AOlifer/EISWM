@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Эмулятор: разрешён http к компьютеру разработчика (10.0.2.2) для проверки обновлений
+     с локального сервера. На машине действует обычное правило: только https. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

@@ -237,4 +237,26 @@
     <string name="standard_done_added">Standard pictures added: %1$d</string>
     <string name="standard_done_seasonal_on">Pictures by season are on</string>
     <string name="standard_done_seasonal_off">Pictures by season are off</string>
+
+    <!-- Обновления (Updater). -->
+    <string name="update_check">Check for updates</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_latest">You have the latest version</string>
+    <string name="update_available">Version %1$s is available. Details…</string>
+    <string name="update_failed">Could not check for updates. Tap to retry</string>
+    <string name="update_title">Update to version %1$s</string>
+    <string name="update_released">Released %1$s.</string>
+    <string name="update_size">Download size: %1$s.</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_download">Download and verify</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloading the update…</string>
+    <string name="update_installing">Installing the update. The app will close and open again.</string>
+    <string name="update_emulator_note">The emulator build only downloads and verifies the update: the car APK is signed with a different key.</string>
+    <string name="update_emulator_done">The APK has been downloaded and verified: %1$s</string>
+    <string name="update_error">Update failed: %1$s</string>
+    <string name="update_error_checksum">the downloaded file is damaged (checksum mismatch)</string>
+    <string name="update_error_package">the file is not an EISWM update</string>
+    <string name="update_error_version">the file is not newer than the installed version</string>
+    <string name="update_error_install">Installation failed: %1$s</string>
 </resources>

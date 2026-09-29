@@ -252,4 +252,26 @@
     <string name="standard_done_added">Добавлено стандартных картинок: %1$d</string>
     <string name="standard_done_seasonal_on">Картинки по временам года включены</string>
     <string name="standard_done_seasonal_off">Картинки по временам года выключены</string>
+
+    <!-- Обновления (Updater). -->
+    <string name="update_check">Проверить обновления</string>
+    <string name="update_checking">Проверяю обновления…</string>
+    <string name="update_latest">Установлена последняя версия</string>
+    <string name="update_available">Доступна версия %1$s. Подробнее…</string>
+    <string name="update_failed">Не удалось проверить обновления. Нажмите, чтобы повторить</string>
+    <string name="update_title">Обновление до версии %1$s</string>
+    <string name="update_released">Выпущена %1$s.</string>
+    <string name="update_size">Размер загрузки: %1$s.</string>
+    <string name="update_install">Скачать и установить</string>
+    <string name="update_download">Скачать и проверить</string>
+    <string name="update_later">Позже</string>
+    <string name="update_downloading">Загрузка обновления…</string>
+    <string name="update_installing">Устанавливаю обновление. Приложение закроется и откроется снова.</string>
+    <string name="update_emulator_note">Версия для эмулятора только скачивает и проверяет обновление: APK для машины подписан другим ключом.</string>
+    <string name="update_emulator_done">APK скачан и проверен: %1$s</string>
+    <string name="update_error">Не удалось обновить: %1$s</string>
+    <string name="update_error_checksum">скачанный файл повреждён (не совпала контрольная сумма)</string>
+    <string name="update_error_package">файл не является обновлением EISWM</string>
+    <string name="update_error_version">версия в файле не новее установленной</string>
+    <string name="update_error_install">Установка не удалась: %1$s</string>
 </resources>

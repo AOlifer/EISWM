@@ -234,4 +234,26 @@
     <string name="standard_done_added">Standardbilder hinzugefügt: %1$d</string>
     <string name="standard_done_seasonal_on">Bilder nach Jahreszeit eingeschaltet</string>
     <string name="standard_done_seasonal_off">Bilder nach Jahreszeit ausgeschaltet</string>
+
+    <!-- Обновления (Updater). -->
+    <string name="update_check">Nach Updates suchen</string>
+    <string name="update_checking">Suche nach Updates…</string>
+    <string name="update_latest">Die neueste Version ist installiert</string>
+    <string name="update_available">Version %1$s ist verfügbar. Details…</string>
+    <string name="update_failed">Suche nach Updates fehlgeschlagen. Zum Wiederholen tippen</string>
+    <string name="update_title">Update auf Version %1$s</string>
+    <string name="update_released">Veröffentlicht am %1$s.</string>
+    <string name="update_size">Downloadgröße: %1$s.</string>
+    <string name="update_install">Herunterladen und installieren</string>
+    <string name="update_download">Herunterladen und prüfen</string>
+    <string name="update_later">Später</string>
+    <string name="update_downloading">Update wird heruntergeladen…</string>
+    <string name="update_installing">Das Update wird installiert. Die App wird geschlossen und wieder geöffnet.</string>
+    <string name="update_emulator_note">Die Emulator-Version lädt das Update nur herunter und prüft es: Die APK für das Auto ist mit einem anderen Schlüssel signiert.</string>
+    <string name="update_emulator_done">Die APK wurde heruntergeladen und geprüft: %1$s</string>
+    <string name="update_error">Update fehlgeschlagen: %1$s</string>
+    <string name="update_error_checksum">die heruntergeladene Datei ist beschädigt (Prüfsumme stimmt nicht)</string>
+    <string name="update_error_package">die Datei ist kein EISWM-Update</string>
+    <string name="update_error_version">die Datei ist nicht neuer als die installierte Version</string>
+    <string name="update_error_install">Installation fehlgeschlagen: %1$s</string>
 </resources>

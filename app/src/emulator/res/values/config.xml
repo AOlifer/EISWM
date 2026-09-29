@@ -6,4 +6,7 @@
 
     <!-- Пустой список: своя база EISWM с той же схемой, что у лаунчера. -->
     <string-array name="welcome_db_paths" translatable="false" />
+
+    <!-- Обновление только скачивается и проверяется: APK для машины подписан другим ключом. -->
+    <bool name="update_can_install">false</bool>
 </resources>

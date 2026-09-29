@@ -52,6 +52,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private static final int REQ_SAVE_FOLDER = 2;
     private static final String STATE_SECTION = "section";
     private static final String PREF_DISCLAIMER_SHOWN = "disclaimer_shown";
+    /** Последняя найденная на сервере версия: строка «Доступна версия N» видна до установки. */
+    private static final String PREF_UPDATE_CODE = "update_available_code";
+    private static final String PREF_UPDATE_NAME = "update_available_name";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -83,6 +86,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private File pendingSave;
     private SharedPreferences prefs;
     private PicturesPanel picturesPanel;
+    private Updater updater;
+    private TextView homeUpdate;
+    private Updater.Release availableRelease;
+    private boolean checkingUpdates = false;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     /** Один фоновый поток: копирование и чтение длительности не блокируют интерфейс. */
@@ -143,6 +150,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
         showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
         if (b == null && !prefs.getBoolean(PREF_DISCLAIMER_SHOWN, false)) showDisclaimer(true);
+        if (b == null) autoCheckForUpdates();
         updateWelcomeSwitch();
         loadSounds();
     }
@@ -277,6 +285,153 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         findViewById(R.id.homeDisclaimer).setOnClickListener(v -> showDisclaimer(false));
         findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
         findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
+
+        updater = new Updater(this);
+        homeUpdate = findViewById(R.id.homeUpdate);
+        homeUpdate.setOnClickListener(v -> {
+            if (availableRelease != null) showUpdateDialog(availableRelease);
+            else checkForUpdates(true);
+        });
+        // Найденная раньше версия видна сразу, даже если сегодня проверки ещё не было.
+        String known = prefs.getString(PREF_UPDATE_NAME, null);
+        if (known != null && prefs.getInt(PREF_UPDATE_CODE, 0) > updater.currentVersionCode()) {
+            homeUpdate.setText(getString(R.string.update_available, known));
+        }
+    }
+
+    // ---------------------------------------------------------------- Обновления
+
+    /** Проверка при запуске: не чаще раза в сутки, без сообщений при ошибке. */
+    private void autoCheckForUpdates() {
+        long last = prefs.getLong(Updater.PREF_LAST_CHECK, 0);
+        long now = System.currentTimeMillis();
+        if (now - last >= Updater.AUTO_CHECK_INTERVAL_MS || now < last) checkForUpdates(false);
+    }
+
+    /** @param manual нажата «Проверить обновления»: показать результат и окно с новой версией. */
+    private void checkForUpdates(boolean manual) {
+        if (checkingUpdates) return;
+        checkingUpdates = true;
+        if (manual) homeUpdate.setText(R.string.update_checking);
+        new Thread(() -> {
+            Updater.Release r = null;
+            try {
+                r = updater.fetchLatest();
+            } catch (Exception ignored) {
+            }
+            final Updater.Release result = r;
+            ui.post(() -> onUpdateChecked(result, manual));
+        }, "eiswm-update-check").start();
+    }
+
+    private void onUpdateChecked(Updater.Release r, boolean manual) {
+        checkingUpdates = false;
+        if (destroyed) return;
+        if (r == null) {
+            if (manual) homeUpdate.setText(R.string.update_failed);
+            return;
+        }
+        prefs.edit().putLong(Updater.PREF_LAST_CHECK, System.currentTimeMillis()).apply();
+        if (r.versionCode > updater.currentVersionCode()) {
+            availableRelease = r;
+            prefs.edit().putInt(PREF_UPDATE_CODE, r.versionCode).putString(PREF_UPDATE_NAME, r.versionName).apply();
+            homeUpdate.setText(getString(R.string.update_available, r.versionName));
+            if (manual) showUpdateDialog(r);
+        } else {
+            availableRelease = null;
+            prefs.edit().remove(PREF_UPDATE_CODE).remove(PREF_UPDATE_NAME).apply();
+            homeUpdate.setText(manual ? R.string.update_latest : R.string.update_check);
+        }
+    }
+
+    /** Что нового в версии и кнопка «Скачать и установить». */
+    private void showUpdateDialog(Updater.Release r) {
+        StringBuilder msg = new StringBuilder();
+        if (!r.changes.isEmpty()) msg.append(r.changes.trim()).append("\n\n");
+        if (!r.date.isEmpty()) msg.append(getString(R.string.update_released, r.date)).append(' ');
+        if (r.size > 0) msg.append(getString(R.string.update_size, FileUtils.formatSize(this, r.size)));
+        boolean install = updater.canInstall();
+        if (!install) msg.append("\n\n").append(getString(R.string.update_emulator_note));
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.update_title, r.versionName))
+                .setMessage(msg.toString().trim())
+                .setNegativeButton(R.string.update_later, null)
+                .setPositiveButton(install ? R.string.update_install : R.string.update_download,
+                        (d, w) -> downloadUpdate(r))
+                .show();
+    }
+
+    /** Загрузка с полоской прогресса; затем установка (на машине) или сообщение (на эмуляторе). */
+    private void downloadUpdate(Updater.Release r) {
+        final boolean[] cancelled = {false};
+        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        bar.setIndeterminate(r.size <= 0);
+        bar.setMax(1000);
+        TextView text = new TextView(this);
+        text.setTextColor(getColor(R.color.text_secondary));
+        text.setTextSize(16);
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        int pad = Math.round(24 * getResources().getDisplayMetrics().density);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(bar);
+        box.addView(text);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.update_downloading)
+                .setView(box)
+                .setCancelable(false)
+                .setNegativeButton(R.string.cancel, (d, w) -> cancelled[0] = true)
+                .show();
+        final long[] lastUi = {0};
+        new Thread(() -> {
+            File apk = null;
+            String error = null;
+            try {
+                apk = updater.download(r, new Updater.Progress() {
+                    @Override public void onProgress(long done, long total) {
+                        long now = System.currentTimeMillis();
+                        if (now - lastUi[0] < 200) return;
+                        lastUi[0] = now;
+                        ui.post(() -> {
+                            if (total > 0) {
+                                bar.setIndeterminate(false);
+                                bar.setProgress((int) (done * 1000 / total));
+                                text.setText(FileUtils.formatSize(MainActivity.this, done) + " / "
+                                        + FileUtils.formatSize(MainActivity.this, total));
+                            } else {
+                                text.setText(FileUtils.formatSize(MainActivity.this, done));
+                            }
+                        });
+                    }
+
+                    @Override public boolean cancelled() {
+                        return cancelled[0] || destroyed;
+                    }
+                });
+                if (apk != null && updater.canInstall()) {
+                    prefs.edit().putBoolean(Updater.PREF_REOPEN, true).commit();
+                    updater.install(apk);
+                }
+            } catch (Exception e) {
+                prefs.edit().remove(Updater.PREF_REOPEN).apply();
+                error = e.getMessage() != null ? e.getMessage() : e.toString();
+            }
+            final File done = apk;
+            final String err = error;
+            ui.post(() -> {
+                if (destroyed) return;
+                dialog.dismiss();
+                if (err != null) {
+                    new AlertDialog.Builder(this)
+                            .setMessage(getString(R.string.update_error, err))
+                            .setPositiveButton(R.string.got_it, null)
+                            .show();
+                } else if (done != null) {
+                    toastLong(updater.canInstall() ? getString(R.string.update_installing)
+                            : getString(R.string.update_emulator_done, done.getPath()));
+                }
+            });
+        }, "eiswm-update-download").start();
     }
 
     /**
@@ -708,5 +863,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void toast(String s) {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
+    private void toastLong(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 }
