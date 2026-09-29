@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 /**
  * EISWM — Evolute I-Space Welcome Manager.
  * Главный экран: колонка разделов слева, содержимое выбранного раздела справа.
- * Раздел «Звуки приветствия» работает, «Картинки приветствия» — в разработке.
+ * Разделы: «Звуки» (этот класс) и «Картинки» ({@link PicturesPanel}).
  * Новый раздел = панель в activity_main.xml + запись в {@link #setupSections()}.
  * Файлы добавляются через {@link PickerActivity}.
  */
@@ -50,7 +50,11 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     static final String[] SOUND_EXTENSIONS = {"mp3"};
     private static final int REQ_ADD_SOUNDS = 1;
     private static final int REQ_SAVE_FOLDER = 2;
-    private static final String PREF_SECTION = "section";
+    private static final String STATE_SECTION = "section";
+    private static final String PREF_DISCLAIMER_SHOWN = "disclaimer_shown";
+    /** Последняя найденная на сервере версия: строка «Доступна версия N» видна до установки. */
+    private static final String PREF_UPDATE_CODE = "update_available_code";
+    private static final String PREF_UPDATE_NAME = "update_available_name";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -68,7 +72,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     private final List<Section> sections = new ArrayList<>();
-    private int currentSection = 0;
+    private int currentSection = -1;
+    private View homePanel;
 
     private File soundDir;
     private TextView welcomeLabel, welcomeWarning, soundStatus;
@@ -80,6 +85,11 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private final Map<File, SoundRow> rows = new HashMap<>();
     private File pendingSave;
     private SharedPreferences prefs;
+    private PicturesPanel picturesPanel;
+    private Updater updater;
+    private TextView homeUpdate;
+    private Updater.Release availableRelease;
+    private boolean checkingUpdates = false;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     /** Один фоновый поток: копирование и чтение длительности не блокируют интерфейс. */
@@ -135,7 +145,12 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         welcomeWarning = findViewById(R.id.welcomeWarning);
         findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
-        showSection(prefs.getInt(PREF_SECTION, 0));
+        setupHome();
+        picturesPanel = new PicturesPanel(this);
+        // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
+        showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
+        if (b == null && !prefs.getBoolean(PREF_DISCLAIMER_SHOWN, false)) showDisclaimer(true);
+        if (b == null) autoCheckForUpdates();
         updateWelcomeSwitch();
         loadSounds();
     }
@@ -167,6 +182,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     @Override protected void onDestroy() {
         destroyed = true;
         preview.release();
+        if (picturesPanel != null) picturesPanel.destroy();
         io.shutdownNow();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
@@ -184,16 +200,15 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
      * копирование при выходе доделается в фоне, но итог «Добавлено: N» никто не увидит.
      */
     private void exitApp() {
-        if (!busy) {
+        if (!busy && (picturesPanel == null || !picturesPanel.isBusy())) {
             finishAndRemoveTask();
             return;
         }
         new AlertDialog.Builder(this)
-                .setTitle("Идёт копирование")
-                .setMessage("Звуки ещё копируются. Если выйти сейчас, копирование закончится в фоне, "
-                        + "но вы не увидите, всё ли прошло успешно.")
-                .setPositiveButton("Дождаться", null)
-                .setNegativeButton("Выйти сейчас", (d, w) -> finishAndRemoveTask())
+                .setTitle(R.string.exit_busy_title)
+                .setMessage(R.string.exit_busy_message)
+                .setPositiveButton(R.string.exit_wait, null)
+                .setNegativeButton(R.string.exit_now, (d, w) -> finishAndRemoveTask())
                 .show();
     }
 
@@ -211,20 +226,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     // ---------------------------------------------------------------- Разделы, помощь, тема
 
     private void setupSections() {
-        sections.add(new Section(R.drawable.ic_volume_up, "Звуки", findViewById(R.id.soundsPanel),
-                "Звуки приветствия — это MP3-файлы, которые машина проигрывает при включении автомобиля. "
-                        + "Каждый раз она выбирает один из них случайно.\n\n"
-                        + "▶  прослушать звук, повторное нажатие останавливает его.\n"
-                        + "⋮  сохранить копию звука в память или на флешку, удалить звук.\n"
-                        + "«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\n"
-                        + "Машина играет звук не дольше 6 секунд: более длинный она обрывает "
-                        + "на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\n"
-                        + "Переключатель справа включает и выключает звуковое приветствие. "
-                        + "Когда оно выключено, машина не проигрывает звук при включении автомобиля."));
-        sections.add(new Section(R.drawable.ic_section_pictures, "Картинки", findViewById(R.id.picturesPanel),
-                "Здесь можно будет выбирать картинки, которые машина показывает при приветствии.\n\n"
-                        + "Раздел в разработке: пока неизвестно, где машина хранит эти картинки "
-                        + "и какого размера они должны быть."));
+        sections.add(new Section(R.drawable.ic_volume_up, getString(R.string.sounds_section),
+                findViewById(R.id.soundsPanel), getString(R.string.sounds_help)));
+        sections.add(new Section(R.drawable.ic_section_pictures, getString(R.string.pictures_section),
+                findViewById(R.id.picturesPanel), getString(R.string.pictures_help)));
 
         LinearLayout rail = findViewById(R.id.sectionRail);
         for (int i = 0; i < sections.size(); i++) {
@@ -237,41 +242,258 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
         // Тема — внизу колонки, под разделами.
         rail.addView(new Space(this), new LinearLayout.LayoutParams(-1, 0, 1));
-        TextView theme = Ui.railItem(this, R.drawable.ic_theme, "Тема\n" + THEME_NAMES[themeMode(this)], true);
+        String themeName = themeName(themeMode(this));
+        TextView theme = Ui.railItem(this, R.drawable.ic_theme, getString(R.string.theme_rail, themeName), true);
         Ui.setSelected(theme, false);
-        theme.setContentDescription("Тема оформления: " + THEME_NAMES[themeMode(this)]);
+        theme.setContentDescription(getString(R.string.theme_desc, themeName));
         theme.setOnClickListener(v -> switchTheme());
         ((LinearLayout.LayoutParams) theme.getLayoutParams()).bottomMargin = 0;
         rail.addView(theme);
     }
 
+    /** @param index номер раздела; -1 — стартовый экран, где ни один раздел не выбран. */
     private void showSection(int index) {
-        if (index < 0 || index >= sections.size()) index = 0;
+        if (index >= sections.size()) index = -1;
         currentSection = index;
+        homePanel.setVisibility(index < 0 ? View.VISIBLE : View.GONE);
         for (int i = 0; i < sections.size(); i++) {
             Section s = sections.get(i);
             Ui.setSelected(s.railItem, i == index);
             s.panel.setVisibility(i == index ? View.VISIBLE : View.GONE);
         }
         if (index != 0) preview.stop();
-        prefs.edit().putInt(PREF_SECTION, index).apply();
     }
 
-    /** Помощь по тому разделу, который сейчас открыт. */
+    /** Состояние раздела переживает пересоздание экрана (например, смену темы). */
+    @Override protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putInt(STATE_SECTION, currentSection);
+    }
+
+    /** Стартовый экран: картинка, описание, версия, разработчик и быстрый переход в разделы. */
+    private void setupHome() {
+        homePanel = findViewById(R.id.homePanel);
+        findViewById(R.id.homeImage).setClipToOutline(true);
+        homePanel.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (r - l != or - ol || b - t != ob - ot) v.post(this::fitHomeImage);
+        });
+        String version = "";
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception ignored) {
+        }
+        ((TextView) findViewById(R.id.homeVersion)).setText(getString(R.string.home_version, version));
+        findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
+        findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
+        findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
+        findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
+
+        updater = new Updater(this);
+        homeUpdate = findViewById(R.id.homeUpdate);
+        homeUpdate.setOnClickListener(v -> {
+            if (availableRelease != null) showUpdateDialog(availableRelease);
+            else checkForUpdates(true);
+        });
+        // Найденная раньше версия видна сразу, даже если сегодня проверки ещё не было.
+        String known = prefs.getString(PREF_UPDATE_NAME, null);
+        if (known != null && prefs.getInt(PREF_UPDATE_CODE, 0) > updater.currentVersionCode()) {
+            homeUpdate.setText(getString(R.string.update_available, known));
+        }
+    }
+
+    // ---------------------------------------------------------------- Обновления
+
+    /** Проверка при запуске: не чаще раза в сутки, без сообщений при ошибке. */
+    private void autoCheckForUpdates() {
+        long last = prefs.getLong(Updater.PREF_LAST_CHECK, 0);
+        long now = System.currentTimeMillis();
+        if (now - last >= Updater.AUTO_CHECK_INTERVAL_MS || now < last) checkForUpdates(false);
+    }
+
+    /** @param manual нажата «Проверить обновления»: показать результат и окно с новой версией. */
+    private void checkForUpdates(boolean manual) {
+        if (checkingUpdates) return;
+        checkingUpdates = true;
+        if (manual) homeUpdate.setText(R.string.update_checking);
+        new Thread(() -> {
+            Updater.Release r = null;
+            try {
+                r = updater.fetchLatest();
+            } catch (Exception ignored) {
+            }
+            final Updater.Release result = r;
+            ui.post(() -> onUpdateChecked(result, manual));
+        }, "eiswm-update-check").start();
+    }
+
+    private void onUpdateChecked(Updater.Release r, boolean manual) {
+        checkingUpdates = false;
+        if (destroyed) return;
+        if (r == null) {
+            if (manual) homeUpdate.setText(R.string.update_failed);
+            return;
+        }
+        prefs.edit().putLong(Updater.PREF_LAST_CHECK, System.currentTimeMillis()).apply();
+        if (r.versionCode > updater.currentVersionCode()) {
+            availableRelease = r;
+            prefs.edit().putInt(PREF_UPDATE_CODE, r.versionCode).putString(PREF_UPDATE_NAME, r.versionName).apply();
+            homeUpdate.setText(getString(R.string.update_available, r.versionName));
+            if (manual) showUpdateDialog(r);
+        } else {
+            availableRelease = null;
+            prefs.edit().remove(PREF_UPDATE_CODE).remove(PREF_UPDATE_NAME).apply();
+            homeUpdate.setText(manual ? R.string.update_latest : R.string.update_check);
+        }
+    }
+
+    /** Что нового в версии и кнопка «Скачать и установить». */
+    private void showUpdateDialog(Updater.Release r) {
+        StringBuilder msg = new StringBuilder();
+        if (!r.changes.isEmpty()) msg.append(r.changes.trim()).append("\n\n");
+        if (!r.date.isEmpty()) msg.append(getString(R.string.update_released, r.date)).append(' ');
+        if (r.size > 0) msg.append(getString(R.string.update_size, FileUtils.formatSize(this, r.size)));
+        boolean install = updater.canInstall();
+        if (!install) msg.append("\n\n").append(getString(R.string.update_emulator_note));
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.update_title, r.versionName))
+                .setMessage(msg.toString().trim())
+                .setNegativeButton(R.string.update_later, null)
+                .setPositiveButton(install ? R.string.update_install : R.string.update_download,
+                        (d, w) -> downloadUpdate(r))
+                .show();
+    }
+
+    /** Загрузка с полоской прогресса; затем установка (на машине) или сообщение (на эмуляторе). */
+    private void downloadUpdate(Updater.Release r) {
+        final boolean[] cancelled = {false};
+        ProgressBar bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        bar.setIndeterminate(r.size <= 0);
+        bar.setMax(1000);
+        TextView text = new TextView(this);
+        text.setTextColor(getColor(R.color.text_secondary));
+        text.setTextSize(16);
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        int pad = Math.round(24 * getResources().getDisplayMetrics().density);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(bar);
+        box.addView(text);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.update_downloading)
+                .setView(box)
+                .setCancelable(false)
+                .setNegativeButton(R.string.cancel, (d, w) -> cancelled[0] = true)
+                .show();
+        final long[] lastUi = {0};
+        new Thread(() -> {
+            File apk = null;
+            String error = null;
+            try {
+                apk = updater.download(r, new Updater.Progress() {
+                    @Override public void onProgress(long done, long total) {
+                        long now = System.currentTimeMillis();
+                        if (now - lastUi[0] < 200) return;
+                        lastUi[0] = now;
+                        ui.post(() -> {
+                            if (total > 0) {
+                                bar.setIndeterminate(false);
+                                bar.setProgress((int) (done * 1000 / total));
+                                text.setText(FileUtils.formatSize(MainActivity.this, done) + " / "
+                                        + FileUtils.formatSize(MainActivity.this, total));
+                            } else {
+                                text.setText(FileUtils.formatSize(MainActivity.this, done));
+                            }
+                        });
+                    }
+
+                    @Override public boolean cancelled() {
+                        return cancelled[0] || destroyed;
+                    }
+                });
+                if (apk != null && updater.canInstall()) {
+                    prefs.edit().putBoolean(Updater.PREF_REOPEN, true).commit();
+                    updater.install(apk);
+                }
+            } catch (Exception e) {
+                prefs.edit().remove(Updater.PREF_REOPEN).apply();
+                error = e.getMessage() != null ? e.getMessage() : e.toString();
+            }
+            final File done = apk;
+            final String err = error;
+            ui.post(() -> {
+                if (destroyed) return;
+                dialog.dismiss();
+                if (err != null) {
+                    new AlertDialog.Builder(this)
+                            .setMessage(getString(R.string.update_error, err))
+                            .setPositiveButton(R.string.got_it, null)
+                            .show();
+                } else if (done != null) {
+                    toastLong(updater.canInstall() ? getString(R.string.update_installing)
+                            : getString(R.string.update_emulator_done, done.getPath()));
+                }
+            });
+        }, "eiswm-update-download").start();
+    }
+
+    /**
+     * Картинка стартового экрана во всю высоту панели, но не шире 40% её ширины: приложение
+     * бывает открыто не во весь экран (например, рядом с панелью лаунчера), и тексту нужно место.
+     */
+    private void fitHomeImage() {
+        View image = findViewById(R.id.homeImage);
+        android.graphics.drawable.Drawable d = ((android.widget.ImageView) image).getDrawable();
+        int availH = homePanel.getHeight() - homePanel.getPaddingTop() - homePanel.getPaddingBottom();
+        int availW = homePanel.getWidth() - homePanel.getPaddingLeft() - homePanel.getPaddingRight();
+        if (d == null || availH <= 0 || availW <= 0 || d.getIntrinsicHeight() <= 0) return;
+        float aspect = (float) d.getIntrinsicWidth() / d.getIntrinsicHeight();
+        int w = Math.min(Math.round(availH * aspect), Math.round(availW * 0.4f));
+        int h = Math.round(w / aspect);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) image.getLayoutParams();
+        if (lp.width == w && lp.height == h) return;
+        lp.width = w;
+        lp.height = h;
+        image.setLayoutParams(lp);
+    }
+
+    /**
+     * Отказ от ответственности (полный текст — DISCLAIMER.md в репозитории).
+     * @param firstRun показывается сам при первом запуске; после «Понятно» больше не появляется.
+     */
+    private void showDisclaimer(boolean firstRun) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_text)
+                .setCancelable(!firstRun)
+                .setPositiveButton(R.string.got_it, (d, w) ->
+                        prefs.edit().putBoolean(PREF_DISCLAIMER_SHOWN, true).apply())
+                .show();
+    }
+
+    /** Помощь по тому разделу, который сейчас открыт (или общая — на стартовом экране). */
     private void showHelp() {
+        if (currentSection < 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(getString(R.string.home_help) + "\n\n" + getString(R.string.home_disclaimer_short))
+                    .setPositiveButton(R.string.got_it, null)
+                    .setNeutralButton(R.string.disclaimer_title, (d, w) -> showDisclaimer(false))
+                    .show();
+            return;
+        }
         Section s = sections.get(currentSection);
         new AlertDialog.Builder(this)
                 .setTitle(s.title)
                 .setMessage(s.helpText)
-                .setPositiveButton("Понятно", null)
+                .setPositiveButton(R.string.got_it, null)
                 .show();
     }
 
     /** Авто → светлая → тёмная → авто; экран пересоздаётся с новой темой. */
     private void switchTheme() {
-        int next = (themeMode(this) + 1) % THEME_NAMES.length;
+        int next = (themeMode(this) + 1) % THEME_COUNT;
         prefs.edit().putInt(PREF_THEME, next).apply();
-        toast("Тема: " + THEME_NAMES[next]);
+        toast(getString(R.string.theme_toast, themeName(next)));
         recreate();
     }
 
@@ -284,11 +506,11 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         if (state == 0 || state == 1) {
             welcomeSwitch.setEnabled(true);
             welcomeSwitch.setChecked(state == 1);
-            welcomeLabel.setText(state == 1 ? "Включено" : "Выключено");
+            welcomeLabel.setText(state == 1 ? R.string.sounds_on : R.string.sounds_off);
         } else {
             welcomeSwitch.setChecked(false);
             welcomeSwitch.setEnabled(false);
-            welcomeLabel.setText("Состояние неизвестно");
+            welcomeLabel.setText(R.string.sounds_unknown);
         }
         welcomeWarning.setVisibility(state == 0 ? View.VISIBLE : View.GONE);
         updatingSwitch = false;
@@ -296,9 +518,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void setWelcomeSwitch(int target) {
         if (!writeWelcomeSwitch(target)) {
-            toast("Не удалось изменить состояние приветствия");
+            toast(getString(R.string.sounds_switch_failed));
         } else if (readWelcomeSwitch() != target) {
-            toast("Состояние не изменилось");
+            toast(getString(R.string.sounds_switch_unchanged));
         }
         updateWelcomeSwitch();
     }
@@ -360,7 +582,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
         File targetDir = new File(FileUtils.INTERNAL_ROOT, "Notifications");
         if (!targetDir.exists() && !targetDir.mkdirs()) {
-            toast("Не удалось создать папку Notifications");
+            toast(getString(R.string.sounds_notifications_failed));
             return;
         }
 
@@ -390,10 +612,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             }
             prefs.edit().putBoolean("bundled_welcome_files_copied", true).apply();
             if (copied > 0) {
-                toast("Добавлено встроенных звуков: " + copied);
+                toast(getString(R.string.sounds_bundled_added, copied));
             }
         } catch (IOException e) {
-            toast("Ошибка копирования встроенных звуков");
+            toast(getString(R.string.sounds_bundled_failed));
         }
     }
 
@@ -409,14 +631,14 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         // Сначала создаём каталог, потом читаем список.
         File[] files = soundDir.isDirectory() || soundDir.mkdirs() ? listSounds() : null;
         if (files == null) {
-            Ui.emptyState(soundList, "Нет доступа к папке звуков приветствия", soundDir.getAbsolutePath());
+            Ui.emptyState(soundList, getString(R.string.sounds_no_access), soundDir.getAbsolutePath());
             setStatus("");
             return;
         }
         FileUtils.sortByName(files);
         if (files.length == 0) {
-            Ui.emptyState(soundList, "Звуков пока нет",
-                    "Нажмите «Добавить звуки», чтобы выбрать MP3 в памяти или на флешке.");
+            Ui.emptyState(soundList, getString(R.string.sounds_empty),
+                    getString(R.string.sounds_empty_details));
         }
         if (!busy) setStatus(summary(files.length));
 
@@ -439,9 +661,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     private String summary(int count) {
-        if (count == 0) return "Звуков пока нет.";
-        return count + " " + FileUtils.plural(count, "звук", "звука", "звуков")
-                + (count == 1 ? ". Машина проигрывает его при приветствии." : ". Машина выбирает один из них случайно.");
+        if (count == 0) return getString(R.string.sounds_summary_none);
+        if (count == 1) return getString(R.string.sounds_summary_one);
+        return getResources().getQuantityString(R.plurals.sounds_summary_many, count, count);
     }
 
     /** @return метка длительности, которую заполнит фоновый поток. */
@@ -451,7 +673,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         SoundRow r = new SoundRow();
         r.root = row;
         r.play = Ui.iconButton(this, "▶");
-        r.play.setContentDescription("Прослушать " + f.getName());
+        r.play.setContentDescription(getString(R.string.play_desc, f.getName()));
         r.play.setOnClickListener(v -> preview.toggle(f));
         row.addView(r.play, Ui.iconButtonParams(this));
 
@@ -471,7 +693,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         row.addView(pill);
 
         Button more = Ui.iconButton(this, "⋮");
-        more.setContentDescription("Действия с " + f.getName());
+        more.setContentDescription(getString(R.string.actions_desc, f.getName()));
         more.setOnClickListener(v -> showSoundMenu(v, f));
         LinearLayout.LayoutParams moreLp = Ui.iconButtonParams(this);
         moreLp.setMarginStart(Ui.dp(this, 8));
@@ -486,8 +708,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void showSoundMenu(View anchor, File f) {
         PopupMenu menu = new PopupMenu(this, anchor);
-        menu.getMenu().add(0, 1, 0, "Сохранить копию в…");
-        menu.getMenu().add(0, 2, 1, "Удалить");
+        menu.getMenu().add(0, 1, 0, R.string.menu_save_copy);
+        menu.getMenu().add(0, 2, 1, R.string.delete);
         menu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) openSaveFolderPicker(f);
             else confirmDelete(f);
@@ -513,7 +735,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     }
 
     @Override public void onPreviewError(File file) {
-        toast("Не удалось воспроизвести " + file.getName());
+        toast(getString(R.string.cannot_play, file.getName()));
     }
 
     // ---------------------------------------------------------------- Добавление и сохранение
@@ -522,10 +744,10 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         if (busy) return;
         Intent i = new Intent(this, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Добавить звуки")
+                .putExtra(PickerActivity.EXTRA_TITLE, getString(R.string.sounds_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, SOUND_EXTENSIONS)
                 .putExtra(PickerActivity.EXTRA_MAX_DURATION_MS, MAX_SOUND_DURATION_MS)
-                .putExtra(PickerActivity.EXTRA_ITEM_FORMS, new String[]{"звук", "звука", "звуков"})
+                .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_sounds)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
                         new File(FileUtils.INTERNAL_ROOT, "Notifications").getAbsolutePath());
         startActivityForResult(i, REQ_ADD_SOUNDS);
@@ -536,14 +758,15 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         pendingSave = f;
         Intent i = new Intent(this, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FOLDER)
-                .putExtra(PickerActivity.EXTRA_TITLE, "Куда сохранить копию")
+                .putExtra(PickerActivity.EXTRA_TITLE, getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, f.getName())
-                .putExtra(PickerActivity.EXTRA_ACTION, "Сохранить сюда");
+                .putExtra(PickerActivity.EXTRA_ACTION, getString(R.string.save_here));
         startActivityForResult(i, REQ_SAVE_FOLDER);
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (picturesPanel != null && picturesPanel.onActivityResult(requestCode, resultCode, data)) return;
         if (resultCode != RESULT_OK || data == null) return;
         if (requestCode == REQ_ADD_SOUNDS) {
             ArrayList<String> paths = data.getStringArrayListExtra(PickerActivity.EXTRA_PATHS);
@@ -557,7 +780,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             final File src = pendingSave;
             final File dst = new File(folder, src.getName());
             pendingSave = null;
-            if (dst.equals(src)) { toast("Файл уже лежит в этой папке"); return; }
+            if (dst.equals(src)) { toast(getString(R.string.file_already_here)); return; }
             confirmReplaceThen(dst, () -> copySingle(src, dst));
         }
     }
@@ -571,22 +794,22 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             return;
         }
         String message = files.size() == 1
-                ? "Звук «" + files.get(0).getName() + "» уже есть в машине. Заменить его?"
-                : "Уже есть в машине: " + conflicts + " из " + files.size() + ". Что сделать с ними?";
+                ? getString(R.string.sounds_conflict_one, files.get(0).getName())
+                : getString(R.string.sounds_conflict_many, conflicts, files.size());
         AlertDialog.Builder b = new AlertDialog.Builder(this)
-                .setTitle("Такие звуки уже есть")
+                .setTitle(R.string.sounds_conflict_title)
                 .setMessage(message)
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Заменить", (d, w) -> runAdd(files, true));
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.replace, (d, w) -> runAdd(files, true));
         if (files.size() > conflicts) {
-            b.setNeutralButton("Пропустить их", (d, w) -> runAdd(files, false));
+            b.setNeutralButton(R.string.skip_them, (d, w) -> runAdd(files, false));
         }
         b.show();
     }
 
     private void runAdd(List<File> files, boolean replace) {
         preview.stop();
-        setBusy(true, "Копирование…");
+        setBusy(true, getString(R.string.copying));
         io.execute(() -> {
             int copied = 0, skipped = 0, failed = 0;
             for (File f : files) {
@@ -594,9 +817,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                 if (dst.exists() && !replace) { skipped++; continue; }
                 if (FileUtils.copyFileQuiet(f, dst)) copied++; else failed++;
             }
-            final String report = "Добавлено: " + copied
-                    + (skipped > 0 ? ", пропущено: " + skipped : "")
-                    + (failed > 0 ? ", ошибок: " + failed : "");
+            final String report = getString(R.string.add_report, copied)
+                    + (skipped > 0 ? getString(R.string.add_report_skipped, skipped) : "")
+                    + (failed > 0 ? getString(R.string.add_report_failed, failed) : "");
             ui.post(() -> {
                 if (destroyed) return;
                 setBusy(false, null);
@@ -609,39 +832,39 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private void confirmReplaceThen(File dst, Runnable next) {
         if (!dst.exists()) { next.run(); return; }
         new AlertDialog.Builder(this)
-                .setTitle("Файл уже существует")
-                .setMessage(dst.getAbsolutePath() + "\n\nЗаменить его?")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Заменить", (d, w) -> next.run())
+                .setTitle(R.string.file_exists_title)
+                .setMessage(getString(R.string.file_exists_message, dst.getAbsolutePath()))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.replace, (d, w) -> next.run())
                 .show();
     }
 
     private void copySingle(File src, File dst) {
         if (dst.equals(preview.current())) preview.stop();
-        setBusy(true, "Копирование…");
+        setBusy(true, getString(R.string.copying));
         io.execute(() -> {
             boolean ok = FileUtils.copyFileQuiet(src, dst);
             ui.post(() -> {
                 if (destroyed) return;
                 setBusy(false, null);
                 loadSounds();
-                toast(ok ? "Сохранено: " + dst.getAbsolutePath() : "Не удалось сохранить " + dst.getName());
+                toast(ok ? getString(R.string.saved, dst.getAbsolutePath()) : getString(R.string.save_failed, dst.getName()));
             });
         });
     }
 
     private void confirmDelete(File f) {
         new AlertDialog.Builder(this)
-                .setTitle("Удалить звук?")
-                .setMessage(f.getName() + "\n\nМашина больше не будет его проигрывать.")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Удалить", (d, w) -> {
+                .setTitle(R.string.sound_delete_title)
+                .setMessage(getString(R.string.sound_delete_message, f.getName()))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (d, w) -> {
                     if (f.equals(preview.current())) preview.stop();
                     if (f.delete()) {
                         loadSounds();
-                        toast("Удалено: " + f.getName());
+                        toast(getString(R.string.deleted, f.getName()));
                     } else {
-                        toast("Не удалось удалить " + f.getName());
+                        toast(getString(R.string.delete_failed, f.getName()));
                     }
                 })
                 .show();
@@ -663,5 +886,9 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
 
     private void toast(String s) {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
+    private void toastLong(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 }

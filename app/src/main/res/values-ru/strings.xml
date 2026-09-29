@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Русский перевод. Основной язык (по умолчанию) — английский, values/strings.xml. -->
+<resources>
+    <string name="app_name">Менеджер приветствия</string>
+    <!-- Короткое имя под значком в лаунчере (длинное app_name не помещается). -->
+    <string name="app_label">Приветствие</string>
+
+    <!-- Общее -->
+    <string name="help">Помощь</string>
+    <string name="exit">Выход</string>
+    <string name="back">←  Назад</string>
+    <string name="refresh">Обновить</string>
+    <string name="got_it">Понятно</string>
+    <string name="replace">Заменить</string>
+    <string name="delete">Удалить</string>
+    <string name="add">Добавить</string>
+    <string name="close">Закрыть</string>
+    <string name="cancel">Отмена</string>
+    <string name="select_all">Выделить все</string>
+    <string name="clear_selection">Очистить</string>
+    <string name="copying">Копирование…</string>
+    <string name="menu_save_copy">Сохранить копию в…</string>
+    <string name="save_where_title">Куда сохранить копию</string>
+    <string name="save_here">Сохранить сюда</string>
+    <string name="saved">Сохранено: %1$s</string>
+    <string name="save_failed">Не удалось сохранить %1$s</string>
+    <string name="play_desc">Прослушать %1$s</string>
+    <string name="actions_desc">Действия с %1$s</string>
+    <string name="cannot_play">Не удалось воспроизвести %1$s</string>
+    <string name="deleted">Удалено: %1$s</string>
+    <string name="delete_failed">Не удалось удалить %1$s</string>
+    <string name="file_exists_title">Файл уже существует</string>
+    <string name="file_exists_message">%1$s\n\nЗаменить его?</string>
+    <string name="file_already_here">Файл уже лежит в этой папке</string>
+
+    <!-- Тема -->
+    <string name="theme_rail">Тема\n%1$s</string>
+    <string name="theme_desc">Тема оформления: %1$s</string>
+    <string name="theme_toast">Тема: %1$s</string>
+    <string-array name="theme_names">
+        <item>авто</item>
+        <item>светлая</item>
+        <item>тёмная</item>
+    </string-array>
+
+    <!-- Единицы и накопители -->
+    <string name="size_b">%1$d Б</string>
+    <string name="size_kb">%1$.1f КБ</string>
+    <string name="size_mb">%1$.1f МБ</string>
+    <string name="duration_s">%1$.1f с</string>
+    <string name="duration_unknown">длительность неизвестна</string>
+    <string name="duration_cut">%1$s · оборвётся на 6 с</string>
+    <string name="storage_internal">Память</string>
+    <string name="storage_usb">USB %1$s</string>
+
+    <!-- Выход -->
+    <string name="exit_busy_title">Идёт копирование</string>
+    <string name="exit_busy_message">Файлы ещё копируются. Если выйти сейчас, копирование закончится в фоне, но вы не увидите, всё ли прошло успешно.</string>
+    <string name="exit_wait">Дождаться</string>
+    <string name="exit_now">Выйти сейчас</string>
+
+    <!-- Стартовый экран -->
+    <string name="home_version">Версия %1$s</string>
+    <string name="home_description">Звуки и картинки, которыми Evolute i-Space встречает водителя при включении: добавляйте свои, выбирайте стандартные по временам года, включайте и выключайте приветствие.</string>
+    <string name="home_open_sounds">Звуки</string>
+    <string name="home_open_pictures">Картинки</string>
+    <string name="home_developer">Разработчик: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nЛицензия PolyForm Noncommercial: только некоммерческое использование</string>
+    <string name="home_help">Выберите раздел слева или кнопкой на этом экране:\n\n«Звуки» — MP3, которые машина проигрывает при включении.\n«Картинки» — картинки на экране приветствия.\n\nВ каждом разделе есть своя «Помощь». Нажатие на логотип или название вверху возвращает на этот экран.</string>
+    <string name="home_disclaimer_short">⚠ Неофициальное приложение, используется на свой риск.</string>
+    <string name="disclaimer_title">Отказ от ответственности</string>
+    <string name="disclaimer_text">EISWM — неофициальное приложение. Оно не связано с производителем автомобиля Evolute, его дилерами и поставщиками головного устройства и не поддерживается ими.\n\nПриложение работает с системными правами и меняет данные штатного ПО: файлы и базу лаунчера, настройки приветствия.\n\nПрограмма предоставляется «как есть», без каких-либо гарантий. Вы устанавливаете и используете её на свой риск. Автор не несёт ответственности за любой ущерб, в том числе за сбои головного устройства и других систем автомобиля, потерю данных и настроек, необходимость сброса или перепрошивки, отказ в гарантийном обслуживании и любые последствия во время эксплуатации автомобиля.\n\nОбновления прошивки или сервер производителя могут изменить или удалить сделанные настройки.\n\nНе пользуйтесь приложением во время движения — только на стоящем автомобиле.</string>
+    <!-- Раздел «Звуки» -->
+    <string name="sounds_section">Звуки</string>
+    <string name="sounds_header">Звуки в машине</string>
+    <string name="sounds_switch_desc">Звуковое приветствие</string>
+    <string name="sounds_on">Воспроизводить звуки</string>
+    <string name="sounds_off">Не воспроизводить звуки</string>
+    <string name="sounds_unknown">Не удалось узнать, включён ли звук</string>
+    <string name="sounds_off_warning">Машина не будет проигрывать звук приветствия при включении автомобиля.</string>
+    <string name="sounds_tip">Машина играет звук не дольше 6 секунд: более длинный она обрывает на 6-й секунде.</string>
+    <string name="sounds_add">+  Добавить звуки</string>
+    <string name="sounds_add_title">Добавить звуки</string>
+    <string name="sounds_help">Звуки приветствия — это MP3-файлы, которые машина проигрывает при включении автомобиля. Каждый раз она выбирает один из них случайно.\n\n▶  прослушать звук, повторное нажатие останавливает его.\n⋮  сохранить копию звука в память или на флешку, удалить звук.\n«Добавить звуки»  выбрать MP3 в памяти устройства или на USB-флешке.\n\nМашина играет звук не дольше 6 секунд: более длинный она обрывает на 6-й секунде. Такие звуки отмечены жёлтой меткой «оборвётся на 6 с».\n\nПереключатель справа включает и выключает звуковое приветствие. Когда оно выключено, машина не проигрывает звук при включении автомобиля.</string>
+    <string name="sounds_switch_failed">Не удалось изменить состояние приветствия</string>
+    <string name="sounds_switch_unchanged">Состояние не изменилось</string>
+    <string name="sounds_notifications_failed">Не удалось создать папку Notifications</string>
+    <string name="sounds_bundled_added">Добавлено встроенных звуков: %1$d</string>
+    <string name="sounds_bundled_failed">Ошибка копирования встроенных звуков</string>
+    <string name="sounds_no_access">Нет доступа к папке звуков приветствия</string>
+    <string name="sounds_empty">Звуков пока нет</string>
+    <string name="sounds_empty_details">Нажмите «Добавить звуки», чтобы выбрать MP3 в памяти или на флешке.</string>
+    <string name="sounds_summary_none">Загружено: 0 звуков.</string>
+    <string name="sounds_summary_one">Загружен 1 звук. Машина проигрывает его при приветствии.</string>
+    <plurals name="sounds_summary_many">
+        <item quantity="one">Загружено: %d звук. Машина выбирает один из них случайно.</item>
+        <item quantity="few">Загружено: %d звука. Машина выбирает один из них случайно.</item>
+        <item quantity="many">Загружено: %d звуков. Машина выбирает один из них случайно.</item>
+        <item quantity="other">Загружено: %d звука. Машина выбирает один из них случайно.</item>
+    </plurals>
+    <string name="sounds_conflict_title">Такие звуки уже есть</string>
+    <string name="sounds_conflict_one">Звук «%1$s» уже есть в машине. Заменить его?</string>
+    <string name="sounds_conflict_many">Уже есть в машине: %1$d из %2$d. Что сделать с ними?</string>
+    <string name="skip_them">Пропустить их</string>
+    <string name="add_report">Добавлено: %1$d</string>
+    <string name="add_report_skipped">, пропущено: %1$d</string>
+    <string name="add_report_failed">, ошибок: %1$d</string>
+    <string name="sound_delete_title">Удалить звук?</string>
+    <string name="sound_delete_message">%1$s\n\nМашина больше не будет его проигрывать.</string>
+
+    <!-- Экран выбора файлов -->
+    <string name="picker_storages">Накопители</string>
+    <string name="picker_choose_folder">Выбрать эту папку</string>
+    <string name="picker_save_copy">Сохранить копию</string>
+    <string name="picker_storage_gone">Накопитель %1$s отключён</string>
+    <string name="picker_no_usb">Флешка не найдена. Вставьте её и нажмите «Обновить».</string>
+    <string name="picker_folder_unavailable">Папка недоступна</string>
+    <string name="picker_no_files">Здесь нет подходящих файлов</string>
+    <string name="picker_no_folders">Здесь нет вложенных папок</string>
+    <string name="picker_need_files">Нужны файлы %1$s. Откройте другую папку или накопитель.</string>
+    <string name="picker_checking">проверка…</string>
+    <string name="picker_still_checking">Файл ещё проверяется</string>
+    <string name="picker_nothing_here">В этой папке нечего выбрать</string>
+    <string name="picker_save_into">Копия будет сохранена в папку «%1$s».</string>
+    <string name="picker_selected">Выбрано: %1$d</string>
+    <string name="picker_nothing_selected">Ничего не выбрано</string>
+    <string name="picker_hint">Отметьте файлы в списке. Выбор сохраняется, даже если перейти в другую папку.</string>
+    <string name="picker_long_one">Один звук длиннее 6 секунд: машина оборвёт его на 6-й секунде.</string>
+    <string name="picker_long_many">Длиннее 6 секунд: %1$d. Машина оборвёт их на 6-й секунде.</string>
+    <string name="picker_remove_desc">Убрать %1$s</string>
+    <string name="picker_not_writable">В эту папку нельзя записывать, выберите другую</string>
+    <string name="picker_long_title_one">Звук длиннее 6 секунд</string>
+    <string name="picker_long_title_many">Звуки длиннее 6 секунд</string>
+    <string name="picker_long_msg_one">«%1$s» длиннее 6 секунд. Машина начнёт его играть и оборвёт на 6-й секунде.</string>
+    <plurals name="picker_long_msg_many">
+        <item quantity="one">%d звук длиннее 6 секунд. Машина начнёт их играть и оборвёт на 6-й секунде.</item>
+        <item quantity="few">%d звука длиннее 6 секунд. Машина начнёт их играть и оборвёт на 6-й секунде.</item>
+        <item quantity="many">%d звуков длиннее 6 секунд. Машина начнёт их играть и оборвёт на 6-й секунде.</item>
+        <item quantity="other">%d звука длиннее 6 секунд. Машина начнёт их играть и оборвёт на 6-й секунде.</item>
+    </plurals>
+    <string name="picker_add_anyway">Всё равно добавить</string>
+    <string name="picker_without_it">Без него</string>
+    <string name="picker_without_them">Без них</string>
+    <plurals name="picker_add_sounds">
+        <item quantity="one">Добавить %d звук</item>
+        <item quantity="few">Добавить %d звука</item>
+        <item quantity="many">Добавить %d звуков</item>
+        <item quantity="other">Добавить %d звука</item>
+    </plurals>
+    <plurals name="picker_add_pictures">
+        <item quantity="one">Добавить %d картинку</item>
+        <item quantity="few">Добавить %d картинки</item>
+        <item quantity="many">Добавить %d картинок</item>
+        <item quantity="other">Добавить %d картинки</item>
+    </plurals>
+    <plurals name="picker_add_files">
+        <item quantity="one">Добавить %d файл</item>
+        <item quantity="few">Добавить %d файла</item>
+        <item quantity="many">Добавить %d файлов</item>
+        <item quantity="other">Добавить %d файла</item>
+    </plurals>
+    <string name="picker_image_ok">%1$d×%2$d</string>
+    <string name="picker_image_crop">%1$d×%2$d · обрежется</string>
+    <string name="picker_image_bad">не открывается</string>
+
+    <!-- Раздел «Картинки» -->
+    <string name="pictures_section">Картинки</string>
+    <string name="pictures_header">Картинки в машине</string>
+    <string name="pictures_switch_caption">Картинки при приветствии</string>
+    <string name="pictures_on">Показывать картинки</string>
+    <string name="pictures_off">Не показывать картинки</string>
+    <string name="pictures_off_warning">При приветствии экран будет тёмным. Картинки сохранены и вернутся, когда вы включите показ.</string>
+    <string name="pictures_tip">Картинка подгоняется под экран машины 1920×720: лишнее по краям обрезается.</string>
+    <string name="pictures_add">+  Добавить картинки</string>
+    <string name="pictures_add_title">Добавить картинки</string>
+    <string name="pictures_empty">Картинок пока нет</string>
+    <string name="pictures_empty_details">Машина показывает встроенную картинку. Нажмите «Добавить картинки», чтобы выбрать свои в памяти или на флешке.</string>
+    <string name="pictures_no_access">Нет доступа к картинкам приветствия</string>
+    <string name="pictures_summary_none">Загружено: 0 картинок. Машина показывает встроенную картинку.</string>
+    <string name="pictures_summary_one">Загружена 1 картинка. Машина показывает её при приветствии.</string>
+    <plurals name="pictures_summary_many">
+        <item quantity="one">Загружено: %d картинка. Машина выбирает одну из них случайно.</item>
+        <item quantity="few">Загружено: %d картинки. Машина выбирает одну из них случайно.</item>
+        <item quantity="many">Загружено: %d картинок. Машина выбирает одну из них случайно.</item>
+        <item quantity="other">Загружено: %d картинки. Машина выбирает одну из них случайно.</item>
+    </plurals>
+    <plurals name="pictures_summary_partial">
+        <item quantity="one">Загружено: %1$d картинка, сейчас показываются %2$d. Машина выбирает одну из них случайно.</item>
+        <item quantity="few">Загружено: %1$d картинки, сейчас показываются %2$d. Машина выбирает одну из них случайно.</item>
+        <item quantity="many">Загружено: %1$d картинок, сейчас показываются %2$d. Машина выбирает одну из них случайно.</item>
+        <item quantity="other">Загружено: %1$d картинки, сейчас показываются %2$d. Машина выбирает одну из них случайно.</item>
+    </plurals>
+    <plurals name="pictures_summary_off">
+        <item quantity="one">Загружено: %d картинка. Пока показ выключен, они отложены.</item>
+        <item quantity="few">Загружено: %d картинки. Пока показ выключен, они отложены.</item>
+        <item quantity="many">Загружено: %d картинок. Пока показ выключен, они отложены.</item>
+        <item quantity="other">Загружено: %d картинки. Пока показ выключен, они отложены.</item>
+    </plurals>
+    <string name="pictures_busy">Обработка картинок…</string>
+    <string name="pictures_expired">срок показа истёк</string>
+    <string name="pictures_not_started">ещё не показывается</string>
+    <string name="pictures_menu_save">Сохранить копию в…</string>
+    <string name="pictures_menu_delete">Удалить</string>
+    <string name="pictures_delete_title">Удалить картинку?</string>
+    <string name="pictures_delete_message">Машина больше не будет её показывать.</string>
+    <string name="pictures_delete_ok">Удалить</string>
+    <string name="pictures_deleted">Картинка удалена</string>
+    <string name="pictures_added">Добавлено картинок: %1$d</string>
+    <string name="pictures_add_failed">, не удалось: %1$d</string>
+    <string name="pictures_restored">Восстановлено картинок, стёртых лаунчером: %1$d</string>
+    <string name="pictures_saved">Сохранено: %1$s</string>
+    <string name="pictures_save_failed">Не удалось сохранить картинку</string>
+    <string name="pictures_error">Ошибка: %1$s</string>
+    <string name="pictures_help">Картинки приветствия машина показывает на экране при включении автомобиля. Каждый раз она выбирает одну из них случайно.\n\nНажмите на картинку, чтобы посмотреть её крупно.\n⋮  сохранить копию картинки в память или на флешку, удалить картинку.\n«Добавить картинки»  выбрать PNG или JPG в памяти устройства или на USB-флешке. Картинка подгоняется под экран 1920×720, лишнее по краям обрезается.\n\nПереключатель справа выключает картинки: при приветствии экран будет тёмным, а сами картинки сохранятся и вернутся при включении.\n\nЕсли машина подключится к серверу производителя, он может стереть добавленные картинки. Приложение хранит их копии и восстанавливает при запуске и при старте машины.</string>
+    <string name="pictures_standard">Стандартные картинки</string>
+    <string name="pictures_desc_std_season">Стандартная, по сезону</string>
+    <string name="pictures_desc_std_year">Стандартная, круглый год</string>
+    <string name="pictures_desc_added">Добавлена %1$s</string>
+    <string name="pictures_selected_header">Выделено: %1$d из %2$d</string>
+    <string name="pictures_delete_selected">Удалить (%1$d)</string>
+    <string name="pictures_delete_many_title">Удалить выделенные картинки?</string>
+    <plurals name="pictures_delete_many_message">
+        <item quantity="one">%d картинка. Машина больше не будет их показывать.</item>
+        <item quantity="few">%d картинки. Машина больше не будет их показывать.</item>
+        <item quantity="many">%d картинок. Машина больше не будет их показывать.</item>
+        <item quantity="other">%d картинки. Машина больше не будет их показывать.</item>
+    </plurals>
+    <string name="pictures_deleted_many">Удалено картинок: %1$d</string>
+    <string name="pictures_read_failed">Не удалось прочитать картинку %1$s</string>
+    <string name="pictures_write_failed">Не удалось записать %1$s</string>
+    <string name="pictures_db_failed">Не удалось открыть базу картинок: %1$s</string>
+    <string name="pictures_no_dir_access">Нет доступа к %1$s</string>
+    <string name="pictures_prefs_failed">Не удалось сохранить настройки картинок</string>
+
+    <!-- Сезоны -->
+    <string name="season_winter">Зима</string>
+    <string name="season_spring">Весна</string>
+    <string name="season_summer">Лето</string>
+    <string name="season_autumn">Осень</string>
+    <string name="season_now">сейчас его сезон</string>
+
+    <!-- Экран «Стандартные картинки» -->
+    <string name="standard_title">Стандартные картинки</string>
+    <string name="standard_selected">Выбрано: %1$d</string>
+    <string name="standard_none_selected">Отмеченные добавятся на круглый год.</string>
+    <string name="standard_add">Добавить выбранные</string>
+    <string name="standard_added_mark">уже добавлена</string>
+    <string name="standard_seasonal_title">По временам года</string>
+    <string name="standard_seasonal_text">Все 16 картинок, каждая в свой сезон: зимой — одна из четырёх зимних и так далее.</string>
+    <string name="standard_seasonal_on">Включить по сезонам</string>
+    <string name="standard_seasonal_off">Выключить по сезонам</string>
+    <string name="standard_seasonal_enabled">Сейчас включено.</string>
+    <string name="standard_done_added">Добавлено стандартных картинок: %1$d</string>
+    <string name="standard_done_seasonal_on">Картинки по временам года включены</string>
+    <string name="standard_done_seasonal_off">Картинки по временам года выключены</string>
+
+    <!-- Обновления (Updater). -->
+    <string name="update_check">Проверить обновления</string>
+    <string name="update_checking">Проверяю обновления…</string>
+    <string name="update_latest">Установлена последняя версия</string>
+    <string name="update_available">Доступна версия %1$s. Подробнее…</string>
+    <string name="update_failed">Не удалось проверить обновления. Нажмите, чтобы повторить</string>
+    <string name="update_title">Обновление до версии %1$s</string>
+    <string name="update_released">Выпущена %1$s.</string>
+    <string name="update_size">Размер загрузки: %1$s.</string>
+    <string name="update_install">Скачать и установить</string>
+    <string name="update_download">Скачать и проверить</string>
+    <string name="update_later">Позже</string>
+    <string name="update_downloading">Загрузка обновления…</string>
+    <string name="update_installing">Устанавливаю обновление. Приложение закроется и откроется снова.</string>
+    <string name="update_emulator_note">Версия для эмулятора только скачивает и проверяет обновление: APK для машины подписан другим ключом.</string>
+    <string name="update_emulator_done">APK скачан и проверен: %1$s</string>
+    <string name="update_error">Не удалось обновить: %1$s</string>
+    <string name="update_error_checksum">скачанный файл повреждён (не совпала контрольная сумма)</string>
+    <string name="update_error_package">файл не является обновлением EISWM</string>
+    <string name="update_error_version">версия в файле не новее установленной</string>
+    <string name="update_error_install">Установка не удалась: %1$s</string>
+</resources>

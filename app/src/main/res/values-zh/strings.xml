@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Китайский (упрощённые иероглифы). Используется для всех вариантов китайского языка системы. -->
+<resources>
+    <string name="app_name">迎宾管理器</string>
+    <string name="app_label">迎宾</string>
+
+    <!-- Common -->
+    <string name="help">帮助</string>
+    <string name="exit">退出</string>
+    <string name="back">←  返回</string>
+    <string name="refresh">刷新</string>
+    <string name="got_it">知道了</string>
+    <string name="replace">替换</string>
+    <string name="delete">删除</string>
+    <string name="add">添加</string>
+    <string name="close">关闭</string>
+    <string name="cancel">取消</string>
+    <string name="select_all">全选</string>
+    <string name="clear_selection">清除</string>
+    <string name="copying">正在复制…</string>
+    <string name="menu_save_copy">保存副本到…</string>
+    <string name="save_where_title">副本保存位置</string>
+    <string name="save_here">保存到这里</string>
+    <string name="saved">已保存：%1$s</string>
+    <string name="save_failed">无法保存 %1$s</string>
+    <string name="play_desc">播放 %1$s</string>
+    <string name="actions_desc">%1$s 的操作</string>
+    <string name="cannot_play">无法播放 %1$s</string>
+    <string name="deleted">已删除：%1$s</string>
+    <string name="delete_failed">无法删除 %1$s</string>
+    <string name="file_exists_title">文件已存在</string>
+    <string name="file_exists_message">%1$s\n\n要替换吗？</string>
+    <string name="file_already_here">该文件已在此文件夹中</string>
+
+    <!-- Theme -->
+    <string name="theme_rail">主题\n%1$s</string>
+    <string name="theme_desc">主题：%1$s</string>
+    <string name="theme_toast">主题：%1$s</string>
+    <string-array name="theme_names">
+        <item>自动</item>
+        <item>浅色</item>
+        <item>深色</item>
+    </string-array>
+
+    <!-- Units and storage -->
+    <string name="size_b">%1$d B</string>
+    <string name="size_kb">%1$.1f KB</string>
+    <string name="size_mb">%1$.1f MB</string>
+    <string name="duration_s">%1$.1f 秒</string>
+    <string name="duration_unknown">时长未知</string>
+    <string name="duration_cut">%1$s · 第 6 秒截断</string>
+    <string name="storage_internal">内部存储</string>
+    <string name="storage_usb">USB %1$s</string>
+
+    <!-- Exit -->
+    <string name="exit_busy_title">正在复制</string>
+    <string name="exit_busy_message">文件仍在复制中。如果现在退出，复制会在后台完成，但您将看不到是否成功。</string>
+    <string name="exit_wait">等待</string>
+    <string name="exit_now">立即退出</string>
+
+    <!-- Home screen -->
+    <string name="home_version">版本 %1$s</string>
+    <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾。</string>
+    <string name="home_open_sounds">声音</string>
+    <string name="home_open_pictures">图片</string>
+    <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\ngithub.com/AOlifer/EISWM\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
+    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动时播放的 MP3 文件。\n图片：迎宾画面上的图片。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
+    <string name="home_disclaimer_short">⚠ 非官方应用，使用风险自负。</string>
+    <string name="disclaimer_title">免责声明</string>
+    <string name="disclaimer_text">EISWM 是非官方应用。它与 Evolute 汽车制造商、其经销商及主机供应商无关，也未获得其认可或支持。\n\n本应用以系统权限运行，会修改原厂软件的数据：启动器的文件和数据库以及迎宾设置。\n\n本软件按“原样”提供，不附带任何形式的保证。安装和使用的风险由您自行承担。作者不对任何损害负责，包括主机或车辆其他系统故障、数据或设置丢失、需要重置或重新刷写主机、被拒绝保修，以及驾驶车辆时产生的任何后果。\n\n固件更新或制造商服务器可能会更改或删除所做的设置。\n\n请勿在行驶中使用本应用，仅在车辆停止时使用。</string>
+    <!-- Sounds section -->
+    <string name="sounds_section">声音</string>
+    <string name="sounds_header">车内的声音</string>
+    <string name="sounds_switch_desc">迎宾声音</string>
+    <string name="sounds_on">播放迎宾声音</string>
+    <string name="sounds_off">不播放迎宾声音</string>
+    <string name="sounds_unknown">无法确定迎宾声音是否开启</string>
+    <string name="sounds_off_warning">车辆启动时将不播放迎宾声音。</string>
+    <string name="sounds_tip">车辆播放声音最长 6 秒，更长的声音会在第 6 秒被截断。</string>
+    <string name="sounds_add">+  添加声音</string>
+    <string name="sounds_add_title">添加声音</string>
+    <string name="sounds_help">迎宾声音是车辆启动时播放的 MP3 文件。每次随机选择其中一个。\n\n▶  播放声音，再次点击停止。\n⋮  将声音副本保存到内部存储或 U 盘，删除声音。\n“添加声音”  在内部存储或 U 盘中选择 MP3 文件。\n\n车辆播放声音最长 6 秒，更长的声音会在第 6 秒被截断。这类声音带有黄色“第 6 秒截断”标记。\n\n右侧的开关用于开启和关闭迎宾声音。关闭时，车辆启动时不播放声音。</string>
+    <string name="sounds_switch_failed">无法更改迎宾声音设置</string>
+    <string name="sounds_switch_unchanged">设置未改变</string>
+    <string name="sounds_notifications_failed">无法创建 Notifications 文件夹</string>
+    <string name="sounds_bundled_added">已添加内置声音：%1$d</string>
+    <string name="sounds_bundled_failed">无法复制内置声音</string>
+    <string name="sounds_no_access">无法访问迎宾声音文件夹</string>
+    <string name="sounds_empty">还没有声音</string>
+    <string name="sounds_empty_details">点击“添加声音”，在内部存储或 U 盘中选择 MP3 文件。</string>
+    <string name="sounds_summary_none">已加载：0 个声音。</string>
+    <string name="sounds_summary_one">已加载：1 个声音。车辆启动时播放它。</string>
+    <plurals name="sounds_summary_many">
+        <item quantity="other">已加载：%d 个声音。车辆每次随机选择其中一个。</item>
+    </plurals>
+    <string name="sounds_conflict_title">这些声音已存在</string>
+    <string name="sounds_conflict_one">声音“%1$s”已在车内。要替换吗？</string>
+    <string name="sounds_conflict_many">车内已有：%1$d / %2$d。如何处理它们？</string>
+    <string name="skip_them">跳过</string>
+    <string name="add_report">已添加：%1$d</string>
+    <string name="add_report_skipped">，已跳过：%1$d</string>
+    <string name="add_report_failed">，错误：%1$d</string>
+    <string name="sound_delete_title">删除该声音？</string>
+    <string name="sound_delete_message">%1$s\n\n车辆将不再播放它。</string>
+
+    <!-- File picker -->
+    <string name="picker_storages">存储</string>
+    <string name="picker_choose_folder">选择此文件夹</string>
+    <string name="picker_save_copy">保存副本</string>
+    <string name="picker_storage_gone">存储 %1$s 已移除</string>
+    <string name="picker_no_usb">未找到 U 盘。请插入后点击“刷新”。</string>
+    <string name="picker_folder_unavailable">无法访问文件夹</string>
+    <string name="picker_no_files">这里没有合适的文件</string>
+    <string name="picker_no_folders">这里没有子文件夹</string>
+    <string name="picker_need_files">需要 %1$s 文件。请打开其他文件夹或存储。</string>
+    <string name="picker_checking">正在检查…</string>
+    <string name="picker_still_checking">文件仍在检查中</string>
+    <string name="picker_nothing_here">此文件夹中没有可选项</string>
+    <string name="picker_save_into">副本将保存到“%1$s”。</string>
+    <string name="picker_selected">已选择：%1$d</string>
+    <string name="picker_nothing_selected">未选择任何内容</string>
+    <string name="picker_hint">在列表中勾选文件。打开其他文件夹时，所选内容会保留。</string>
+    <string name="picker_long_one">有一个声音超过 6 秒：车辆会在第 6 秒将其截断。</string>
+    <string name="picker_long_many">超过 6 秒：%1$d 个。车辆会在第 6 秒将其截断。</string>
+    <string name="picker_remove_desc">移除 %1$s</string>
+    <string name="picker_not_writable">此文件夹为只读，请选择其他文件夹</string>
+    <string name="picker_long_title_one">声音超过 6 秒</string>
+    <string name="picker_long_title_many">声音超过 6 秒</string>
+    <string name="picker_long_msg_one">“%1$s”超过 6 秒。车辆会开始播放，并在第 6 秒将其截断。</string>
+    <plurals name="picker_long_msg_many">
+        <item quantity="other">%d 个声音超过 6 秒。车辆会开始播放，并在第 6 秒将其截断。</item>
+    </plurals>
+    <string name="picker_add_anyway">仍然添加</string>
+    <string name="picker_without_it">不添加它</string>
+    <string name="picker_without_them">不添加它们</string>
+    <plurals name="picker_add_sounds">
+        <item quantity="other">添加 %d 个声音</item>
+    </plurals>
+    <plurals name="picker_add_pictures">
+        <item quantity="other">添加 %d 张图片</item>
+    </plurals>
+    <plurals name="picker_add_files">
+        <item quantity="other">添加 %d 个文件</item>
+    </plurals>
+    <string name="picker_image_ok">%1$d×%2$d</string>
+    <string name="picker_image_crop">%1$d×%2$d · 将被裁剪</string>
+    <string name="picker_image_bad">无法打开</string>
+
+    <!-- Pictures section -->
+    <string name="pictures_section">图片</string>
+    <string name="pictures_header">车内的图片</string>
+    <string name="pictures_switch_caption">迎宾图片</string>
+    <string name="pictures_on">显示图片</string>
+    <string name="pictures_off">不显示图片</string>
+    <string name="pictures_off_warning">迎宾画面将为黑屏。图片会被保留，重新开启显示后恢复。</string>
+    <string name="pictures_tip">图片会适配车辆屏幕（1920×720），超出边缘的部分会被裁剪。</string>
+    <string name="pictures_add">+  添加图片</string>
+    <string name="pictures_add_title">添加图片</string>
+    <string name="pictures_empty">还没有图片</string>
+    <string name="pictures_empty_details">车辆显示其内置图片。点击“添加图片”，在内部存储或 U 盘中选择您自己的图片。</string>
+    <string name="pictures_no_access">无法访问迎宾图片</string>
+    <string name="pictures_summary_none">已加载：0 张图片。车辆显示其内置图片。</string>
+    <string name="pictures_summary_one">已加载：1 张图片。车辆启动时显示它。</string>
+    <plurals name="pictures_summary_many">
+        <item quantity="other">已加载：%d 张图片。车辆每次随机选择其中一张。</item>
+    </plurals>
+    <plurals name="pictures_summary_partial">
+        <item quantity="other">已加载：%1$d 张图片，当前显示 %2$d 张。车辆每次随机选择其中一张。</item>
+    </plurals>
+    <plurals name="pictures_summary_off">
+        <item quantity="other">已加载：%d 张图片。关闭显示期间，它们被暂时搁置。</item>
+    </plurals>
+    <string name="pictures_busy">正在处理图片…</string>
+    <string name="pictures_expired">显示期已结束</string>
+    <string name="pictures_not_started">尚未开始显示</string>
+    <string name="pictures_menu_save">保存副本到…</string>
+    <string name="pictures_menu_delete">删除</string>
+    <string name="pictures_delete_title">删除该图片？</string>
+    <string name="pictures_delete_message">车辆将不再显示它。</string>
+    <string name="pictures_delete_ok">删除</string>
+    <string name="pictures_deleted">图片已删除</string>
+    <string name="pictures_added">已添加图片：%1$d</string>
+    <string name="pictures_add_failed">，失败：%1$d</string>
+    <string name="pictures_restored">已恢复被启动器删除的图片：%1$d</string>
+    <string name="pictures_saved">已保存：%1$s</string>
+    <string name="pictures_save_failed">无法保存图片</string>
+    <string name="pictures_error">错误：%1$s</string>
+    <string name="pictures_help">车辆启动时会在屏幕上显示迎宾图片。每次随机选择其中一张。\n\n点击图片可放大查看。\n⋮  将图片副本保存到内部存储或 U 盘，删除图片。\n“添加图片”  在内部存储或 U 盘中选择 PNG 或 JPG 文件。图片会适配 1920×720 屏幕，超出边缘的部分会被裁剪。\n\n右侧的开关用于关闭图片：迎宾画面将为黑屏，图片会被保留，重新开启后恢复。\n\n如果车辆连接到制造商服务器，服务器可能会删除已添加的图片。本应用会保存副本，并在应用启动和车辆启动时恢复它们。</string>
+    <string name="pictures_standard">标准图片</string>
+    <string name="pictures_desc_std_season">标准，按季节</string>
+    <string name="pictures_desc_std_year">标准，全年</string>
+    <string name="pictures_desc_added">添加于 %1$s</string>
+    <string name="pictures_selected_header">已选择：%1$d / %2$d</string>
+    <string name="pictures_delete_selected">删除（%1$d）</string>
+    <string name="pictures_delete_many_title">删除所选图片？</string>
+    <plurals name="pictures_delete_many_message">
+        <item quantity="other">%d 张图片。车辆将不再显示它们。</item>
+    </plurals>
+    <string name="pictures_deleted_many">已删除图片：%1$d</string>
+    <string name="pictures_read_failed">无法读取图片 %1$s</string>
+    <string name="pictures_write_failed">无法写入 %1$s</string>
+    <string name="pictures_db_failed">无法打开图片数据库：%1$s</string>
+    <string name="pictures_no_dir_access">无法访问 %1$s</string>
+    <string name="pictures_prefs_failed">无法保存图片设置</string>
+
+    <!-- Seasons -->
+    <string name="season_winter">冬季</string>
+    <string name="season_spring">春季</string>
+    <string name="season_summer">夏季</string>
+    <string name="season_autumn">秋季</string>
+    <string name="season_now">当前季节</string>
+
+    <!-- Standard pictures screen -->
+    <string name="standard_title">标准图片</string>
+    <string name="standard_selected">已选择：%1$d</string>
+    <string name="standard_none_selected">勾选的图片将全年显示。</string>
+    <string name="standard_add">添加所选</string>
+    <string name="standard_added_mark">已添加</string>
+    <string name="standard_seasonal_title">按季节</string>
+    <string name="standard_seasonal_text">全部 16 张图片，各在其季节显示：冬季显示四张冬季图片之一，以此类推。</string>
+    <string name="standard_seasonal_on">开启按季节显示</string>
+    <string name="standard_seasonal_off">关闭按季节显示</string>
+    <string name="standard_seasonal_enabled">当前已开启。</string>
+    <string name="standard_done_added">已添加标准图片：%1$d</string>
+    <string name="standard_done_seasonal_on">已开启按季节显示图片</string>
+    <string name="standard_done_seasonal_off">已关闭按季节显示图片</string>
+
+    <!-- Обновления (Updater). -->
+    <string name="update_check">检查更新</string>
+    <string name="update_checking">正在检查更新…</string>
+    <string name="update_latest">已是最新版本</string>
+    <string name="update_available">有新版本 %1$s。详情…</string>
+    <string name="update_failed">无法检查更新。点击重试</string>
+    <string name="update_title">更新到版本 %1$s</string>
+    <string name="update_released">发布于 %1$s。</string>
+    <string name="update_size">下载大小：%1$s。</string>
+    <string name="update_install">下载并安装</string>
+    <string name="update_download">下载并校验</string>
+    <string name="update_later">稍后</string>
+    <string name="update_downloading">正在下载更新…</string>
+    <string name="update_installing">正在安装更新。应用将关闭并重新打开。</string>
+    <string name="update_emulator_note">模拟器版本仅下载并校验更新：车载 APK 使用不同的密钥签名。</string>
+    <string name="update_emulator_done">APK 已下载并校验：%1$s</string>
+    <string name="update_error">更新失败：%1$s</string>
+    <string name="update_error_checksum">下载的文件已损坏（校验和不匹配）</string>
+    <string name="update_error_package">该文件不是 EISWM 更新</string>
+    <string name="update_error_version">该文件的版本不比已安装的版本新</string>
+    <string name="update_error_install">安装失败：%1$s</string>
+</resources>

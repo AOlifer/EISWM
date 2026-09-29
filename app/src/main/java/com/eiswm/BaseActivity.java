@@ -12,7 +12,12 @@ abstract class BaseActivity extends Activity {
     static final String PREFS = "eiswm";
     static final String PREF_THEME = "theme";
     static final int THEME_AUTO = 0, THEME_LIGHT = 1, THEME_DARK = 2;
-    static final String[] THEME_NAMES = {"авто", "светлая", "тёмная"};
+    static final int THEME_COUNT = 3;
+
+    /** Название темы на языке системы (массив theme_names в strings.xml). */
+    String themeName(int mode) {
+        return getResources().getStringArray(R.array.theme_names)[mode];
+    }
 
     static int themeMode(Context c) {
         int mode = c.getSharedPreferences(PREFS, MODE_PRIVATE).getInt(PREF_THEME, THEME_AUTO);

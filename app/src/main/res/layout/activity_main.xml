@@ -21,7 +21,9 @@
             android:scaleType="fitCenter"
             android:src="@drawable/logo_header" />
 
+        <!-- Нажатие на логотип или название возвращает на стартовый экран. -->
         <TextView
+            android:id="@+id/appTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,12 +37,12 @@
         <Button
             android:id="@+id/btnHelp"
             style="@style/EISWM.TextButton"
-            android:text="Помощь" />
+            android:text="@string/help" />
 
         <Button
             android:id="@+id/btnExit"
             style="@style/EISWM.TextButton"
-            android:text="Выход" />
+            android:text="@string/exit" />
     </LinearLayout>
 
     <View style="@style/EISWM.Divider" />
@@ -66,12 +68,119 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
+            <!-- Стартовый экран: ни один раздел не выбран. -->
+            <LinearLayout
+                android:id="@+id/homePanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/surface"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="24dp">
+
+                <!-- Размер картинки задаёт MainActivity.fitHomeImage(): окно может быть уже экрана. -->
+                <ImageView
+                    android:id="@+id/homeImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/home_card"
+                    android:contentDescription="Evolute i-Space"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/home_car" />
+
+                <!-- Текст прокручивается, если окно ниже экрана машины. -->
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="40dp"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:scrollbarStyle="outsideOverlay">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textColor="@color/text_primary"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <!-- Версия и обновления: «Проверить обновления» / «Доступна версия N. Подробнее…». -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/homeVersion"
+                            style="@style/EISWM.Caption"
+                            android:layout_width="wrap_content"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/homeUpdate"
+                            style="@style/EISWM.Caption"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="20dp"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:text="@string/update_check"
+                            android:textColor="@color/accent"
+                            android:textSize="17sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_description"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/homeSounds"
+                            style="@style/EISWM.PrimaryButton"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="16dp"
+                            android:text="@string/home_open_sounds" />
+
+                        <Button
+                            android:id="@+id/homePictures"
+                            style="@style/EISWM.PrimaryButton"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="@string/home_open_pictures" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/home_developer" />
+                </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
             <!-- Раздел «Звуки приветствия». -->
             <LinearLayout
                 android:id="@+id/soundsPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -82,7 +191,7 @@
 
                     <TextView
                         style="@style/EISWM.SectionHeader"
-                        android:text="Звуки в машине" />
+                        android:text="@string/sounds_header" />
 
                     <View style="@style/EISWM.Divider" />
 
@@ -101,14 +210,17 @@
 
                 <View style="@style/EISWM.VDivider" />
 
+                <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
+                <ScrollView
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true">
+
                 <LinearLayout
                     style="@style/EISWM.SidePanel"
-                    android:layout_width="360dp"
+                    android:layout_width="match_parent"
                     android:padding="16dp">
-
-                    <TextView
-                        style="@style/EISWM.Caption"
-                        android:text="Звуковое приветствие" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -130,7 +242,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="56dp"
                             android:layout_marginEnd="8dp"
-                            android:contentDescription="Звуковое приветствие"
+                            android:contentDescription="@string/sounds_switch_desc"
                             android:scaleX="1.3"
                             android:scaleY="1.3" />
                     </LinearLayout>
@@ -140,7 +252,7 @@
                         android:id="@+id/welcomeWarning"
                         style="@style/EISWM.Caption"
                         android:layout_marginTop="2dp"
-                        android:text="Машина не будет проигрывать звук приветствия при включении автомобиля."
+                        android:text="@string/sounds_off_warning"
                         android:textColor="@color/pill_warn_fg"
                         android:visibility="gone" />
 
@@ -158,7 +270,7 @@
                     <TextView
                         style="@style/EISWM.Caption"
                         android:layout_marginTop="10dp"
-                        android:text="Машина играет звук не дольше 6 секунд: более длинный она обрывает на 6-й секунде." />
+                        android:text="@string/sounds_tip" />
 
                     <Space
                         android:layout_width="match_parent"
@@ -168,44 +280,165 @@
                     <Button
                         android:id="@+id/btnAddSounds"
                         style="@style/EISWM.PrimaryButton"
-                        android:text="+  Добавить звуки" />
+                        android:text="@string/sounds_add" />
                 </LinearLayout>
+                </ScrollView>
             </LinearLayout>
 
-            <!-- Раздел «Картинки приветствия» — место под будущее управление картинками. -->
+            <!-- Раздел «Картинки»: картинки приветствия; логика в PicturesPanel. -->
             <LinearLayout
                 android:id="@+id/picturesPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="32dp"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🖼"
-                    android:textSize="56sp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/surface"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Картинки приветствия"
-                    android:textColor="@color/text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    <!-- Заголовок и действия с выделенными картинками. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@color/surface"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingEnd="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:maxWidth="640dp"
-                    android:text="Здесь можно будет выбирать картинки, которые машина показывает при приветствии. Раздел в разработке."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/picturesHeader"
+                            style="@style/EISWM.SectionHeader"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:singleLine="true"
+                            android:text="@string/pictures_header" />
+
+                        <!-- «Удалить» появляется слева от остальных кнопок и сжимает заголовок,
+                             поэтому «Выделить все» и «Очистить» не сдвигаются. Пока ничего не
+                             выделено, он скрыт совсем, чтобы в узком окне заголовку хватало места. -->
+                        <Button
+                            android:id="@+id/btnPicturesDelete"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="16dp"
+                            android:textColor="@color/pill_bad_fg"
+                            android:visibility="invisible" />
+
+                        <Button
+                            android:id="@+id/btnPicturesSelectAll"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:text="@string/select_all" />
+
+                        <Button
+                            android:id="@+id/btnPicturesClear"
+                            style="@style/EISWM.TextButton"
+                            android:layout_height="48dp"
+                            android:text="@string/clear_selection" />
+                    </LinearLayout>
+
+                    <View style="@style/EISWM.Divider" />
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+
+                        <!-- Сетка превью: строки по две карточки создаются в коде. -->
+                        <LinearLayout
+                            android:id="@+id/pictureGrid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="8dp" />
+                    </ScrollView>
+                </LinearLayout>
+
+                <View style="@style/EISWM.VDivider" />
+
+                <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
+                <ScrollView
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true">
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="match_parent"
+                    android:padding="16dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/picturesLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/picturesSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/pictures_switch_caption"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/picturesWarning"
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/pictures_off_warning"
+                        android:textColor="@color/pill_warn_fg"
+                        android:visibility="gone" />
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/picturesStatus"
+                        style="@style/EISWM.Caption"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/pictures_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnStandardPictures"
+                        style="@style/EISWM.TextButton"
+                        android:layout_width="match_parent"
+                        android:text="@string/pictures_standard" />
+
+                    <Button
+                        android:id="@+id/btnAddPictures"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/pictures_add" />
+                </LinearLayout>
+                </ScrollView>
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

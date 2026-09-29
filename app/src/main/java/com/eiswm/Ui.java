@@ -67,9 +67,10 @@ final class Ui {
 
     /** Метка длительности звука: зелёная — до предела, жёлтая — машина оборвёт звук. */
     static void setDurationPill(TextView v, long ms, long maxMs) {
-        if (ms < 0) setPill(v, "длительность неизвестна", PILL_WARN);
-        else if (ms > maxMs) setPill(v, FileUtils.formatDuration(ms) + " · оборвётся на 6 с", PILL_WARN);
-        else setPill(v, FileUtils.formatDuration(ms), PILL_OK);
+        Context c = v.getContext();
+        if (ms < 0) setPill(v, c.getString(R.string.duration_unknown), PILL_WARN);
+        else if (ms > maxMs) setPill(v, c.getString(R.string.duration_cut, FileUtils.formatDuration(c, ms)), PILL_WARN);
+        else setPill(v, FileUtils.formatDuration(c, ms), PILL_OK);
     }
 
     /** Кнопка-значок без рамки (▶, ⋮, ✕) размером под палец. */

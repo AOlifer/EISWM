@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:sharedUserId="android.uid.system">
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <!-- Сейчас доступ к памяти даёт system uid; разрешения объявлены явно на случай другой прошивки. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Восстановление картинок приветствия при старте машины (BootReceiver). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Проверка и установка обновлений с сервера (Updater); INSTALL_PACKAGES даёт system uid. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.INSTALL_PACKAGES"
+        tools:ignore="ProtectedPermissions" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/app_label"
         android:supportsRtl="true"
         android:theme="@style/Theme.EISWM">
         <activity
@@ -22,5 +30,25 @@
         <activity
             android:name=".PickerActivity"
             android:exported="false" />
+        <activity
+            android:name=".StandardPicturesActivity"
+            android:exported="false" />
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Updater$ResultReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".Updater$ReplacedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
