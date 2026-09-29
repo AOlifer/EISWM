@@ -1,14 +1,14 @@
 {
-  "versionCode": 7,
-  "versionName": "1.5",
+  "versionCode": 8,
+  "versionName": "1.5.1",
   "date": "2026-09-29",
-  "apk": "https://github.com/AOlifer/EISWM/releases/download/v1.5/EISWM-1.5.apk",
-  "size": 13589855,
-  "sha256": "3e2ef5e857ac7d1692859f637d4a2bf8b175b7600fdb0a4724f76c8583ed9064",
+  "apk": "https://github.com/AOlifer/EISWM/releases/download/v1.5.1/EISWM-1.5.1.apk",
+  "size": 13589865,
+  "sha256": "c52b97f8081cf1b5415617bd3e721f4d8a84bd1ebe57c7b12f3aaf39dca9a34c",
   "changes": {
-    "ru": "• Управление картинками приветствия: свои картинки, стандартные на круглый год или по сезонам, выключение показа.\n• Проверка и установка обновлений.\n• Английский, немецкий и китайский языки.\n• Интерфейс подстраивается под окно не во весь экран.",
-    "en": "• Welcome pictures: your own pictures, standard ones for the whole year or by season, turning the display off.\n• Checking for and installing updates.\n• English, German and Chinese languages.\n• The layout adapts to a window smaller than the screen.",
-    "de": "• Begrüßungsbilder: eigene Bilder, Standardbilder ganzjährig oder nach Jahreszeit, Anzeige ausschalten.\n• Nach Updates suchen und installieren.\n• Englisch, Deutsch und Chinesisch.\n• Die Oberfläche passt sich an ein Fenster an, das kleiner als der Bildschirm ist.",
-    "zh": "• 迎宾图片：自己的图片、全年或按季节显示的标准图片、关闭显示。\n• 检查并安装更新。\n• 英语、德语和中文。\n• 界面可适配小于屏幕的窗口。"
+    "ru": "• Обновления берутся с нового адреса сервера.",
+    "en": "• Updates are now fetched from a new server address.",
+    "de": "• Updates werden jetzt von einer neuen Serveradresse geladen.",
+    "zh": "• 更新现在从新的服务器地址获取。"
   }
 }

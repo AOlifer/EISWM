@@ -15,6 +15,6 @@
     </string-array>
 
     <!-- Обновления: JSON с последней версией (формат — в Updater.java и README). -->
-    <string name="update_url" translatable="false">https://eiswm.olifers.ru/updates/latest</string>
+    <string name="update_url" translatable="false">https://aolifer.github.io/EISWM/updates/latest</string>
     <bool name="update_can_install">true</bool>
 </resources>
