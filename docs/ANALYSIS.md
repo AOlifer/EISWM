@@ -143,6 +143,18 @@ MP3-файлы лежат в каталоге
 
 Код — `Updater.java` и раздел «Обновления» в `MainActivity.java`.
 
+### Где лежат обновления
+
+- JSON последней версии — файл `docs/updates/latest` в ветке `develop` (без расширения,
+  UTF-8 без BOM). GitHub Pages публикует папку `docs/` ветки `develop` по адресу
+  `https://eiswm.olifers.ru/` (Settings → Pages: Deploy from a branch, `develop`, `/docs`,
+  Custom domain `eiswm.olifers.ru`; в DNS запись CNAME `eiswm` → `aolifer.github.io`).
+- APK — файл выпуска на GitHub (Releases, тег версии). В JSON в `apk` ссылка вида
+  `https://github.com/AOlifer/EISWM/releases/download/v1.6/EISWM-1.6.apk`; GitHub
+  перенаправляет её на своё хранилище, приложение идёт по перенаправлению.
+- Порядок публикации: сначала выпуск с APK, потом изменение `docs/updates/latest`, чтобы
+  машина не увидела ссылку на ещё не загруженный файл. Pages кэширует файлы до 10 минут.
+
 ## 5. Языки
 
 Язык интерфейса выбирается по настройкам системы. Основной язык — английский
@@ -249,7 +261,8 @@ Android 7 и ниже остаётся обычная `ic_launcher.png`.
 Каждое изменение сразу записывается в `CHANGELOG.md` в раздел «Не выпущено». Выпуск версии:
 в `develop` обновить `versionCode`/`versionName` в `app/build.gradle`, переименовать раздел
 «Не выпущено» в номер версии с датой, затем слить `develop` в `master` и поставить тег версии
-(например, `v1.6`).
+(например, `v1.6`). После этого создать на GitHub выпуск (Releases) с этим тегом, приложить
+к нему APK варианта `car` и обновить `docs/updates/latest` (раздел «Обновления»).
 
 ## 11. Сторонние материалы
 
