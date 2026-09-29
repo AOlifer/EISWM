@@ -146,9 +146,10 @@ MP3-файлы лежат в каталоге
 ### Где лежат обновления
 
 - JSON последней версии — файл `docs/updates/latest` (без расширения, UTF-8 без BOM).
-  GitHub Pages публикует папку `docs/` ветки `master` на домене из файла `docs/CNAME`
-  (Settings → Pages: Deploy from a branch, `master`, `/docs`, Custom domain; в DNS — запись
-  CNAME на `<логин>.github.io`).
+  GitHub Pages публикует папку `docs/` ветки `master` на стандартном адресе Pages репозитория
+  (Settings → Pages: Deploy from a branch, `master`, `/docs`, без своего домена), адрес
+  файла — строка `update_url` в `config.xml`. Свой домен не используется: проверка DNS
+  у GitHub не проходила для домена на DNS-серверах reg.ru.
   Поэтому машины видят только выпущенную версию: изменения `latest` в `develop` попадают
   на сайт вместе со слиянием в `master`.
 - APK — файл выпуска на GitHub (Releases, тег версии). В JSON в `apk` ссылка вида
