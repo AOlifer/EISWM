@@ -408,7 +408,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             int[] size = imageSizes.get(r.file);
             if (size == null) Ui.setPill(r.pill, "…", Ui.PILL_NEUTRAL);
             else if (size[0] <= 0) Ui.setPill(r.pill, getString(R.string.picker_image_bad), Ui.PILL_BAD);
-            else if (size[0] * WelcomePictures.HEIGHT == size[1] * WelcomePictures.WIDTH)
+            else if (size[0] * Images.HEIGHT == size[1] * Images.WIDTH)
                 Ui.setPill(r.pill, getString(R.string.picker_image_ok, size[0], size[1]), Ui.PILL_OK);
             else Ui.setPill(r.pill, getString(R.string.picker_image_crop, size[0], size[1]), Ui.PILL_WARN);
             return;
@@ -430,11 +430,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             for (File f : files) {
                 if (destroyed || gen != generation) return;
                 if (imageSizes.containsKey(f) && thumbs.containsKey(f)) continue;
-                int[] s = WelcomePictures.imageSize(f);
+                int[] s = Images.size(f);
                 final int[] size = s != null ? s : new int[]{0, 0};
                 Bitmap b = null;
                 try {
-                    if (s != null) b = WelcomePictures.thumbnail(f, thumbWidth);
+                    if (s != null) b = Images.thumbnail(f, thumbWidth);
                 } catch (OutOfMemoryError ignored) {
                 }
                 final Bitmap thumb = b;

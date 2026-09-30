@@ -185,7 +185,7 @@ final class Ui {
         FrameLayout frame = new FrameLayout(c) {
             @Override protected void onMeasure(int w, int h) {
                 int width = MeasureSpec.getSize(w);
-                int height = width * WelcomePictures.HEIGHT / WelcomePictures.WIDTH;
+                int height = width * Images.HEIGHT / Images.WIDTH;
                 super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
             }

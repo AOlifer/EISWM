@@ -319,7 +319,7 @@ final class PicturesPanel {
         io.execute(() -> {
             for (int i = 0; i < list.size(); i++) {
                 if (destroyed || gen != generation) return;
-                final Bitmap bmp = WelcomePictures.thumbnail(list.get(i).file, width);
+                final Bitmap bmp = Images.thumbnail(list.get(i).file, width);
                 final ImageView view = images.get(i);
                 ui.post(() -> {
                     if (destroyed || gen != generation) return;
@@ -341,7 +341,7 @@ final class PicturesPanel {
                 .create();
         dialog.show();
         io.execute(() -> {
-            final Bitmap bmp = WelcomePictures.thumbnail(p.file, WelcomePictures.WIDTH / 2);
+            final Bitmap bmp = Images.thumbnail(p.file, Images.WIDTH / 2);
             ui.post(() -> {
                 if (!destroyed && bmp != null) big.setImageBitmap(bmp);
             });

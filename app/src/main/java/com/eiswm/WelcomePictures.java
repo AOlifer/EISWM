@@ -8,17 +8,11 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -45,8 +39,6 @@ import java.util.Set;
  * Все методы работают с диском и базой — вызывать из фонового потока.
  */
 final class WelcomePictures {
-    /** Размер экрана машины: картинки подгоняются под него. */
-    static final int WIDTH = 1920, HEIGHT = 720;
     static final String[] EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"};
 
     private static final String TABLE = "welcome_advice";
@@ -150,33 +142,24 @@ final class WelcomePictures {
 
     /** Подогнать картинку под экран, положить в папку лаунчера, сделать копию и записать в базу. */
     void add(File src) throws IOException {
-        Bitmap fitted = fitToScreen(src);
+        Bitmap fitted = Images.fitToScreen(src, res);
         long now = System.currentTimeMillis();
         String id = OWN_PREFIX + now;
         String name = id + ".png";
         try {
-            savePng(fitted, new File(adviceDir, name));
-            savePng(fitted, new File(backupDir, name));
+            Images.savePng(fitted, new File(adviceDir, name), res);
+            Images.savePng(fitted, new File(backupDir, name), res);
         } finally {
             fitted.recycle();
         }
 
-        Picture p = new Picture();
-        p.id = id;
-        p.title = src.getName();
-        p.url = "";
-        p.fileName = name;
-        p.start = 0;
-        p.end = FOREVER;
-        p.created = now;
+        Picture p = record(id, src.getName(), name, 0, FOREVER, now);
         if (isDisabled()) {
             List<Picture> parked = readParked();
             parked.add(p);
             writeParked(parked);
         } else {
-            try (SQLiteDatabase db = openDb()) {
-                db.insertWithOnConflict(TABLE, null, values(p), SQLiteDatabase.CONFLICT_REPLACE);
-            }
+            insert(p);
         }
     }
 
@@ -229,9 +212,7 @@ final class WelcomePictures {
             try (SQLiteDatabase db = openDb()) {
                 db.delete(TABLE, "id = ?", new String[]{BLACK_ID});
                 for (Picture p : parked) {
-                    if (new File(adviceDir, p.fileName).isFile()) {
-                        db.insertWithOnConflict(TABLE, null, values(p), SQLiteDatabase.CONFLICT_REPLACE);
-                    }
+                    if (new File(adviceDir, p.fileName).isFile()) upsert(db, p);
                 }
             }
             new File(adviceDir, BLACK_ID + ".png").delete();
@@ -242,25 +223,14 @@ final class WelcomePictures {
     private void ensureBlack() throws IOException {
         File f = new File(adviceDir, BLACK_ID + ".png");
         if (!f.isFile()) {
-            Bitmap black = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.RGB_565);
-            black.eraseColor(Color.BLACK);
+            Bitmap black = Images.black();
             try {
-                savePng(black, f);
+                Images.savePng(black, f, res);
             } finally {
                 black.recycle();
             }
         }
-        Picture p = new Picture();
-        p.id = BLACK_ID;
-        p.title = "EISWM: pictures off";
-        p.url = "";
-        p.fileName = f.getName();
-        p.start = 0;
-        p.end = FOREVER;
-        p.created = System.currentTimeMillis();
-        try (SQLiteDatabase db = openDb()) {
-            db.insertWithOnConflict(TABLE, null, values(p), SQLiteDatabase.CONFLICT_REPLACE);
-        }
+        insert(record(BLACK_ID, "EISWM: pictures off", f.getName(), 0, FOREVER, System.currentTimeMillis()));
     }
 
     // ---------------------------------------------------------------- Восстановление
@@ -305,9 +275,7 @@ final class WelcomePictures {
             for (Picture d : desired) {
                 boolean missing = !containsId(rows, d.id);
                 if (missing) restored.add(d.id);
-                if (missing || d.id.startsWith(SEASON_PREFIX)) {
-                    db.insertWithOnConflict(TABLE, null, values(d), SQLiteDatabase.CONFLICT_REPLACE);
-                }
+                if (missing || d.id.startsWith(SEASON_PREFIX)) upsert(db, d);
             }
         }
         return restored.size();
@@ -376,11 +344,8 @@ final class WelcomePictures {
     }
 
     Bitmap standardThumbnail(String name, int minWidth) {
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inSampleSize = sampleSize(WIDTH, HEIGHT, minWidth, 1);
-        o.inPreferredConfig = Bitmap.Config.RGB_565;
         try (InputStream in = assets.open(STANDARD_DIR + "/" + name)) {
-            return BitmapFactory.decodeStream(in, null, o);
+            return Images.screenThumbnail(in, minWidth);
         } catch (IOException e) {
             return null;
         }
@@ -451,21 +416,10 @@ final class WelcomePictures {
     }
 
     private Picture standardPicture(String name, boolean seasonal) {
-        Picture p = new Picture();
-        p.id = (seasonal ? SEASON_PREFIX : STD_PREFIX) + baseName(name);
-        p.fileName = p.id + ".png";
-        p.title = name;
-        p.url = "";
+        String id = (seasonal ? SEASON_PREFIX : STD_PREFIX) + baseName(name);
+        long[] w = seasonal ? seasonWindow(seasonIndex(name), System.currentTimeMillis()) : new long[]{0, FOREVER};
+        Picture p = record(id, name, id + ".png", w[0], w[1], 0);
         p.asset = name;
-        p.created = 0;
-        if (seasonal) {
-            long[] w = seasonWindow(seasonIndex(name), System.currentTimeMillis());
-            p.start = w[0];
-            p.end = w[1];
-        } else {
-            p.start = 0;
-            p.end = FOREVER;
-        }
         return p;
     }
 
@@ -510,19 +464,29 @@ final class WelcomePictures {
     }
 
     private static Picture ownPicture(File backup) {
-        Picture p = new Picture();
-        p.fileName = backup.getName();
-        p.id = p.fileName.substring(0, p.fileName.length() - 4);
-        p.title = "EISWM";
-        p.url = "";
-        p.start = 0;
-        p.end = FOREVER;
-        p.backup = backup;
+        String fileName = backup.getName();
+        String id = fileName.substring(0, fileName.length() - 4);
+        long created;
         try {
-            p.created = Long.parseLong(p.id.substring(OWN_PREFIX.length()));
+            created = Long.parseLong(id.substring(OWN_PREFIX.length()));
         } catch (NumberFormatException e) {
-            p.created = backup.lastModified();
+            created = backup.lastModified();
         }
+        Picture p = record(id, "EISWM", fileName, 0, FOREVER, created);
+        p.backup = backup;
+        return p;
+    }
+
+    /** Новая запись для welcome_advice (type и sort — 0, url пустой). */
+    private static Picture record(String id, String title, String fileName, long start, long end, long created) {
+        Picture p = new Picture();
+        p.id = id;
+        p.title = title;
+        p.url = "";
+        p.fileName = fileName;
+        p.start = start;
+        p.end = end;
+        p.created = created;
         return p;
     }
 
@@ -569,6 +533,17 @@ final class WelcomePictures {
             }
         }
         return result;
+    }
+
+    /** Добавить или заменить запись в базе лаунчера. */
+    private void insert(Picture p) throws IOException {
+        try (SQLiteDatabase db = openDb()) {
+            upsert(db, p);
+        }
+    }
+
+    private static void upsert(SQLiteDatabase db, Picture p) {
+        db.insertWithOnConflict(TABLE, null, values(p), SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private static String str(Cursor c, String column) {
@@ -636,78 +611,6 @@ final class WelcomePictures {
         }
         if (!prefs.edit().putString(PREF_PARKED, arr.toString()).commit()) {
             throw new IOException(res.getString(R.string.pictures_prefs_failed));
-        }
-    }
-
-    // ---------------------------------------------------------------- Изображения
-
-    /** Размер картинки без её загрузки: {ширина, высота} или null. */
-    static int[] imageSize(File f) {
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(f.getAbsolutePath(), o);
-        return o.outWidth > 0 && o.outHeight > 0 ? new int[]{o.outWidth, o.outHeight} : null;
-    }
-
-    /** Уменьшенная копия для превью шириной не меньше minWidth пикселей. */
-    static Bitmap thumbnail(File f, int minWidth) {
-        int[] size = imageSize(f);
-        if (size == null) return null;
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inSampleSize = sampleSize(size[0], size[1], minWidth, 1);
-        o.inPreferredConfig = Bitmap.Config.RGB_565;
-        return BitmapFactory.decodeFile(f.getAbsolutePath(), o);
-    }
-
-    /**
-     * Подогнать картинку под экран 1920×720: масштабировать так, чтобы она заполнила экран,
-     * и обрезать лишнее по центру.
-     */
-    Bitmap fitToScreen(File src) throws IOException {
-        int[] size = imageSize(src);
-        if (size == null) throw new IOException(res.getString(R.string.pictures_read_failed, src.getName()));
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inSampleSize = sampleSize(size[0], size[1], WIDTH, HEIGHT);
-        Bitmap in = BitmapFactory.decodeFile(src.getAbsolutePath(), o);
-        if (in == null) throw new IOException(res.getString(R.string.pictures_read_failed, src.getName()));
-        try {
-            float scale = Math.max(WIDTH / (float) in.getWidth(), HEIGHT / (float) in.getHeight());
-            int cropW = Math.round(WIDTH / scale), cropH = Math.round(HEIGHT / scale);
-            int left = (in.getWidth() - cropW) / 2, top = (in.getHeight() - cropH) / 2;
-            Bitmap out = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(out);
-            canvas.drawColor(Color.BLACK);
-            canvas.drawBitmap(in, new Rect(left, top, left + cropW, top + cropH),
-                    new Rect(0, 0, WIDTH, HEIGHT), new Paint(Paint.FILTER_BITMAP_FLAG));
-            return out;
-        } finally {
-            in.recycle();
-        }
-    }
-
-    /** Наибольшая степень двойки, при которой картинка остаётся не меньше нужного размера. */
-    private static int sampleSize(int w, int h, int needW, int needH) {
-        int s = 1;
-        while (w / (s * 2) >= needW && h / (s * 2) >= needH) s *= 2;
-        return s;
-    }
-
-    /** Запись PNG через временный файл, чтобы лаунчер не увидел недописанную картинку. */
-    private void savePng(Bitmap b, File dst) throws IOException {
-        File dir = dst.getParentFile();
-        if (dir != null && !dir.isDirectory() && !dir.mkdirs()) throw new IOException(res.getString(R.string.pictures_no_dir_access, dir));
-        File tmp = new File(dir, "." + dst.getName() + ".tmp");
-        try (FileOutputStream out = new FileOutputStream(tmp)) {
-            if (!b.compress(Bitmap.CompressFormat.PNG, 100, out)) throw new IOException(res.getString(R.string.pictures_write_failed, dst.getName()));
-            out.flush();
-            out.getFD().sync();
-        } catch (IOException e) {
-            tmp.delete();
-            throw e;
-        }
-        if (!tmp.renameTo(dst) && !(dst.delete() && tmp.renameTo(dst))) {
-            tmp.delete();
-            throw new IOException(res.getString(R.string.pictures_write_failed, dst));
         }
     }
 }
