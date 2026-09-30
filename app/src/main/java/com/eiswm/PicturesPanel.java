@@ -34,9 +34,6 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * добавление через {@link PickerActivity} и сохранение копии. Данные — {@link WelcomePictures}.
  */
 final class PicturesPanel extends SectionPanel {
-    static final int REQ_ADD = 11;
-    static final int REQ_SAVE = 12;
-    static final int REQ_STANDARD = 13;
     private static final int COLUMNS = 2;
 
     private final WelcomePictures pictures;
@@ -69,7 +66,7 @@ final class PicturesPanel extends SectionPanel {
         btnAdd.setOnClickListener(v -> openPicker());
         btnStandard = activity.findViewById(R.id.btnStandardPictures);
         btnStandard.setOnClickListener(v -> {
-            if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), REQ_STANDARD);
+            if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), RequestCodes.PICTURES_STANDARD);
         });
         header = activity.findViewById(R.id.picturesHeader);
         btnSelectAll = activity.findViewById(R.id.btnPicturesSelectAll);
@@ -381,7 +378,7 @@ final class PicturesPanel extends SectionPanel {
                 .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_pictures)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
                         FileUtils.PICTURES_DIR.getAbsolutePath());
-        activity.startActivityForResult(i, REQ_ADD);
+        activity.startActivityForResult(i, RequestCodes.PICTURES_ADD);
     }
 
     private void openSaveFolderPicker(WelcomePictures.Picture p) {
@@ -392,18 +389,18 @@ final class PicturesPanel extends SectionPanel {
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, copyName(p))
                 .putExtra(PickerActivity.EXTRA_ACTION, activity.getString(R.string.save_here));
-        activity.startActivityForResult(i, REQ_SAVE);
+        activity.startActivityForResult(i, RequestCodes.PICTURES_SAVE);
     }
 
     /** @return true, если результат относится к этому разделу. */
     boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQ_STANDARD) {
+        if (requestCode == RequestCodes.PICTURES_STANDARD) {
             load();
             return true;
         }
-        if (requestCode != REQ_ADD && requestCode != REQ_SAVE) return false;
+        if (requestCode != RequestCodes.PICTURES_ADD && requestCode != RequestCodes.PICTURES_SAVE) return false;
         if (resultCode != Activity.RESULT_OK || data == null) return true;
-        if (requestCode == REQ_ADD) {
+        if (requestCode == RequestCodes.PICTURES_ADD) {
             ArrayList<String> paths = data.getStringArrayListExtra(PickerActivity.EXTRA_PATHS);
             if (paths != null && !paths.isEmpty()) addAll(paths);
         } else if (pendingSave != null) {

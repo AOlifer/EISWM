@@ -35,7 +35,6 @@ import java.util.Locale;
  * Обязательны versionCode, versionName и apk; остальное по желанию.
  */
 final class Updater {
-    static final String PREF_LAST_CHECK = "update_last_check";
     /** Автоматическая проверка при запуске — не чаще раза в сутки. */
     static final long AUTO_CHECK_INTERVAL_MS = 24L * 60 * 60 * 1000;
     private static final int TIMEOUT_MS = 15000;
@@ -252,16 +251,11 @@ final class Updater {
             if (!Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) return;
             File[] left = new File(context.getCacheDir(), "update").listFiles();
             if (left != null) for (File f : left) f.delete();
-            if (!context.getSharedPreferences(BaseActivity.PREFS, Context.MODE_PRIVATE)
-                    .getBoolean(PREF_REOPEN, false)) return;
-            context.getSharedPreferences(BaseActivity.PREFS, Context.MODE_PRIVATE)
-                    .edit().remove(PREF_REOPEN).apply();
+            if (!Prefs.get(context).getBoolean(Prefs.UPDATE_REOPEN, false)) return;
+            Prefs.get(context).edit().remove(Prefs.UPDATE_REOPEN).apply();
             Intent i = new Intent(context, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
     }
-
-    /** Флаг «открыть приложение после установки»: ставится перед установкой из приложения. */
-    static final String PREF_REOPEN = "update_reopen";
 }

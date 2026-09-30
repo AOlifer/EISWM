@@ -105,7 +105,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_picker);
-        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        prefs = Prefs.get(this);
         preview = new AudioPreview(this);
 
         Intent in = getIntent();
@@ -170,7 +170,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     private String lastDirKey() {
         // Звуки и картинки обычно лежат в разных папках — помним их отдельно.
-        return "picker_last_dir_" + mode + (images ? "_images" : "");
+        return Prefs.PICKER_LAST_DIR + mode + (images ? "_images" : "");
     }
 
     private void openStartDir(String requested) {

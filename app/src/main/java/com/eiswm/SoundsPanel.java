@@ -37,9 +37,6 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
      */
     static final long MAX_SOUND_DURATION_MS = 6500;
     static final String[] SOUND_EXTENSIONS = {"mp3"};
-    static final int REQ_ADD = 1;
-    static final int REQ_SAVE = 2;
-    private static final String PREF_BUNDLED_COPIED = "bundled_welcome_files_copied";
 
     private final SharedPreferences prefs;
     private final File soundDir;
@@ -174,7 +171,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     // ---------------------------------------------------------------- Встроенные MP3
 
     private void copyBundledWelcomeFilesOnce() {
-        if (prefs.getBoolean(PREF_BUNDLED_COPIED, false)) {
+        if (prefs.getBoolean(Prefs.BUNDLED_COPIED, false)) {
             return;
         }
 
@@ -199,7 +196,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
                     copied++;
                 }
             }
-            prefs.edit().putBoolean(PREF_BUNDLED_COPIED, true).apply();
+            prefs.edit().putBoolean(Prefs.BUNDLED_COPIED, true).apply();
             if (copied > 0) {
                 toast(activity.getString(R.string.sounds_bundled_added, copied));
             }
@@ -339,7 +336,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
                 .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_sounds)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
                         FileUtils.NOTIFICATIONS_DIR.getAbsolutePath());
-        activity.startActivityForResult(i, REQ_ADD);
+        activity.startActivityForResult(i, RequestCodes.SOUNDS_ADD);
     }
 
     private void openSaveFolderPicker(File f) {
@@ -350,14 +347,14 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, f.getName())
                 .putExtra(PickerActivity.EXTRA_ACTION, activity.getString(R.string.save_here));
-        activity.startActivityForResult(i, REQ_SAVE);
+        activity.startActivityForResult(i, RequestCodes.SOUNDS_SAVE);
     }
 
     /** @return true, если результат относится к этому разделу. */
     boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != REQ_ADD && requestCode != REQ_SAVE) return false;
+        if (requestCode != RequestCodes.SOUNDS_ADD && requestCode != RequestCodes.SOUNDS_SAVE) return false;
         if (resultCode != Activity.RESULT_OK || data == null) return true;
-        if (requestCode == REQ_ADD) {
+        if (requestCode == RequestCodes.SOUNDS_ADD) {
             ArrayList<String> paths = data.getStringArrayListExtra(PickerActivity.EXTRA_PATHS);
             if (paths == null || paths.isEmpty()) return true;
             List<File> files = new ArrayList<>();

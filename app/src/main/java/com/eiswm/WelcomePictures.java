@@ -46,15 +46,10 @@ final class WelcomePictures {
     private static final String BLACK_ID = "eiswm_off";
     /** Срок показа наших картинок: до 2100 года. */
     private static final long FOREVER = 4102444800000L;
-    private static final String PREF_DISABLED = "pictures_disabled";
-    private static final String PREF_PARKED = "pictures_parked";
     /** Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам. */
     private static final String STANDARD_DIR = "standard";
     private static final String STD_PREFIX = "eiswm_std_";
     private static final String SEASON_PREFIX = "eiswm_season_";
-    private static final String PREF_STD = "pictures_std";
-    private static final String PREF_SEASONAL = "pictures_seasonal";
-    private static final String PREF_FIRST_RUN_DONE = "pictures_first_run_done";
     /** Картинка по умолчанию при первой установке — та же, что лаунчер показывает, когда своих нет. */
     private static final String DEFAULT_PICTURE = "bw_welcome_summer2.png";
     static final String[] SEASONS = {"winter", "spring", "summer", "autumn"};
@@ -94,7 +89,7 @@ final class WelcomePictures {
         adviceDir = new File(c.getString(R.string.welcome_picture_dir));
         dbFile = resolveDbFile(c);
         backupDir = new File(c.getFilesDir(), "pictures");
-        prefs = c.getSharedPreferences(BaseActivity.PREFS, Context.MODE_PRIVATE);
+        prefs = Prefs.get(c);
     }
 
     /** Путь к базе: из настроек варианта сборки; пустой — своя база (для эмулятора). */
@@ -112,7 +107,7 @@ final class WelcomePictures {
     }
 
     boolean isDisabled() {
-        return prefs.getBoolean(PREF_DISABLED, false);
+        return prefs.getBoolean(Prefs.PICTURES_DISABLED, false);
     }
 
     // ---------------------------------------------------------------- Список
@@ -182,7 +177,7 @@ final class WelcomePictures {
         String name = p.id.startsWith(STD_PREFIX) ? p.id.substring(STD_PREFIX.length())
                 : p.id.startsWith(SEASON_PREFIX) ? p.id.substring(SEASON_PREFIX.length()) : null;
         if (name != null) {
-            String key = p.id.startsWith(STD_PREFIX) ? PREF_STD : PREF_SEASONAL;
+            String key = p.id.startsWith(STD_PREFIX) ? Prefs.PICTURES_STD : Prefs.PICTURES_SEASONAL;
             Set<String> set = new HashSet<>(prefs.getStringSet(key, Collections.emptySet()));
             set.remove(name + ".png");
             prefs.edit().putStringSet(key, set).commit();
@@ -202,7 +197,7 @@ final class WelcomePictures {
             List<Picture> parked = new ArrayList<>();
             for (Picture p : rows) if (!BLACK_ID.equals(p.id)) parked.add(p);
             writeParked(parked);
-            prefs.edit().putBoolean(PREF_DISABLED, true).commit();
+            prefs.edit().putBoolean(Prefs.PICTURES_DISABLED, true).commit();
             try (SQLiteDatabase db = openDb()) {
                 db.delete(TABLE, null, null);
             }
@@ -216,7 +211,7 @@ final class WelcomePictures {
                 }
             }
             new File(adviceDir, BLACK_ID + ".png").delete();
-            prefs.edit().putBoolean(PREF_DISABLED, false).remove(PREF_PARKED).commit();
+            prefs.edit().putBoolean(Prefs.PICTURES_DISABLED, false).remove(Prefs.PICTURES_PARKED).commit();
         }
     }
 
@@ -289,10 +284,10 @@ final class WelcomePictures {
         List<Picture> result = new ArrayList<>();
         File[] backups = backupDir.listFiles(f -> f.isFile() && f.getName().startsWith(OWN_PREFIX));
         if (backups != null) for (File b : backups) result.add(ownPicture(b));
-        for (String name : prefs.getStringSet(PREF_STD, Collections.emptySet())) {
+        for (String name : prefs.getStringSet(Prefs.PICTURES_STD, Collections.emptySet())) {
             result.add(standardPicture(name, false));
         }
-        for (String name : prefs.getStringSet(PREF_SEASONAL, Collections.emptySet())) {
+        for (String name : prefs.getStringSet(Prefs.PICTURES_SEASONAL, Collections.emptySet())) {
             result.add(standardPicture(name, true));
         }
         return result;
@@ -353,7 +348,7 @@ final class WelcomePictures {
 
     /** Имена стандартных картинок, добавленных навсегда. */
     Set<String> standardAdded() {
-        return new HashSet<>(prefs.getStringSet(PREF_STD, Collections.emptySet()));
+        return new HashSet<>(prefs.getStringSet(Prefs.PICTURES_STD, Collections.emptySet()));
     }
 
     /**
@@ -363,26 +358,26 @@ final class WelcomePictures {
      * @return true, если картинка по умолчанию добавлена.
      */
     boolean installDefaultOnFirstRun() throws IOException {
-        if (prefs.getBoolean(PREF_FIRST_RUN_DONE, false)) return false;
+        if (prefs.getBoolean(Prefs.PICTURES_FIRST_RUN_DONE, false)) return false;
         File[] files = adviceDir.listFiles(f -> f.isFile() && !f.getName().startsWith("."));
         boolean empty = readRows().isEmpty() && (files == null || files.length == 0);
         if (empty && standardNames().contains(DEFAULT_PICTURE)) {
             addStandard(Collections.singletonList(DEFAULT_PICTURE));
         }
         // Флаг ставим только после успешной проверки: если база была недоступна, повторим в следующий раз.
-        prefs.edit().putBoolean(PREF_FIRST_RUN_DONE, true).commit();
+        prefs.edit().putBoolean(Prefs.PICTURES_FIRST_RUN_DONE, true).commit();
         return empty;
     }
 
     boolean isSeasonal() {
-        return !prefs.getStringSet(PREF_SEASONAL, Collections.emptySet()).isEmpty();
+        return !prefs.getStringSet(Prefs.PICTURES_SEASONAL, Collections.emptySet()).isEmpty();
     }
 
     /** Добавить стандартные картинки: показываются круглый год. */
     void addStandard(List<String> names) throws IOException {
         Set<String> set = standardAdded();
         set.addAll(names);
-        if (!prefs.edit().putStringSet(PREF_STD, set).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
+        if (!prefs.edit().putStringSet(Prefs.PICTURES_STD, set).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
         restore();
     }
 
@@ -393,14 +388,14 @@ final class WelcomePictures {
     void setSeasonal(boolean on) throws IOException {
         if (on) {
             Set<String> all = new HashSet<>(standardNames());
-            if (!prefs.edit().putStringSet(PREF_SEASONAL, all).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
+            if (!prefs.edit().putStringSet(Prefs.PICTURES_SEASONAL, all).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
             restore();
             return;
         }
-        Set<String> names = prefs.getStringSet(PREF_SEASONAL, Collections.emptySet());
+        Set<String> names = prefs.getStringSet(Prefs.PICTURES_SEASONAL, Collections.emptySet());
         List<String> ids = new ArrayList<>();
         for (String n : names) ids.add(SEASON_PREFIX + baseName(n));
-        prefs.edit().remove(PREF_SEASONAL).commit();
+        prefs.edit().remove(Prefs.PICTURES_SEASONAL).commit();
         if (isDisabled()) {
             List<Picture> parked = readParked();
             for (int i = parked.size() - 1; i >= 0; i--) {
@@ -570,7 +565,7 @@ final class WelcomePictures {
     private List<Picture> readParked() {
         List<Picture> result = new ArrayList<>();
         try {
-            JSONArray arr = new JSONArray(prefs.getString(PREF_PARKED, "[]"));
+            JSONArray arr = new JSONArray(prefs.getString(Prefs.PICTURES_PARKED, "[]"));
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
                 Picture p = new Picture();
@@ -609,7 +604,7 @@ final class WelcomePictures {
         } catch (Exception e) {
             throw new IOException(e);
         }
-        if (!prefs.edit().putString(PREF_PARKED, arr.toString()).commit()) {
+        if (!prefs.edit().putString(Prefs.PICTURES_PARKED, arr.toString()).commit()) {
             throw new IOException(res.getString(R.string.pictures_prefs_failed));
         }
     }

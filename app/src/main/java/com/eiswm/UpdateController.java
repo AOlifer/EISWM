@@ -17,10 +17,6 @@ import java.io.File;
  * проверка при запуске, окно с новой версией, загрузка и установка. Сеть — {@link Updater}.
  */
 final class UpdateController {
-    /** Последняя найденная на сервере версия: строка «Доступна версия N» видна до установки. */
-    private static final String PREF_UPDATE_CODE = "update_available_code";
-    private static final String PREF_UPDATE_NAME = "update_available_name";
-
     private final Activity activity;
     private final SharedPreferences prefs;
     private final Updater updater;
@@ -41,8 +37,8 @@ final class UpdateController {
             else checkForUpdates(true);
         });
         // Найденная раньше версия видна сразу, даже если сегодня проверки ещё не было.
-        String known = prefs.getString(PREF_UPDATE_NAME, null);
-        if (known != null && prefs.getInt(PREF_UPDATE_CODE, 0) > updater.currentVersionCode()) {
+        String known = prefs.getString(Prefs.UPDATE_NAME, null);
+        if (known != null && prefs.getInt(Prefs.UPDATE_CODE, 0) > updater.currentVersionCode()) {
             homeUpdate.setText(activity.getString(R.string.update_available, known));
         }
     }
@@ -54,7 +50,7 @@ final class UpdateController {
 
     /** Проверка при запуске: не чаще раза в сутки, без сообщений при ошибке. */
     void autoCheckForUpdates() {
-        long last = prefs.getLong(Updater.PREF_LAST_CHECK, 0);
+        long last = prefs.getLong(Prefs.UPDATE_LAST_CHECK, 0);
         long now = System.currentTimeMillis();
         if (now - last >= Updater.AUTO_CHECK_INTERVAL_MS || now < last) checkForUpdates(false);
     }
@@ -82,15 +78,15 @@ final class UpdateController {
             if (manual) homeUpdate.setText(R.string.update_failed);
             return;
         }
-        prefs.edit().putLong(Updater.PREF_LAST_CHECK, System.currentTimeMillis()).apply();
+        prefs.edit().putLong(Prefs.UPDATE_LAST_CHECK, System.currentTimeMillis()).apply();
         if (r.versionCode > updater.currentVersionCode()) {
             availableRelease = r;
-            prefs.edit().putInt(PREF_UPDATE_CODE, r.versionCode).putString(PREF_UPDATE_NAME, r.versionName).apply();
+            prefs.edit().putInt(Prefs.UPDATE_CODE, r.versionCode).putString(Prefs.UPDATE_NAME, r.versionName).apply();
             homeUpdate.setText(activity.getString(R.string.update_available, r.versionName));
             if (manual) showUpdateDialog(r);
         } else {
             availableRelease = null;
-            prefs.edit().remove(PREF_UPDATE_CODE).remove(PREF_UPDATE_NAME).apply();
+            prefs.edit().remove(Prefs.UPDATE_CODE).remove(Prefs.UPDATE_NAME).apply();
             homeUpdate.setText(manual ? R.string.update_latest : R.string.update_check);
         }
     }
@@ -160,11 +156,11 @@ final class UpdateController {
                     }
                 });
                 if (apk != null && updater.canInstall()) {
-                    prefs.edit().putBoolean(Updater.PREF_REOPEN, true).commit();
+                    prefs.edit().putBoolean(Prefs.UPDATE_REOPEN, true).commit();
                     updater.install(apk);
                 }
             } catch (Exception e) {
-                prefs.edit().remove(Updater.PREF_REOPEN).apply();
+                prefs.edit().remove(Prefs.UPDATE_REOPEN).apply();
                 error = e.getMessage() != null ? e.getMessage() : e.toString();
             }
             final File done = apk;

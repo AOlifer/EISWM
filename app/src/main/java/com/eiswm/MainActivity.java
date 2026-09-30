@@ -24,7 +24,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  */
 public class MainActivity extends BaseActivity {
     private static final String STATE_SECTION = "section";
-    private static final String PREF_DISCLAIMER_SHOWN = "disclaimer_shown";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -53,7 +52,7 @@ public class MainActivity extends BaseActivity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_main);
-        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        prefs = Prefs.get(this);
         soundsPanel = new SoundsPanel(this, prefs);
 
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
@@ -64,7 +63,7 @@ public class MainActivity extends BaseActivity {
         picturesPanel = new PicturesPanel(this);
         // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
         showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
-        if (b == null && !prefs.getBoolean(PREF_DISCLAIMER_SHOWN, false)) showDisclaimer(true);
+        if (b == null && !prefs.getBoolean(Prefs.DISCLAIMER_SHOWN, false)) showDisclaimer(true);
         if (b == null) updates.autoCheckForUpdates();
     }
 
@@ -217,7 +216,7 @@ public class MainActivity extends BaseActivity {
                 .setMessage(R.string.disclaimer_text)
                 .setCancelable(!firstRun)
                 .setPositiveButton(R.string.got_it, (d, w) ->
-                        prefs.edit().putBoolean(PREF_DISCLAIMER_SHOWN, true).apply())
+                        prefs.edit().putBoolean(Prefs.DISCLAIMER_SHOWN, true).apply())
                 .show();
     }
 
@@ -243,7 +242,7 @@ public class MainActivity extends BaseActivity {
     /** Авто → светлая → тёмная → авто; экран пересоздаётся с новой темой. */
     private void switchTheme() {
         int next = (themeMode(this) + 1) % THEME_COUNT;
-        prefs.edit().putInt(PREF_THEME, next).apply();
+        prefs.edit().putInt(Prefs.THEME, next).apply();
         toast(getString(R.string.theme_toast, themeName(next)));
         recreate();
     }
