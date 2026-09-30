@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
@@ -27,8 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -37,7 +33,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Раздел «Звуки» главного экрана: список звуков приветствия с прослушиванием, выключатель
  * звукового приветствия, добавление через {@link PickerActivity}, сохранение копии и удаление.
  */
-final class SoundsPanel implements AudioPreview.Listener {
+final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     private static final String WELCOME_SWITCH = "bw_welcome_voice_switch";
     /**
      * Машина играет звук приветствия не дольше 6 с и обрывает более длинный;
@@ -49,7 +45,6 @@ final class SoundsPanel implements AudioPreview.Listener {
     static final int REQ_SAVE = 2;
     private static final String PREF_BUNDLED_COPIED = "bundled_welcome_files_copied";
 
-    private final Activity activity;
     private final SharedPreferences prefs;
     private final File soundDir;
     private final TextView welcomeLabel, welcomeWarning, soundStatus;
@@ -61,12 +56,7 @@ final class SoundsPanel implements AudioPreview.Listener {
     private final Map<File, SoundRow> rows = new HashMap<>();
     private File pendingSave;
 
-    private final Handler ui = new Handler(Looper.getMainLooper());
-    /** Один фоновый поток: копирование и чтение длительности не блокируют интерфейс. */
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
     private int listGeneration = 0;
-    private boolean busy = false;
-    private boolean destroyed = false;
     private boolean updatingSwitch = false;
 
     private static final class SoundRow {
@@ -92,7 +82,7 @@ final class SoundsPanel implements AudioPreview.Listener {
     };
 
     SoundsPanel(Activity activity, SharedPreferences prefs) {
-        this.activity = activity;
+        super(activity);
         this.prefs = prefs;
         soundDir = new File(activity.getString(R.string.welcome_sound_dir));
         preview = new AudioPreview(this);
@@ -112,10 +102,6 @@ final class SoundsPanel implements AudioPreview.Listener {
         btnAddSounds.setOnClickListener(v -> openSoundPicker());
         updateWelcomeSwitch();
         loadSounds();
-    }
-
-    boolean isBusy() {
-        return busy;
     }
 
     void onStart() {
@@ -144,11 +130,9 @@ final class SoundsPanel implements AudioPreview.Listener {
         preview.stop();
     }
 
-    void destroy() {
-        destroyed = true;
+    @Override void destroy() {
         preview.release();
-        io.shutdownNow();
-        ui.removeCallbacksAndMessages(null);
+        super.destroy();
     }
 
     /**
@@ -465,24 +449,17 @@ final class SoundsPanel implements AudioPreview.Listener {
 
     private void runAdd(List<File> files, boolean replace) {
         preview.stop();
-        setBusy(true, activity.getString(R.string.copying));
-        io.execute(() -> {
+        runBusy(() -> {
             int copied = 0, skipped = 0, failed = 0;
             for (File f : files) {
                 File dst = new File(soundDir, f.getName());
                 if (dst.exists() && !replace) { skipped++; continue; }
                 if (FileUtils.copyFileQuiet(f, dst)) copied++; else failed++;
             }
-            final String report = activity.getString(R.string.add_report, copied)
+            return activity.getString(R.string.add_report, copied)
                     + (skipped > 0 ? activity.getString(R.string.add_report_skipped, skipped) : "")
                     + (failed > 0 ? activity.getString(R.string.add_report_failed, failed) : "");
-            ui.post(() -> {
-                if (destroyed) return;
-                setBusy(false, null);
-                loadSounds();
-                Toast.makeText(activity, report, Toast.LENGTH_LONG).show();
-            });
-        });
+        }, Toast.LENGTH_LONG);
     }
 
     private void confirmReplaceThen(File dst, Runnable next) {
@@ -497,17 +474,9 @@ final class SoundsPanel implements AudioPreview.Listener {
 
     private void copySingle(File src, File dst) {
         if (dst.equals(preview.current())) preview.stop();
-        setBusy(true, activity.getString(R.string.copying));
-        io.execute(() -> {
-            boolean ok = FileUtils.copyFileQuiet(src, dst);
-            ui.post(() -> {
-                if (destroyed) return;
-                setBusy(false, null);
-                loadSounds();
-                toast(ok ? activity.getString(R.string.saved, dst.getAbsolutePath())
-                        : activity.getString(R.string.save_failed, dst.getName()));
-            });
-        });
+        runBusy(() -> FileUtils.copyFileQuiet(src, dst)
+                ? activity.getString(R.string.saved, dst.getAbsolutePath())
+                : activity.getString(R.string.save_failed, dst.getName()), Toast.LENGTH_SHORT);
     }
 
     private void confirmDelete(File f) {
@@ -527,14 +496,23 @@ final class SoundsPanel implements AudioPreview.Listener {
                 .show();
     }
 
-    private void setBusy(boolean value, String status) {
+    /** На время копирования: кнопка «Добавить» недоступна, в строке состояния «Копирование…». */
+    @Override void setBusy(boolean value) {
         busy = value;
         btnAddSounds.setEnabled(!value);
-        if (value) setStatus(status);
+        if (value) setStatus(activity.getString(R.string.copying));
         else {
             File[] files = listSounds();
             setStatus(summary(files == null ? 0 : files.length));
         }
+    }
+
+    @Override void afterJob() {
+        loadSounds();
+    }
+
+    @Override String errorMessage(Throwable e) {
+        return String.valueOf(e.getMessage());
     }
 
     private void setStatus(String text) {

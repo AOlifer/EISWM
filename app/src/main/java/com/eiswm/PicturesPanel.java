@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -27,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -37,13 +33,12 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Раздел «Картинки» главного экрана: сетка превью картинок приветствия, выключатель показа,
  * добавление через {@link PickerActivity} и сохранение копии. Данные — {@link WelcomePictures}.
  */
-final class PicturesPanel {
+final class PicturesPanel extends SectionPanel {
     static final int REQ_ADD = 11;
     static final int REQ_SAVE = 12;
     static final int REQ_STANDARD = 13;
     private static final int COLUMNS = 2;
 
-    private final Activity activity;
     private final WelcomePictures pictures;
     private final LinearLayout grid;
     private final TextView label, warning, status;
@@ -57,17 +52,12 @@ final class PicturesPanel {
     private final List<WelcomePictures.Picture> current = new ArrayList<>();
     private final Map<String, CheckBox> checks = new HashMap<>();
 
-    private final Handler ui = new Handler(Looper.getMainLooper());
-    /** Отдельный поток: обработка больших картинок не мешает звукам. */
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
     private int generation = 0;
-    private boolean busy = false;
-    private boolean destroyed = false;
     private boolean updatingSwitch = false;
     private WelcomePictures.Picture pendingSave;
 
     PicturesPanel(Activity activity) {
-        this.activity = activity;
+        super(activity);
         pictures = new WelcomePictures(activity);
         grid = activity.findViewById(R.id.pictureGrid);
         label = activity.findViewById(R.id.picturesLabel);
@@ -93,16 +83,6 @@ final class PicturesPanel {
         });
         updateSwitch();
         restoreThenLoad();
-    }
-
-    boolean isBusy() {
-        return busy;
-    }
-
-    void destroy() {
-        destroyed = true;
-        io.shutdownNow();
-        ui.removeCallbacksAndMessages(null);
     }
 
     // ---------------------------------------------------------------- Список
@@ -466,33 +446,21 @@ final class PicturesPanel {
 
     // ---------------------------------------------------------------- Фоновые операции
 
-    private interface Job {
-        /** @return сообщение для пользователя или null. */
-        String run() throws Exception;
-    }
-
     /** Выполнить в фоне с блокировкой кнопок, затем обновить выключатель и список. */
     private void run(Job job) {
-        setBusy(true);
-        io.execute(() -> {
-            String message;
-            try {
-                message = job.run();
-            } catch (Exception | OutOfMemoryError e) {
-                message = activity.getString(R.string.pictures_error, String.valueOf(e.getMessage()));
-            }
-            final String msg = message;
-            ui.post(() -> {
-                if (destroyed) return;
-                setBusy(false);
-                updateSwitch();
-                load();
-                if (msg != null) Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
-            });
-        });
+        runBusy(job, Toast.LENGTH_LONG);
     }
 
-    private void setBusy(boolean value) {
+    @Override void afterJob() {
+        updateSwitch();
+        load();
+    }
+
+    @Override String errorMessage(Throwable e) {
+        return activity.getString(R.string.pictures_error, String.valueOf(e.getMessage()));
+    }
+
+    @Override void setBusy(boolean value) {
         busy = value;
         btnAdd.setEnabled(!value);
         btnStandard.setEnabled(!value);
