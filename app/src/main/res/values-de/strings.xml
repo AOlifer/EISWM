@@ -18,6 +18,7 @@
     <string name="cancel">Abbrechen</string>
     <string name="select_all">Alle auswählen</string>
     <string name="clear_selection">Leeren</string>
+    <string name="select_item_desc">%1$s auswählen</string>
     <string name="copying">Wird kopiert…</string>
     <string name="menu_save_copy">Kopie speichern unter…</string>
     <string name="save_where_title">Wohin soll die Kopie?</string>

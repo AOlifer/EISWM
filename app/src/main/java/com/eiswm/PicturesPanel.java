@@ -258,7 +258,7 @@ final class PicturesPanel {
         // Галочка выделения в углу превью; нажатие на само превью открывает картинку крупно.
         CheckBox check = Ui.addPreviewCheck(frame, 8);
         check.setChecked(selectedIds.contains(p.id));
-        check.setContentDescription(activity.getString(R.string.select_all));
+        check.setContentDescription(activity.getString(R.string.select_item_desc, p.title));
         check.setOnCheckedChangeListener((v, on) -> {
             if (on) selectedIds.add(p.id); else selectedIds.remove(p.id);
             card.setBackgroundColor(on ? activity.getColor(R.color.row_active) : Color.TRANSPARENT);

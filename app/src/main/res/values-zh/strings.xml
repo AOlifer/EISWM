@@ -17,6 +17,7 @@
     <string name="cancel">取消</string>
     <string name="select_all">全选</string>
     <string name="clear_selection">清除</string>
+    <string name="select_item_desc">选择 %1$s</string>
     <string name="copying">正在复制…</string>
     <string name="menu_save_copy">保存副本到…</string>
     <string name="save_where_title">副本保存位置</string>

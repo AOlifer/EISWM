@@ -21,6 +21,7 @@
     <string name="cancel">Cancel</string>
     <string name="select_all">Select all</string>
     <string name="clear_selection">Clear</string>
+    <string name="select_item_desc">Select %1$s</string>
     <string name="copying">Copying…</string>
     <string name="menu_save_copy">Save a copy to…</string>
     <string name="save_where_title">Where to save the copy</string>
