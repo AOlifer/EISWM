@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.graphics.Color;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,11 +15,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +31,6 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * звукового приветствия, добавление через {@link PickerActivity}, сохранение копии и удаление.
  */
 final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
-    private static final String WELCOME_SWITCH = "bw_welcome_voice_switch";
     /**
      * Машина играет звук приветствия не дольше 6 с и обрывает более длинный;
      * 0,5 с — допуск на неточность метаданных MP3.
@@ -57,6 +53,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     private File pendingSave;
 
     private int listGeneration = 0;
+    private final WelcomeSwitch welcome;
     private boolean updatingSwitch = false;
 
     private static final class SoundRow {
@@ -84,6 +81,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     SoundsPanel(Activity activity, SharedPreferences prefs) {
         super(activity);
         this.prefs = prefs;
+        welcome = new WelcomeSwitch(activity.getContentResolver());
         soundDir = new File(activity.getString(R.string.welcome_sound_dir));
         preview = new AudioPreview(this);
         copyBundledWelcomeFilesOnce();
@@ -107,7 +105,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     void onStart() {
         try {
             activity.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(WELCOME_SWITCH), false, welcomeObserver);
+                    WelcomeSwitch.uri(), false, welcomeObserver);
         } catch (Exception ignored) {
         }
     }
@@ -149,7 +147,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     // ---------------------------------------------------------------- Переключатель приветствия
 
     private void updateWelcomeSwitch() {
-        int state = readWelcomeSwitch();
+        int state = welcome.read();
         updatingSwitch = true;
         if (state == 0 || state == 1) {
             welcomeSwitch.setEnabled(true);
@@ -165,60 +163,12 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
     }
 
     private void setWelcomeSwitch(int target) {
-        if (!writeWelcomeSwitch(target)) {
+        if (!welcome.write(target)) {
             toast(activity.getString(R.string.sounds_switch_failed));
-        } else if (readWelcomeSwitch() != target) {
+        } else if (welcome.read() != target) {
             toast(activity.getString(R.string.sounds_switch_unchanged));
         }
         updateWelcomeSwitch();
-    }
-
-    private int readWelcomeSwitch() {
-        try {
-            return Settings.Global.getInt(activity.getContentResolver(), WELCOME_SWITCH);
-        } catch (Settings.SettingNotFoundException | SecurityException e) {
-            String value = runCommand("settings", "get", "global", WELCOME_SWITCH);
-            try {
-                return Integer.parseInt(value.trim());
-            } catch (Exception ignored) {
-                return -1;
-            }
-        }
-    }
-
-    private boolean writeWelcomeSwitch(int value) {
-        try {
-            if (Settings.Global.putInt(activity.getContentResolver(), WELCOME_SWITCH, value)) {
-                if (readWelcomeSwitch() == value) return true;
-            }
-        } catch (SecurityException ignored) {
-        }
-
-        String result = runRootCommand("settings", "put", "global", WELCOME_SWITCH, String.valueOf(value));
-        return result != null && readWelcomeSwitch() == value;
-    }
-
-    private static String runCommand(String... command) {
-        try {
-            Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
-            StringBuilder out = new StringBuilder();
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                String line;
-                while ((line = r.readLine()) != null) out.append(line).append('\n');
-            }
-            p.waitFor();
-            return out.toString();
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private static String runRootCommand(String... command) {
-        String[] rootCommand = new String[command.length + 2];
-        rootCommand[0] = "su";
-        rootCommand[1] = "root";
-        System.arraycopy(command, 0, rootCommand, 2, command.length);
-        return runCommand(rootCommand);
     }
 
     // ---------------------------------------------------------------- Встроенные MP3
