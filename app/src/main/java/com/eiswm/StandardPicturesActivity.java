@@ -24,15 +24,15 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 /**
  * Стандартные картинки приветствия (штатные картинки лаунчера с русским текстом, assets/standard):
  * можно добавить выбранные на круглый год или включить все по временам года.
  * Результат — RESULT_OK, после которого раздел «Картинки» перечитывает список.
  */
 public class StandardPicturesActivity extends BaseActivity {
-    private static final int[] SEASON_TITLES = {
-            R.string.season_winter, R.string.season_spring, R.string.season_summer, R.string.season_autumn};
-
     private WelcomePictures pictures;
     private final TreeSet<String> selected = new TreeSet<>();
     private final Map<String, CheckBox> checks = new HashMap<>();
@@ -97,13 +97,13 @@ public class StandardPicturesActivity extends BaseActivity {
             if (season != lastSeason) {
                 lastSeason = season;
                 TextView header = new TextView(this);
-                header.setText(season < SEASON_TITLES.length ? getString(SEASON_TITLES[season]) : "");
+                header.setText(season < Ui.SEASON_TITLES.length ? getString(Ui.SEASON_TITLES[season]) : "");
                 header.setTextSize(19);
                 header.setTextColor(getColor(R.color.text_primary));
                 header.setPadding(Ui.dp(this, 8), Ui.dp(this, 10), 0, Ui.dp(this, 2));
                 grid.addView(header);
                 row = new LinearLayout(this);
-                grid.addView(row, new LinearLayout.LayoutParams(-1, -2));
+                grid.addView(row, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
             }
             images.add(addCard(row, name));
         }
@@ -115,47 +115,26 @@ public class StandardPicturesActivity extends BaseActivity {
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(Ui.dp(this, 6), Ui.dp(this, 6), Ui.dp(this, 6), Ui.dp(this, 6));
 
-        FrameLayout frame = new FrameLayout(this) {
-            @Override protected void onMeasure(int w, int h) {
-                int width = MeasureSpec.getSize(w);
-                int height = width * WelcomePictures.HEIGHT / WelcomePictures.WIDTH;
-                super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-            }
-        };
-        frame.setBackgroundColor(Color.BLACK);
-        ImageView image = new ImageView(this);
-        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        image.setContentDescription(name);
-        frame.addView(image, new FrameLayout.LayoutParams(-1, -1));
+        FrameLayout frame = Ui.screenFrame(this);
+        ImageView image = Ui.addPreviewImage(frame, name);
 
-        CheckBox check = new CheckBox(this);
+        CheckBox check = Ui.addPreviewCheck(frame, 6);
         check.setClickable(false);
         check.setFocusable(false);
-        check.setScaleX(1.3f);
-        check.setScaleY(1.3f);
-        // Тёмная подложка, чтобы галочку было видно на светлых картинках (снег, небо).
-        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
-        bg.setColor(0x99000000);
-        bg.setCornerRadius(Ui.dp(this, 6));
-        check.setBackground(bg);
-        FrameLayout.LayoutParams checkLp = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START);
-        checkLp.setMargins(Ui.dp(this, 6), Ui.dp(this, 6), 0, 0);
-        frame.addView(check, checkLp);
         checks.put(name, check);
 
         if (alreadyAdded.contains(name)) {
             TextView mark = Ui.pill(this);
             Ui.setPill(mark, getString(R.string.standard_added_mark), Ui.PILL_OK);
-            FrameLayout.LayoutParams markLp = new FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM | Gravity.END);
+            FrameLayout.LayoutParams markLp = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.BOTTOM | Gravity.END);
             markLp.setMargins(0, 0, Ui.dp(this, 6), Ui.dp(this, 6));
             frame.addView(mark, markLp);
         }
-        card.addView(frame, new LinearLayout.LayoutParams(-1, -2));
+        card.addView(frame, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         card.setOnClickListener(v -> toggle(name));
         frame.setOnClickListener(v -> toggle(name));
         cards.put(name, card);
-        row.addView(card, new LinearLayout.LayoutParams(0, -2, 1));
+        row.addView(card, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
         return image;
     }
 

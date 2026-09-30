@@ -2,6 +2,7 @@ package com.eiswm;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -10,14 +11,23 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /** Общие элементы интерфейса, которые создаются из кода: строки списков, метки, кнопки. */
 final class Ui {
     static final int PILL_OK = 0, PILL_BAD = 1, PILL_WARN = 2, PILL_NEUTRAL = 3;
     private static final int[] PILL_BG = {R.color.pill_ok_bg, R.color.pill_bad_bg, R.color.pill_warn_bg, R.color.pill_neutral_bg};
     private static final int[] PILL_FG = {R.color.pill_ok_fg, R.color.pill_bad_fg, R.color.pill_warn_fg, R.color.pill_neutral_fg};
+    /** Названия сезонов по индексу {@link WelcomePictures#seasonIndex}: зима, весна, лето, осень. */
+    static final int[] SEASON_TITLES = {
+            R.string.season_winter, R.string.season_spring, R.string.season_summer, R.string.season_autumn};
 
     private Ui() {}
 
@@ -92,7 +102,7 @@ final class Ui {
         Context c = parent.getContext();
         View v = new View(c);
         v.setBackgroundColor(c.getColor(R.color.divider));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, 1);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MATCH_PARENT, 1);
         lp.setMarginStart(dp(c, 16));
         parent.addView(v, lp);
     }
@@ -120,7 +130,7 @@ final class Ui {
             d.setPadding(0, dp(c, 8), 0, 0);
             box.addView(d);
         }
-        parent.addView(box, new LinearLayout.LayoutParams(-1, -2));
+        parent.addView(box, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
     }
 
     /**
@@ -142,7 +152,7 @@ final class Ui {
         } else {
             v.setCompoundDrawables(icon, null, null, null);
         }
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         lp.bottomMargin = dp(c, 6);
         v.setLayoutParams(lp);
         return v;
@@ -166,5 +176,49 @@ final class Ui {
         TypedValue tv = new TypedValue();
         c.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
         return tv.resourceId;
+    }
+
+    // ---------------------------------------------------------------- Превью картинок
+
+    /** Рамка превью с пропорциями экрана машины (8:3) на чёрном фоне. */
+    static FrameLayout screenFrame(Context c) {
+        FrameLayout frame = new FrameLayout(c) {
+            @Override protected void onMeasure(int w, int h) {
+                int width = MeasureSpec.getSize(w);
+                int height = width * WelcomePictures.HEIGHT / WelcomePictures.WIDTH;
+                super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+            }
+        };
+        frame.setBackgroundColor(Color.BLACK);
+        return frame;
+    }
+
+    /** Картинка во всю рамку превью, обрезанная по центру. */
+    static ImageView addPreviewImage(FrameLayout frame, String description) {
+        ImageView image = new ImageView(frame.getContext());
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        image.setContentDescription(description);
+        frame.addView(image, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        return image;
+    }
+
+    /**
+     * Галочка выделения в левом верхнем углу превью. Тёмная подложка — чтобы галочку было видно
+     * на светлых картинках (снег, небо).
+     */
+    static CheckBox addPreviewCheck(FrameLayout frame, int marginDp) {
+        Context c = frame.getContext();
+        CheckBox check = new CheckBox(c);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0x99000000);
+        bg.setCornerRadius(dp(c, 6));
+        check.setBackground(bg);
+        check.setScaleX(1.3f);
+        check.setScaleY(1.3f);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP | Gravity.START);
+        lp.setMargins(dp(c, marginDp), dp(c, marginDp), 0, 0);
+        frame.addView(check, lp);
+        return check;
     }
 }

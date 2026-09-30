@@ -17,6 +17,10 @@ import java.util.Locale;
 /** Файловые операции и форматирование, общие для главного экрана и экрана выбора файлов. */
 final class FileUtils {
     static final File INTERNAL_ROOT = new File("/storage/emulated/0");
+    /** Папка, куда при первом запуске кладутся встроенные MP3 и откуда начинается выбор звуков. */
+    static final File NOTIFICATIONS_DIR = new File(INTERNAL_ROOT, "Notifications");
+    /** С этой папки начинается выбор картинок. */
+    static final File PICTURES_DIR = new File(INTERNAL_ROOT, "Pictures");
 
     private FileUtils() {}
 

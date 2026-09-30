@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * EISWM — Evolute I-Space Welcome Manager.
@@ -52,6 +54,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     private static final int REQ_SAVE_FOLDER = 2;
     private static final String STATE_SECTION = "section";
     private static final String PREF_DISCLAIMER_SHOWN = "disclaimer_shown";
+    private static final String PREF_BUNDLED_COPIED = "bundled_welcome_files_copied";
     /** Последняя найденная на сервере версия: строка «Доступна версия N» видна до установки. */
     private static final String PREF_UPDATE_CODE = "update_available_code";
     private static final String PREF_UPDATE_NAME = "update_available_name";
@@ -241,7 +244,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         }
 
         // Тема — внизу колонки, под разделами.
-        rail.addView(new Space(this), new LinearLayout.LayoutParams(-1, 0, 1));
+        rail.addView(new Space(this), new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
         String themeName = themeName(themeMode(this));
         TextView theme = Ui.railItem(this, R.drawable.ic_theme, getString(R.string.theme_rail, themeName), true);
         Ui.setSelected(theme, false);
@@ -576,11 +579,11 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
     // ---------------------------------------------------------------- Встроенные MP3
 
     private void copyBundledWelcomeFilesOnce() {
-        if (prefs.getBoolean("bundled_welcome_files_copied", false)) {
+        if (prefs.getBoolean(PREF_BUNDLED_COPIED, false)) {
             return;
         }
 
-        File targetDir = new File(FileUtils.INTERNAL_ROOT, "Notifications");
+        File targetDir = FileUtils.NOTIFICATIONS_DIR;
         if (!targetDir.exists() && !targetDir.mkdirs()) {
             toast(getString(R.string.sounds_notifications_failed));
             return;
@@ -591,26 +594,17 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
             String[] names = getAssets().list("welcome");
             if (names != null) {
                 for (String name : names) {
-                    if (!name.toLowerCase().endsWith(".mp3")) {
-                        continue;
-                    }
                     File dst = new File(targetDir, name);
-                    if (dst.exists()) {
+                    if (!FileUtils.hasExtension(dst, SOUND_EXTENSIONS) || dst.exists()) {
                         continue;
                     }
-                    try (InputStream in = getAssets().open("welcome/" + name);
-                         FileOutputStream out = new FileOutputStream(dst)) {
-                        byte[] buffer = new byte[65536];
-                        int n;
-                        while ((n = in.read(buffer)) > 0) {
-                            out.write(buffer, 0, n);
-                        }
-                        out.flush();
+                    try (InputStream in = getAssets().open("welcome/" + name)) {
+                        if (!FileUtils.copyStreamQuiet(in, dst)) throw new IOException(dst.getPath());
                     }
                     copied++;
                 }
             }
-            prefs.edit().putBoolean("bundled_welcome_files_copied", true).apply();
+            prefs.edit().putBoolean(PREF_BUNDLED_COPIED, true).apply();
             if (copied > 0) {
                 toast(getString(R.string.sounds_bundled_added, copied));
             }
@@ -683,8 +677,8 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         r.progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         r.progress.setMax(1000);
         r.progress.setVisibility(View.GONE);
-        texts.addView(r.progress, new LinearLayout.LayoutParams(-1, Ui.dp(this, 8)));
-        LinearLayout.LayoutParams textsLp = new LinearLayout.LayoutParams(0, -2, 1);
+        texts.addView(r.progress, new LinearLayout.LayoutParams(MATCH_PARENT, Ui.dp(this, 8)));
+        LinearLayout.LayoutParams textsLp = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1);
         textsLp.setMarginStart(Ui.dp(this, 8));
         textsLp.setMarginEnd(Ui.dp(this, 16));
         row.addView(texts, textsLp);
@@ -700,7 +694,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
         row.addView(more, moreLp);
 
         row.setOnClickListener(v -> preview.toggle(f));
-        soundList.addView(row, new LinearLayout.LayoutParams(-1, -2));
+        soundList.addView(row, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         Ui.divider(soundList);
         rows.put(f, r);
         return pill;
@@ -749,7 +743,7 @@ public class MainActivity extends BaseActivity implements AudioPreview.Listener 
                 .putExtra(PickerActivity.EXTRA_MAX_DURATION_MS, MAX_SOUND_DURATION_MS)
                 .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_sounds)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
-                        new File(FileUtils.INTERNAL_ROOT, "Notifications").getAbsolutePath());
+                        FileUtils.NOTIFICATIONS_DIR.getAbsolutePath());
         startActivityForResult(i, REQ_ADD_SOUNDS);
     }
 
