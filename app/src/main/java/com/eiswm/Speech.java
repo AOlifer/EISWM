@@ -15,7 +15,7 @@ import java.util.List;
  * погоду; без него — стандартный синтезатор Android, если он установлен.
  * На Evolute i-Space (прошивка Yato1 2.23) нет ни com.bw.asr, ни синтезатора Android: лаунчер
  * погоду там не озвучивает (couldSpeakWeather() всегда false). Нужно поставить синтезатор,
- * например RHVoice.
+ * например sherpa-onnx TTS Engine с голосом Piper (ставится одним APK, без интернета).
  */
 final class Speech {
     private static final String CAR_VOICE = "com.bw.asr";

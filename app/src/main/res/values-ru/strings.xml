@@ -344,7 +344,7 @@
     <string name="summary_play_desc">Прослушать «%1$s»</string>
     <string name="summary_speak">Озвучивать сводку</string>
     <string name="summary_engine">Голос: %1$s</string>
-    <string name="summary_no_engine">Синтезатор речи не найден: сводка будет только на экране. Чтобы она звучала, установите синтезатор, например RHVoice с русским голосом.</string>
+    <string name="summary_no_engine">Синтезатор речи не найден: сводка будет только на экране. Чтобы она звучала, установите синтезатор речи для Android с русским голосом.</string>
     <string name="summary_tip">После включения зажигания, когда закроется экран приветствия, внизу экрана на 10 секунд появляется плашка со сводкой. Расстояния — в километрах или милях, температура — в °C или °F, как выбрано в настройках машины.</string>
     <string name="summary_show">Показать сейчас</string>
     <string name="summary_item_temp">Температура за бортом</string>

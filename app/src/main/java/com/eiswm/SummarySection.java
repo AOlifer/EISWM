@@ -69,6 +69,8 @@ final class SummarySection extends SectionPanel {
     private CarApi car;
     /** Последние значения из машины; null — ещё не прочитаны. */
     private CarSummary.Values values;
+    /** Есть синтезатор речи: без него ▶ и «Озвучивать сводку» недоступны. */
+    private boolean voiceAvailable = true;
 
     private final Runnable refreshTask = this::refresh;
 
@@ -83,15 +85,7 @@ final class SummarySection extends SectionPanel {
         farewell = new Tab(Prefs.SUMMARY_FAREWELL, R.id.summaryFarewellList, R.id.summaryFarewellSwitch,
                 R.id.summaryFarewellSpeakSwitch, R.id.summaryFarewellEngine, R.id.btnSummaryFarewellShow);
 
-        io.execute(() -> {
-            String name = Speech.engineName(activity);
-            String text = name != null ? activity.getString(R.string.summary_engine, name)
-                    : activity.getString(R.string.summary_no_engine);
-            ui.post(() -> {
-                welcome.engine.setText(text);
-                farewell.engine.setText(text);
-            });
-        });
+        checkEngine();
 
         carThread.start();
         carHandler = new Handler(carThread.getLooper());
@@ -125,6 +119,26 @@ final class SummarySection extends SectionPanel {
     /** Раздел или вкладка показаны: обновлять значения, пока они на экране. */
     void onShown() {
         refresh();
+        checkEngine();
+    }
+
+    /**
+     * Есть ли чем озвучивать. Без синтезатора выключатель «Озвучивать сводку» недоступен.
+     * Проверяется при каждом показе раздела: синтезатор могли поставить, пока приложение открыто.
+     */
+    private void checkEngine() {
+        io.execute(() -> {
+            String name = Speech.engineName(activity);
+            String text = name != null ? activity.getString(R.string.summary_engine, name)
+                    : activity.getString(R.string.summary_no_engine);
+            ui.post(() -> {
+                if (destroyed) return;
+                voiceAvailable = name != null;
+                welcome.setEngine(text, voiceAvailable);
+                farewell.setEngine(text, voiceAvailable);
+                updatePreviews();
+            });
+        });
     }
 
     /** Раздел скрыт: убрать плашку, показанную кнопкой «Показать сейчас». */
@@ -166,6 +180,16 @@ final class SummarySection extends SectionPanel {
             speakToggle.setChecked(CarSummary.isSpeakEnabled(activity, occasion));
             updating = false;
             buildList();
+        }
+
+        /** Без синтезатора выключатель озвучки недоступен и показан выключенным; настройка сохраняется. */
+        void setEngine(String text, boolean available) {
+            engine.setText(text);
+            updating = true;
+            speakToggle.setChecked(available && CarSummary.isSpeakEnabled(activity, occasion));
+            updating = false;
+            speakToggle.setEnabled(available);
+            ((View) speakToggle.getParent()).setAlpha(available ? 1f : 0.45f);
         }
 
         private void buildList() {
@@ -341,8 +365,8 @@ final class SummarySection extends SectionPanel {
                     status.setText(activity.getString(empty));
                     status.setVisibility(View.VISIBLE);
                 }
-                play.setEnabled(p != null);
-                play.setAlpha(p != null ? 1f : 0.3f);
+                play.setEnabled(p != null && voiceAvailable);
+                play.setAlpha(p != null && voiceAvailable ? 1f : 0.3f);
                 screen.setAlpha(CarSummary.isItemOn(activity, occasion, item) ? 1f : 0.45f);
             }
         }

@@ -322,7 +322,7 @@
     <string name="summary_play_desc">„%1$s“ anhören</string>
     <string name="summary_speak">Übersicht ansagen</string>
     <string name="summary_engine">Stimme: %1$s</string>
-    <string name="summary_no_engine">Keine Sprachausgabe gefunden: Die Übersicht erscheint nur auf dem Bildschirm. Installieren Sie eine Sprachausgabe, zum Beispiel RHVoice.</string>
+    <string name="summary_no_engine">Keine Sprachausgabe gefunden: Die Übersicht erscheint nur auf dem Bildschirm. Installieren Sie eine Sprachausgabe für Android.</string>
     <string name="summary_tip">Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Übersichtsleiste. Entfernungen in Kilometern oder Meilen und Temperatur in °C oder °F wie in den Fahrzeugeinstellungen.</string>
     <string name="summary_show">Jetzt zeigen</string>
     <string name="summary_item_temp">Außentemperatur</string>

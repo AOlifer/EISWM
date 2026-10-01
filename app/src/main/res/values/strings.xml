@@ -325,7 +325,7 @@
     <string name="summary_play_desc">Listen to “%1$s”</string>
     <string name="summary_speak">Speak the summary</string>
     <string name="summary_engine">Voice: %1$s</string>
-    <string name="summary_no_engine">No speech synthesizer found: the summary will only be shown on the screen. To hear it, install a speech synthesizer such as RHVoice.</string>
+    <string name="summary_no_engine">No speech synthesizer found: the summary will only be shown on the screen. To hear it, install a speech synthesizer for Android.</string>
     <string name="summary_tip">After you switch on the ignition and the welcome screen closes, a summary bar appears at the bottom of the screen for 10 seconds. Distances are in kilometres or miles and temperature in °C or °F, as set in the car settings.</string>
     <string name="summary_show">Show now</string>
     <string name="summary_item_temp">Outside temperature</string>
