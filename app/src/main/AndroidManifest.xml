@@ -50,9 +50,9 @@
             android:name=".CarDiagService"
             android:exported="false" />
         <service
-            android:name=".FarewellService"
+            android:name=".CarEventsService"
             android:exported="false" />
-        <!-- Загрузка и каждое пробуждение машины после сна: запуск прощания и записи диагностики. -->
+        <!-- Загрузка и каждое пробуждение машины после сна: запуск событий машины и записи диагностики. -->
         <receiver
             android:name=".WakeReceiver"
             android:exported="true">

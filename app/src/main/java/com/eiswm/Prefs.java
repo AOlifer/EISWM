@@ -47,6 +47,29 @@ final class Prefs {
     static final String FAREWELL_SOUND = "farewell_sound";
     static final String FAREWELL_PICTURE = "farewell_picture";
 
+    // Сводка ({@link CarSummary}): ключ = префикс случая (приветствие или прощание) + суффикс
+    static final String SUMMARY_WELCOME = "summary_";
+    static final String SUMMARY_FAREWELL = "farewell_summary_";
+    static final String SUMMARY_ENABLED = "enabled";
+    static final String SUMMARY_SPEAK = "speak";
+    /** К суффиксу добавляется имя пункта (CarSummary.ITEMS). */
+    static final String SUMMARY_ITEM = "item_";
+    /** Порядок пунктов: имена через запятую. */
+    static final String SUMMARY_ORDER = "order";
+
+    // Предупреждения сводки ({@link Warnings}): ключ = WARN + имя + WARN_ON или WARN_LIMIT
+    static final String WARN = "warn_";
+    static final String WARN_ON = "_on";
+    static final String WARN_LIMIT = "_limit";
+
+    // Поездка ({@link Trip}): ключ = префикс начала или конца + суффикс значения
+    static final String TRIP_START = "trip_start_";
+    static final String TRIP_END = "trip_end_";
+    static final String TRIP_TIME = "time";
+    static final String TRIP_ODOMETER = "odometer";
+    static final String TRIP_CHARGE = "charge";
+    static final String TRIP_FUEL = "fuel";
+
     // Диагностика машины
     /** Идёт запись событий ({@link CarDiagService}); после перезагрузки и сна машины запись продолжается. */
     static final String DIAG_RECORDING = "diag_recording";

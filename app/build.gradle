@@ -60,7 +60,7 @@ android {
         applicationId 'com.eiswm'
         minSdk 23
         targetSdk 28
-        versionCode 9
+        versionCode 13
         versionName '1.5.2'
     }
 

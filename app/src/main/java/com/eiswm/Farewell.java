@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -14,7 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -27,7 +26,7 @@ import java.util.Random;
  * Прощание при выключении зажигания: случайный звук из своего набора и картинка во весь экран.
  * Файлы лежат в files/farewell/ приложения. Звук играет так же, как приветствие лаунчера —
  * в канале машины WARNING, который слышен и после выключения зажигания (режим AVOFF).
- * Срабатывание следит {@link FarewellService}; кнопка «Проверить» вызывает {@link #play}.
+ * Срабатывание отслеживает {@link CarEventsService}; кнопка «Проверить» вызывает {@link #play}.
  */
 final class Farewell {
     static final String[] SOUND_EXTENSIONS = {"mp3"};
@@ -42,6 +41,8 @@ final class Farewell {
     private MediaPlayer player;
     private AudioFocusRequest focus;
     private View overlay;
+    /** Длительность звука последнего прощания, мс (0 — без звука). */
+    private long soundMs;
 
     Farewell(Context context) {
         this.context = context.getApplicationContext();
@@ -63,7 +64,7 @@ final class Farewell {
         return Prefs.get(c).getBoolean(Prefs.FAREWELL_PICTURE, false);
     }
 
-    /** Включено ли хоть что-то: тогда нужна служба {@link FarewellService}. */
+    /** Включено ли хоть что-то: тогда нужна служба {@link CarEventsService}. */
     static boolean isEnabled(Context c) {
         return isSoundEnabled(c) || isPictureEnabled(c);
     }
@@ -113,13 +114,20 @@ final class Farewell {
         File[] pictures = withPicture ? pictures(context) : new File[0];
         if (sounds.length == 0 && pictures.length == 0) return false;
         long showMs = MIN_SHOW_MS;
+        soundMs = 0;
         if (sounds.length > 0) {
             File s = sounds[random.nextInt(sounds.length)];
-            showMs = Math.max(showMs, FileUtils.getDurationMs(s));
+            soundMs = Math.max(0, FileUtils.getDurationMs(s));
+            showMs = Math.max(showMs, soundMs);
             playSound(s);
         }
         if (pictures.length > 0) showPicture(pictures[random.nextInt(pictures.length)], Math.min(showMs, MAX_SHOW_MS));
         return true;
+    }
+
+    /** Сколько длится звук последнего прощания, мс: после него можно говорить. */
+    long soundMs() {
+        return soundMs;
     }
 
     /** Прервать прощание (например, зажигание снова включили). */
@@ -199,12 +207,7 @@ final class Farewell {
 
     // ---------------------------------------------------------------- Картинка
 
-    /**
-     * Картинка поверх всего, включая экран ожидания машины. Окно системного уровня доступно
-     * system uid; без него (эмулятор) — обычное окно поверх приложений, если оно разрешено.
-     * Нажатие закрывает картинку раньше.
-     */
-    @SuppressWarnings("deprecation")
+    /** Картинка во весь экран поверх всего ({@link Overlay}); нажатие закрывает её раньше. */
     private void showPicture(File f, long showMs) {
         Bitmap bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
         if (bmp == null) return;
@@ -213,33 +216,14 @@ final class Farewell {
         v.setScaleType(ImageView.ScaleType.CENTER_CROP);
         v.setBackgroundColor(Color.BLACK);
         v.setOnClickListener(x -> hidePicture());
-        WindowManager wm = context.getSystemService(WindowManager.class);
-        int[] types = Build.VERSION.SDK_INT >= 26 && Settings.canDrawOverlays(context)
-                ? new int[]{WindowManager.LayoutParams.TYPE_SYSTEM_ERROR, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY}
-                : new int[]{WindowManager.LayoutParams.TYPE_SYSTEM_ERROR};
-        for (int type : types) {
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, type,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                            | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-                    PixelFormat.OPAQUE);
-            try {
-                wm.addView(v, lp);
-                overlay = v;
-                ui.postDelayed(this::hidePicture, showMs);
-                return;
-            } catch (Exception ignored) {
-                // Этот тип окна недоступен — пробуем следующий.
-            }
+        if (Overlay.show(context, v, Gravity.CENTER, WindowManager.LayoutParams.MATCH_PARENT)) {
+            overlay = v;
+            ui.postDelayed(this::hidePicture, showMs);
         }
     }
 
     private void hidePicture() {
-        if (overlay == null) return;
-        try {
-            context.getSystemService(WindowManager.class).removeView(overlay);
-        } catch (Exception ignored) {
-        }
+        Overlay.hide(context, overlay);
         overlay = null;
     }
 }

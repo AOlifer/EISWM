@@ -19,13 +19,15 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * EISWM — Evolute I-Space Welcome Manager.
  * Главный экран: колонка разделов слева, содержимое выбранного раздела справа.
  * Разделы: «Звуки» ({@link SoundsPanel}) и «Картинки» ({@link PicturesPanel}); в каждом вкладки
- * «Приветствие» и «Прощание» ({@link SectionTabs}, {@link FarewellTab}).
+ * «Приветствие» и «Прощание» ({@link SectionTabs}, {@link FarewellTab}). Раздел «Сводка»
+ * ({@link SummarySection}) — тоже с вкладками «Приветствие» и «Прощание».
  * Новый раздел = панель в activity_main.xml + запись в {@link #setupSections()}.
  * Файлы добавляются через {@link PickerActivity}.
  */
 public class MainActivity extends BaseActivity {
     private static final String STATE_SECTION = "section";
-    private static final String STATE_SOUNDS_TAB = "soundsTab", STATE_PICTURES_TAB = "picturesTab";
+    private static final String STATE_SOUNDS_TAB = "soundsTab", STATE_PICTURES_TAB = "picturesTab",
+            STATE_SUMMARY_TAB = "summaryTab";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
@@ -53,6 +55,7 @@ public class MainActivity extends BaseActivity {
     private SoundsPanel soundsPanel;
     private PicturesPanel picturesPanel;
     private FarewellTab farewellSounds, farewellPictures;
+    private SummarySection summarySection;
     private UpdateController updates;
 
     @Override protected void onCreate(Bundle b) {
@@ -67,6 +70,7 @@ public class MainActivity extends BaseActivity {
         setupSections();
         setupHome();
         picturesPanel = new PicturesPanel(this);
+        summarySection = new SummarySection(this, prefs);
         setupFarewellTabs(b);
         // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
         showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
@@ -95,6 +99,7 @@ public class MainActivity extends BaseActivity {
         if (picturesPanel != null) picturesPanel.destroy();
         if (farewellSounds != null) farewellSounds.destroy();
         if (farewellPictures != null) farewellPictures.destroy();
+        if (summarySection != null) summarySection.destroy();
         if (updates != null) updates.destroy();
         super.onDestroy();
     }
@@ -139,6 +144,8 @@ public class MainActivity extends BaseActivity {
                 findViewById(R.id.soundsPanel), getString(R.string.sounds_help)));
         sections.add(new Section(R.drawable.ic_section_pictures, getString(R.string.pictures_section),
                 findViewById(R.id.picturesPanel), getString(R.string.pictures_help)));
+        sections.add(new Section(R.drawable.ic_section_summary, getString(R.string.summary_section),
+                findViewById(R.id.summaryPanel), getString(R.string.summary_help)));
 
         LinearLayout rail = findViewById(R.id.sectionRail);
         for (int i = 0; i < sections.size(); i++) {
@@ -160,7 +167,7 @@ public class MainActivity extends BaseActivity {
         rail.addView(theme);
     }
 
-    /** Вкладки «Приветствие | Прощание» в разделах «Звуки» и «Картинки». */
+    /** Вкладки «Приветствие | Прощание» в разделах «Звуки», «Картинки» и «Сводка». */
     private void setupFarewellTabs(Bundle b) {
         farewellSounds = FarewellTab.sounds(this, prefs);
         farewellPictures = FarewellTab.pictures(this, prefs);
@@ -177,9 +184,18 @@ public class MainActivity extends BaseActivity {
                 new int[]{R.id.picturesWelcomeContent, R.id.picturesWelcomeSide},
                 new int[]{R.id.picturesFarewellContent, R.id.picturesFarewellSide}, stopAll);
         pictures.farewellHelp = getString(R.string.farewell_pictures_help);
+        Section summaryTabs = sections.get(2);
+        summaryTabs.tabs = new SectionTabs(this, R.id.summaryTabs,
+                new int[]{R.id.summaryWelcomeContent, R.id.summaryWelcomeSide},
+                new int[]{R.id.summaryFarewellContent, R.id.summaryFarewellSide}, tab -> {
+                    summarySection.stopPreview();
+                    summarySection.onShown();
+                });
+        summaryTabs.farewellHelp = getString(R.string.summary_farewell_help);
         if (b != null) {
             sounds.tabs.select(b.getInt(STATE_SOUNDS_TAB, SectionTabs.WELCOME));
             pictures.tabs.select(b.getInt(STATE_PICTURES_TAB, SectionTabs.WELCOME));
+            summaryTabs.tabs.select(b.getInt(STATE_SUMMARY_TAB, SectionTabs.WELCOME));
         }
     }
 
@@ -200,6 +216,10 @@ public class MainActivity extends BaseActivity {
         }
         if (index != 0) soundsPanel.stopPreview();
         stopFarewellPreviews();
+        if (summarySection != null) {
+            if (index == 2) summarySection.onShown();
+            else summarySection.stopPreview();
+        }
     }
 
     /** Состояние раздела переживает пересоздание экрана (например, смену темы). */
@@ -208,6 +228,7 @@ public class MainActivity extends BaseActivity {
         out.putInt(STATE_SECTION, currentSection);
         if (sections.get(0).tabs != null) out.putInt(STATE_SOUNDS_TAB, sections.get(0).tabs.current());
         if (sections.get(1).tabs != null) out.putInt(STATE_PICTURES_TAB, sections.get(1).tabs.current());
+        if (sections.get(2).tabs != null) out.putInt(STATE_SUMMARY_TAB, sections.get(2).tabs.current());
     }
 
     /** Стартовый экран: картинка, описание, версия, разработчик и быстрый переход в разделы. */
@@ -230,6 +251,7 @@ public class MainActivity extends BaseActivity {
         });
         findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
         findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
+        findViewById(R.id.homeSummary).setOnClickListener(v -> showSection(2));
         findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));
         findViewById(R.id.appTitle).setOnClickListener(v -> showSection(-1));
 

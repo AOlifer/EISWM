@@ -163,7 +163,15 @@
                             style="@style/EISWM.PrimaryButton"
                             android:layout_width="0dp"
                             android:layout_weight="1"
+                            android:layout_marginEnd="16dp"
                             android:text="@string/home_open_pictures" />
+
+                        <Button
+                            android:id="@+id/homeSummary"
+                            style="@style/EISWM.PrimaryButton"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="@string/home_open_summary" />
                     </LinearLayout>
 
                     <TextView
@@ -683,6 +691,252 @@
                         android:id="@+id/btnFarewellPictureAdd"
                         style="@style/EISWM.PrimaryButton"
                         android:text="@string/pictures_add" />
+                </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+            <!-- Раздел «Сводка»: вкладки «Приветствие» и «Прощание»; логика в SummarySection. -->
+            <LinearLayout
+                android:id="@+id/summaryPanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/surface"
+                    android:orientation="vertical">
+
+                    <!-- Вкладки «Приветствие | Прощание»: создаются в SectionTabs. -->
+                    <LinearLayout
+                        android:id="@+id/summaryTabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp" />
+
+                    <View style="@style/EISWM.Divider" />
+
+                    <LinearLayout
+                        android:id="@+id/summaryWelcomeContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <ScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+
+                            <!-- Пункты: галочка, образец плашки, ▶, ручка ≡ для перетаскивания. -->
+                            <LinearLayout
+                                android:id="@+id/summaryWelcomeList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+                        </ScrollView>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/summaryFarewellContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <ScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+
+                            <!-- Пункты: галочка, образец плашки, ▶, ручка ≡ для перетаскивания. -->
+                            <LinearLayout
+                                android:id="@+id/summaryFarewellList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+                        </ScrollView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View style="@style/EISWM.VDivider" />
+
+                <ScrollView
+                    android:id="@+id/summaryWelcomeSide"
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true">
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="match_parent"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/summary_show_switch"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/summaryWelcomeSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/summary_show_switch"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/summary_speak"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp" />
+
+                        <Switch
+                            android:id="@+id/summaryWelcomeSpeakSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/summary_speak"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/summaryWelcomeEngine"
+                        style="@style/EISWM.Caption" />
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:text="@string/summary_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnSummaryWelcomeShow"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/summary_show" />
+                </LinearLayout>
+                </ScrollView>
+
+                <ScrollView
+                    android:id="@+id/summaryFarewellSide"
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true"
+                    android:visibility="gone">
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="match_parent"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/summary_show_switch"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/summaryFarewellSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/summary_show_switch"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/summary_speak"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp" />
+
+                        <Switch
+                            android:id="@+id/summaryFarewellSpeakSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/summary_speak"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/summaryFarewellEngine"
+                        style="@style/EISWM.Caption" />
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:text="@string/summary_farewell_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnSummaryFarewellShow"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/summary_show" />
                 </LinearLayout>
                 </ScrollView>
             </LinearLayout>

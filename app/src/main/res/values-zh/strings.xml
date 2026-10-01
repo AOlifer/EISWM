@@ -65,7 +65,7 @@
     <string name="home_open_sounds">声音</string>
     <string name="home_open_pictures">图片</string>
     <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\ngithub.com/AOlifer/EISWM\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
-    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动和关闭点火时播放的 MP3 文件。\n图片：车辆启动和关闭点火时屏幕上的图片。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
+    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动和关闭点火时播放的 MP3 文件。\n图片：车辆启动和关闭点火时屏幕上的图片。\n概况：启动和关闭点火时——温度、续航、电量、保养。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
     <string name="home_disclaimer_short">⚠ 非官方应用，使用风险自负。</string>
     <string name="disclaimer_title">免责声明</string>
     <string name="disclaimer_text">EISWM 是非官方应用。它与 Evolute 汽车制造商、其经销商及主机供应商无关，也未获得其认可或支持。\n\n本应用以系统权限运行，会修改原厂软件的数据：启动器的文件和数据库以及迎宾设置。\n\n本软件按“原样”提供，不附带任何形式的保证。安装和使用的风险由您自行承担。作者不对任何损害负责，包括主机或车辆其他系统故障、数据或设置丢失、需要重置或重新刷写主机、被拒绝保修，以及驾驶车辆时产生的任何后果。\n\n固件更新或制造商服务器可能会更改或删除所做的设置。\n\n请勿在行驶中使用本应用，仅在车辆停止时使用。</string>
@@ -299,4 +299,115 @@
     <string name="delete_desc">删除 %1$s</string>
     <string name="farewell_sounds_help">关闭点火时车辆会播放告别声音。每次随机选择其中一个。\n\n▶  播放声音，再次点击停止。\n✕  删除声音。\n“添加声音”  在内部存储或 U 盘中选择 MP3 文件。\n“测试声音”  立即播放告别声音。\n\n关闭点火后主机还会工作约 30 秒，因此超过 20 秒的声音会被标记。\n\n右侧的开关用于开启和关闭告别声音。</string>
     <string name="farewell_pictures_help">关闭点火时车辆会在屏幕上显示告别图片几秒钟。每次随机选择其中一张。点击屏幕上的图片可提前关闭。\n\n✕  删除图片。\n“添加图片”  在内部存储或 U 盘中选择 PNG 或 JPG 文件。图片会适配 1920×720 屏幕，超出边缘的部分会被裁剪。\n“测试图片”  立即显示告别图片。\n\n右侧的开关用于开启和关闭告别图片。</string>
+    <!-- “概况”栏目：“迎宾”（启动时）和“告别”标签页 -->
+    <string name="summary_section">概况</string>
+    <string name="home_open_summary">概况</string>
+    <string name="summary_help">启动时概况：打开点火且迎宾画面关闭后，屏幕底部会显示 10 秒钟的概况条，包括警告、车外温度、续航里程、电量、油量和距保养里程。点击概况条可提前关闭。\n\n“警告”旁的 ⚙  选择要显示的警告并设置阈值：可能结冰、续航低、电量或油量低、即将保养、蓄电池电压低。\n\n每一项都按车辆当前数值显示它在概况条上的样子。\n勾选框开启或关闭某一项。\n▶  试听该项的语音。\n≡  上下拖动以调整顺序（或长按该项）。\n“显示概况”  开启或关闭概况。\n“语音播报概况”  车辆朗读概况。\n“立即显示”  立即显示概况。\n\n单位与车辆设置一致：公里或英里，°C 或 °F。</string>
+    <string name="summary_farewell_help">行程结果：关闭点火时，屏幕底部会显示 10 秒钟的概况条，包括行驶里程、行驶时间、平均速度、耗电、耗油和剩余续航。如已开启告别图片，概况条显示在其上方；语音在告别声音之后播放。关闭点火后主机还会运行约 30 秒。\n\n一次行程从打开点火到关闭点火，按里程表和时钟计算。耗电和耗油为下降的百分比；电量未下降时不显示该项。示例显示上一次行程（行驶中则显示当前行程）。\n\n此标签页有自己的项目和顺序，与启动时概况无关。\n勾选框开启或关闭某一项。\n▶  试听该项的语音。\n≡  上下拖动以调整顺序（或长按该项）。\n“显示概况”  开启或关闭告别概况。\n“语音播报概况”  车辆朗读概况。\n“立即显示”  立即显示概况。</string>
+    <string name="summary_farewell_tip">关闭点火时，屏幕底部会在告别图片之上显示 10 秒钟的行程结果；语音在告别声音之后播放。一次行程从打开点火到关闭点火。关闭点火后主机还会运行约 30 秒，因此这里的概况宜简短。</string>
+    <string name="summary_show_switch">显示概况</string>
+    <string name="summary_drag_desc">拖动“%1$s”</string>
+    <string name="summary_play_desc">试听“%1$s”</string>
+    <string name="summary_speak">语音播报概况</string>
+    <string name="summary_engine">语音：%1$s</string>
+    <string name="summary_no_engine">未找到语音合成器：概况只在屏幕上显示</string>
+    <string name="summary_tip">打开点火且迎宾画面关闭后，屏幕底部会显示 10 秒钟的概况条。距离按车辆设置显示为公里或英里，温度为 °C 或 °F。</string>
+    <string name="summary_show">立即显示</string>
+    <string name="summary_item_temp">车外温度</string>
+    <string name="summary_item_range">续航里程</string>
+    <string name="summary_item_charge">电池电量</string>
+    <string name="summary_item_fuel">油箱油量</string>
+    <string name="summary_item_service">距保养里程</string>
+    <string name="summary_item_warnings">警告</string>
+    <string name="summary_no_car">该数值将在车内显示</string>
+    <string name="summary_no_value">车辆未提供该数值</string>
+    <string name="summary_nothing">车辆尚未提供任何数值</string>
+    <string name="summary_demo">未连接车辆：显示示例</string>
+    <string name="summary_range">续航 %1$s</string>
+    <string name="summary_range_ev">续航 %1$s，纯电 %2$s</string>
+    <string name="summary_charge">电量 %1$s %%</string>
+    <string name="summary_fuel">油量 %1$s %%</string>
+    <string name="summary_service">距保养 %1$s</string>
+    <string name="summary_warn_ice">可能结冰</string>
+    <string name="summary_warn_range">续航不足</string>
+    <string name="summary_warn_service">即将保养</string>
+    <string name="summary_warn_battery">蓄电池电压低</string>
+    <string name="speech_plus">零上</string>
+    <string name="speech_minus">零下</string>
+    <string name="speech_temp">车外%1$s。</string>
+    <string name="speech_range">续航%1$s。</string>
+    <string name="speech_range_ev">续航%1$s，纯电%2$s。</string>
+    <string name="speech_charge">电池电量%1$s。</string>
+    <string name="speech_fuel">油箱油量%1$s。</string>
+    <string name="speech_service">距保养%1$s。</string>
+    <plurals name="speech_degrees">
+        <item quantity="other">%d 度</item>
+    </plurals>
+    <plurals name="speech_km">
+        <item quantity="other">%d 公里</item>
+    </plurals>
+    <plurals name="speech_percent">
+        <item quantity="other">百分之 %d</item>
+    </plurals>
+    <string name="summary_no_warnings">当前没有警告</string>
+    <string name="unit_km">%1$s km</string>
+    <string name="unit_mi">%1$s 英里</string>
+    <string name="speech_fahrenheit">华氏%1$s</string>
+    <plurals name="speech_mi">
+        <item quantity="other">%d 英里</item>
+    </plurals>
+    <!-- 行程结果：告别概况 -->
+    <string name="summary_item_trip_distance">本次行程里程</string>
+    <string name="summary_item_trip_time">行驶时间</string>
+    <string name="summary_item_trip_speed">平均速度</string>
+    <string name="summary_item_charge_used">耗电</string>
+    <string name="summary_item_fuel_used">耗油</string>
+    <string name="summary_no_trip">开启概况后，行程结束时显示</string>
+    <string name="summary_trip_distance">行驶 %1$s</string>
+    <string name="summary_trip_time">用时 %1$s</string>
+    <string name="summary_hours_minutes">%1$d 小时 %2$02d 分</string>
+    <string name="summary_minutes">%1$d 分钟</string>
+    <string name="summary_trip_speed">平均 %1$s</string>
+    <string name="unit_kmh">%1$s km/h</string>
+    <string name="unit_mph">%1$s mph</string>
+    <string name="summary_charge_used">电量 −%1$s %%</string>
+    <string name="summary_fuel_used">油量 −%1$s %%</string>
+    <string name="speech_trip_distance">本次行驶 %1$s。</string>
+    <string name="speech_trip_distance_short_km">本次行驶不到一公里。</string>
+    <string name="speech_trip_distance_short_mi">本次行驶不到一英里。</string>
+    <string name="speech_trip_time">行驶时间 %1$s。</string>
+    <string name="speech_trip_time_short">行驶时间不到一分钟。</string>
+    <string name="speech_trip_speed">平均速度每小时 %1$s。</string>
+    <string name="speech_charge_used">消耗电量%1$s。</string>
+    <string name="speech_fuel_used">消耗油量%1$s。</string>
+    <plurals name="speech_hours">
+        <item quantity="other">%d 小时</item>
+    </plurals>
+    <plurals name="speech_minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
+    <!-- 以升计的耗油量，警告设置 -->
+    <string name="summary_fuel_used_volume">耗油 %1$s</string>
+    <string name="speech_fuel_used_volume">耗油%1$s。</string>
+    <string name="unit_l">%1$s 升</string>
+    <string name="unit_gal">%1$s 加仑</string>
+    <string name="speech_litres">%1$s 升</string>
+    <string name="speech_gallons">%1$s 加仑</string>
+    <string name="summary_warn_charge">电量低</string>
+    <string name="summary_warn_fuel">油量低</string>
+    <string name="warn_title_ice">可能结冰：温度不高于</string>
+    <string name="warn_title_range">续航低：低于</string>
+    <string name="warn_title_charge">电量低：低于</string>
+    <string name="warn_title_fuel">油量低：低于</string>
+    <string name="warn_title_service">即将保养：低于</string>
+    <string name="warn_title_battery">蓄电池电压低：低于</string>
+    <string name="warn_settings">警告</string>
+    <string name="warn_settings_desc">设置警告</string>
+    <string name="warn_settings_hint">勾选框开启警告，“−”和“+”调整阈值。迎宾和告别概况共用这些设置。</string>
+    <string name="warn_decrease">降低“%1$s”的阈值</string>
+    <string name="warn_increase">提高“%1$s”的阈值</string>
+    <string name="unit_c">%1$s °C</string>
+    <string name="unit_f">%1$s °F</string>
+    <string name="unit_percent">%1$s %%</string>
+    <string name="unit_volt">%1$s V</string>
 </resources>

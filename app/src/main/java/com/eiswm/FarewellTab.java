@@ -26,8 +26,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * Вкладка «Прощание» в разделе «Звуки» или «Картинки»: свой список файлов, выключатель,
- * «Проверить» и «Добавить». При выключении зажигания {@link FarewellService} играет случайный
- * звук и показывает случайную картинку из этих списков ({@link Farewell}).
+ * «Проверить» и «Добавить». При выключении зажигания {@link CarEventsService} играет случайный
+ * звук и показывает случайную картинку из этих списков ({@link Farewell}, {@link CarEventsService}).
  */
 final class FarewellTab extends SectionPanel implements AudioPreview.Listener {
     /** Магнитола после выключения зажигания работает около 30 с; длиннее звук может оборваться. */
@@ -78,7 +78,7 @@ final class FarewellTab extends SectionPanel implements AudioPreview.Listener {
         updateSwitch();
         load();
         // Служба могла не запуститься (например, приложение обновили) — поднять её снова.
-        if (Farewell.isEnabled(activity)) FarewellService.start(activity);
+        CarEventsService.update(activity);
     }
 
     /** Вкладка скрыта или приложение ушло с экрана — звук не должен играть в фоне. */
@@ -97,8 +97,7 @@ final class FarewellTab extends SectionPanel implements AudioPreview.Listener {
 
     private void setEnabled(boolean on) {
         prefs.edit().putBoolean(sounds ? Prefs.FAREWELL_SOUND : Prefs.FAREWELL_PICTURE, on).apply();
-        if (Farewell.isEnabled(activity)) FarewellService.start(activity);
-        else FarewellService.stop(activity);
+        CarEventsService.update(activity);
         updateSwitch();
     }
 
