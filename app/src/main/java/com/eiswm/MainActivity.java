@@ -178,6 +178,11 @@ public class MainActivity extends BaseActivity {
         } catch (Exception ignored) {
         }
         ((TextView) findViewById(R.id.homeVersion)).setText(getString(R.string.home_version, version));
+        // Скрытый вход в диагностику машины: долгое нажатие на версию.
+        findViewById(R.id.homeVersion).setOnLongClickListener(v -> {
+            startActivity(new Intent(this, DiagnosticsActivity.class));
+            return true;
+        });
         findViewById(R.id.homeSounds).setOnClickListener(v -> showSection(0));
         findViewById(R.id.homePictures).setOnClickListener(v -> showSection(1));
         findViewById(R.id.logo).setOnClickListener(v -> showSection(-1));

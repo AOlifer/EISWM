@@ -260,4 +260,25 @@
     <string name="update_error_package">the file is not an EISWM update</string>
     <string name="update_error_version">the file is not newer than the installed version</string>
     <string name="update_error_install">Installation failed: %1$s</string>
+    <!-- Car diagnostics (hidden screen: long press on the version on the start screen) -->
+    <string name="diag_title">Car diagnostics</string>
+    <string name="diag_notification">Recording car events for diagnostics</string>
+    <string name="diag_hint">Read only: nothing is written to the car. Start recording, press “Mark” before each action (switch the ignition off, open a door, connect the phone), then save the files to a USB drive.</string>
+    <string name="diag_record_start">Start recording events</string>
+    <string name="diag_record_stop">Stop recording</string>
+    <string name="diag_mark">Mark in the log</string>
+    <string name="diag_marked">Mark %1$d added</string>
+    <string name="diag_snapshot">Take a snapshot of the car</string>
+    <string name="diag_snapshot_busy">Taking a snapshot…</string>
+    <string name="diag_snapshot_done">Snapshot saved: %1$s</string>
+    <string name="diag_error">Error: %1$s</string>
+    <string name="diag_save">Save files to…</string>
+    <string name="diag_clear">Clear the log</string>
+    <string name="diag_files">Files: %1$d, %2$s</string>
+    <string name="diag_log_empty">The log is empty. Start recording or take a snapshot.</string>
+    <string name="diag_status_recording">Recording is on</string>
+    <string name="diag_status_idle">Recording is off</string>
+    <string name="diag_car_connected">Car service connected</string>
+    <string name="diag_car_connecting">Connecting to the car service…</string>
+    <string name="diag_car_missing">No car API in this firmware</string>
 </resources>

@@ -275,4 +275,25 @@
     <string name="update_error_package">файл не является обновлением EISWM</string>
     <string name="update_error_version">версия в файле не новее установленной</string>
     <string name="update_error_install">Установка не удалась: %1$s</string>
+    <!-- Диагностика машины (скрытый экран: долгое нажатие на версию на стартовом экране) -->
+    <string name="diag_title">Диагностика машины</string>
+    <string name="diag_notification">Идёт запись событий машины для диагностики</string>
+    <string name="diag_hint">Только чтение: в машину ничего не записывается. Включите запись, нажимайте «Отметка» перед каждым действием (выключить зажигание, открыть дверь, подключить телефон), затем сохраните файлы на флешку.</string>
+    <string name="diag_record_start">Начать запись событий</string>
+    <string name="diag_record_stop">Остановить запись</string>
+    <string name="diag_mark">Отметка в журнале</string>
+    <string name="diag_marked">Отметка %1$d добавлена</string>
+    <string name="diag_snapshot">Сделать снимок машины</string>
+    <string name="diag_snapshot_busy">Снимаю состояние машины…</string>
+    <string name="diag_snapshot_done">Снимок сохранён: %1$s</string>
+    <string name="diag_error">Ошибка: %1$s</string>
+    <string name="diag_save">Сохранить файлы в…</string>
+    <string name="diag_clear">Очистить журнал</string>
+    <string name="diag_files">Файлов: %1$d, %2$s</string>
+    <string name="diag_log_empty">Журнал пуст. Включите запись или сделайте снимок.</string>
+    <string name="diag_status_recording">Запись включена</string>
+    <string name="diag_status_idle">Запись выключена</string>
+    <string name="diag_car_connected">Сервис машины подключён</string>
+    <string name="diag_car_connecting">Подключение к сервису машины…</string>
+    <string name="diag_car_missing">В этой прошивке нет API машины</string>
 </resources>

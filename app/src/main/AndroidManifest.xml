@@ -13,12 +13,22 @@
     <uses-permission
         android:name="android.permission.INSTALL_PACKAGES"
         tools:ignore="ProtectedPermissions" />
+    <!-- Диагностика машины (CarDiagService): фоновая запись, имя телефона по Bluetooth,
+         броадкаст лаунчера о запуске. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="com.bw.permission.RECV.LAUNCHER_BOOT_COMPLETED" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_label"
         android:supportsRtl="true"
         android:theme="@style/Theme.EISWM">
+        <!-- API машины (bw.car.*) из прошивки: /system/framework/BwCarProxy.jar. Без неё
+             (эмулятор, другая прошивка) приложение работает, диагностика пишет, что API нет. -->
+        <uses-library
+            android:name="bw.car.proxy"
+            android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -33,6 +43,26 @@
         <activity
             android:name=".StandardPicturesActivity"
             android:exported="false" />
+        <activity
+            android:name=".DiagnosticsActivity"
+            android:exported="false" />
+        <service
+            android:name=".CarDiagService"
+            android:exported="false" />
+        <!-- Запуск записи диагностики при загрузке и при каждом пробуждении машины после сна. -->
+        <receiver
+            android:name=".CarDiagService$WakeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.bw.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.bw.intent.action.WAKEUP" />
+                <action android:name="com.bw.action.LAUNCHER_BOOT_COMPLETED" />
+                <action android:name="autochips.intent.action.QB_POWERON" />
+                <action android:name="autochips.intent.action.PREQB_POWERON" />
+                <action android:name="android.intent.action.ACTION_BOOT_IPO" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

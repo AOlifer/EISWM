@@ -257,4 +257,25 @@
     <string name="update_error_package">die Datei ist kein EISWM-Update</string>
     <string name="update_error_version">die Datei ist nicht neuer als die installierte Version</string>
     <string name="update_error_install">Installation fehlgeschlagen: %1$s</string>
+    <!-- Fahrzeugdiagnose (versteckter Bildschirm: lange auf die Version auf dem Startbildschirm drücken) -->
+    <string name="diag_title">Fahrzeugdiagnose</string>
+    <string name="diag_notification">Fahrzeugereignisse werden für die Diagnose aufgezeichnet</string>
+    <string name="diag_hint">Nur Lesen: Ins Fahrzeug wird nichts geschrieben. Aufzeichnung starten, vor jeder Aktion „Markierung“ drücken (Zündung aus, Tür öffnen, Telefon verbinden), dann die Dateien auf einen USB-Stick speichern.</string>
+    <string name="diag_record_start">Aufzeichnung starten</string>
+    <string name="diag_record_stop">Aufzeichnung beenden</string>
+    <string name="diag_mark">Markierung im Protokoll</string>
+    <string name="diag_marked">Markierung %1$d hinzugefügt</string>
+    <string name="diag_snapshot">Fahrzeugzustand erfassen</string>
+    <string name="diag_snapshot_busy">Fahrzeugzustand wird erfasst…</string>
+    <string name="diag_snapshot_done">Zustand gespeichert: %1$s</string>
+    <string name="diag_error">Fehler: %1$s</string>
+    <string name="diag_save">Dateien speichern unter…</string>
+    <string name="diag_clear">Protokoll leeren</string>
+    <string name="diag_files">Dateien: %1$d, %2$s</string>
+    <string name="diag_log_empty">Das Protokoll ist leer. Aufzeichnung starten oder Zustand erfassen.</string>
+    <string name="diag_status_recording">Aufzeichnung läuft</string>
+    <string name="diag_status_idle">Aufzeichnung aus</string>
+    <string name="diag_car_connected">Fahrzeugdienst verbunden</string>
+    <string name="diag_car_connecting">Verbindung zum Fahrzeugdienst…</string>
+    <string name="diag_car_missing">Diese Firmware hat keine Fahrzeug-API</string>
 </resources>
