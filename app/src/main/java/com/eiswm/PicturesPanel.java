@@ -373,6 +373,7 @@ final class PicturesPanel extends SectionPanel {
         if (busy) return;
         Intent i = new Intent(activity, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
+                .putExtra(PickerActivity.EXTRA_KIND, PickerActivity.KIND_IMAGES)
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.pictures_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, WelcomePictures.EXTENSIONS)
                 .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_pictures)

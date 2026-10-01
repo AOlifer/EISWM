@@ -330,6 +330,7 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
         if (busy) return;
         Intent i = new Intent(activity, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
+                .putExtra(PickerActivity.EXTRA_KIND, PickerActivity.KIND_SOUNDS)
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.sounds_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, SOUND_EXTENSIONS)
                 .putExtra(PickerActivity.EXTRA_MAX_DURATION_MS, MAX_SOUND_DURATION_MS)

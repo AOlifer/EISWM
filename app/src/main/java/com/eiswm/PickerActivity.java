@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,8 +37,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 /**
  * Выбор файлов или папки в памяти устройства и на внешних накопителях.
  * Три колонки: накопители слева, содержимое папки по центру, выбранное и кнопка действия справа.
- * Экран общий для всех видов файлов: что показывать и как проверять, задаётся через Intent.
- * Сейчас используется для звуков; для картинок приветствия достаточно передать свои расширения.
+ * Экран общий для всех видов файлов: что показывать и как проверять, задаётся через Intent
+ * (режим, вид файлов {@link #EXTRA_KIND} и расширения).
  */
 public class PickerActivity extends BaseActivity implements AudioPreview.Listener {
     static final String EXTRA_MODE = "mode";
@@ -48,6 +47,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     static final String EXTRA_ACTION = "action";
     /** Режим папки: имя файла, который будет сохранён, — показывается в правой колонке. */
     static final String EXTRA_SUBJECT = "subject";
+    /**
+     * Вид файлов в режиме файлов: {@link #KIND_SOUNDS} — прослушивание и длительность,
+     * {@link #KIND_IMAGES} — превью и размер; без него — просто список файлов.
+     */
+    static final String EXTRA_KIND = "kind";
     /** Расширения без точки, например {"mp3"}. */
     static final String EXTRA_EXTENSIONS = "extensions";
     /** Длительность, после которой машина обрывает звук; 0 — не проверять. */
@@ -62,6 +66,9 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     static final String MODE_FILES = "files";
     static final String MODE_FOLDER = "folder";
+
+    static final String KIND_SOUNDS = "sounds";
+    static final String KIND_IMAGES = "images";
 
     private String mode;
     private String[] extensions;
@@ -114,8 +121,9 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         if (extensions == null) extensions = new String[0];
         maxDurationMs = in.getLongExtra(EXTRA_MAX_DURATION_MS, 0);
         itemPlural = in.getIntExtra(EXTRA_ITEM_PLURAL, R.plurals.picker_add_files);
-        audio = Arrays.asList(extensions).contains("mp3");
-        images = Arrays.asList(extensions).contains("png");
+        String kind = in.getStringExtra(EXTRA_KIND);
+        audio = KIND_SOUNDS.equals(kind);
+        images = KIND_IMAGES.equals(kind);
 
         ((TextView) findViewById(R.id.pickerTitle)).setText(in.getStringExtra(EXTRA_TITLE));
         rootsBar = findViewById(R.id.rootsBar);
