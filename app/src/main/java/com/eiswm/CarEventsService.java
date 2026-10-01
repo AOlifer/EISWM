@@ -11,14 +11,15 @@ import android.os.SystemClock;
 import android.provider.Settings;
 
 /**
- * События машины для функций приложения: при выключении зажигания — прощание
- * ({@link Farewell}) и сводка с итогами поездки ({@link Trip}), при включении — начало поездки
- * и сводка ({@link CarSummary}). Работает в фоне,
- * пока включена хоть одна из них; после загрузки и пробуждения машины запускается из
- * {@link WakeReceiver}.
+ * События машины для функций приложения: при включении зажигания — начало поездки ({@link Trip})
+ * и сводка ({@link CarSummary}); в конце поездки — прощание ({@link Farewell}) и сводка с
+ * итогами поездки (пока выключено, {@link Features#FAREWELL}). Работает в фоне, пока включена
+ * хоть одна из них; после загрузки и пробуждения машины запускается из {@link WakeReceiver}.
+ * <p>
  * Зажигание: свойство машины SYSTEM_CAN_ACC_STATUS (0 — выключено); запасной признак
- * выключения — переход сервиса машины в режим ожидания. Магнитола после выключения работает
- * ещё около 30 с.
+ * выключения — переход сервиса машины в режим ожидания. Подписка присылает только изменения,
+ * поэтому при подключении текущее значение читается отдельно: после глубокого сна (это
+ * перезагрузка) приложение стартует, когда зажигание уже давно включено.
  */
 public class CarEventsService extends Service {
     private static final int ACC_STATUS = 0x21400054;
@@ -99,29 +100,54 @@ public class CarEventsService extends Service {
 
     private void onCarConnected() {
         if (!running) return;
-        Object l = car.registerProperty(ACC_STATUS, 0f, new CarApi.PropertyListener() {
-            @Override public void onChange(int id, int area, int status, Object value) {
-                if (value instanceof Integer) onAcc((Integer) value);
-            }
-
-            @Override public void onError(int id, int area) {
-            }
-        });
+        Object l = car.registerProperty(ACC_STATUS, 0f, listener(v -> {
+            if (v instanceof Integer) onAcc((Integer) v);
+        }));
         boolean power = car.registerPower(state -> {
             if (state == POWER_STANDBY) accOff("power standby");
             else if (state == POWER_RUNNING) cancelFarewell();
         });
-        CarDiag.log(this, "EVENTS listening: acc " + (l != null) + ", power " + power);
+        // Текущее зажигание: подписка присылает только изменения.
+        Integer current = readInt(ACC_STATUS);
+        CarDiag.log(this, "EVENTS listening: acc " + (l != null) + ", power " + power + ", acc now " + current);
+        if (current != null && acc == null) onAcc(current);
+    }
+
+    private interface ValueListener {
+        void onValue(Object value);
+    }
+
+    private static CarApi.PropertyListener listener(ValueListener l) {
+        return new CarApi.PropertyListener() {
+            @Override public void onChange(int id, int area, int status, Object value) {
+                l.onValue(value);
+            }
+
+            @Override public void onError(int id, int area) {
+            }
+        };
+    }
+
+    private Integer readInt(int id) {
+        try {
+            Object[] sv = car.getProperty(id, 0);
+            return Integer.valueOf(0).equals(sv[0]) && sv[1] instanceof Integer ? (Integer) sv[1] : null;
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
     private void onAcc(int value) {
         Integer prev = acc;
         acc = value;
         if (prev == null) {
-            // Первое значение. Если процесс поднялся сразу после загрузки машины и зажигание
-            // включено — это и есть старт: глубокий сон машины — фактически выключение.
-            if (value != 0 && SystemClock.elapsedRealtime() < FRESH_BOOT_MS) accOn("boot");
-            else if (value != 0) Trip.startIfMissing(this, CarSummary.read(car));
+            // Первое значение. Зажигание включено, и это новая поездка, если процесс поднялся
+            // сразу после загрузки машины (глубокий сон — фактически выключение) или в прошлый
+            // раз видели выключение зажигания.
+            if (value == 0) return;
+            boolean wasOff = Prefs.get(this).getBoolean(Prefs.EVENTS_ACC_OFF, false);
+            if (wasOff || SystemClock.elapsedRealtime() < FRESH_BOOT_MS) accOn(wasOff ? "acc was off" : "boot");
+            else if (Features.FAREWELL) Trip.startIfMissing(this, CarSummary.read(car));
             return;
         }
         if (value == 0 && prev != 0) accOff("acc off");
@@ -134,13 +160,19 @@ public class CarEventsService extends Service {
     // ---------------------------------------------------------------- Выключение
 
     private void accOff(String reason) {
+        Prefs.get(this).edit().putBoolean(Prefs.EVENTS_ACC_OFF, true).apply();
         ui.post(summary::hide);
+        endTrip(reason);
+    }
+
+    /** Конец поездки: итоги, прощание и сводка прощания. */
+    private void endTrip(String reason) {
         long now = System.currentTimeMillis();
         if (!running || now - lastFarewell < REPEAT_GUARD_MS) return;
         lastFarewell = now;
-        // Итоги поездки — по значениям в момент выключения.
+        // Итоги поездки — по значениям в этот момент.
         handler.post(() -> {
-            if (car != null && car.isConnected()) Trip.finish(this, CarSummary.read(car));
+            if (Features.FAREWELL && car != null && car.isConnected()) Trip.finish(this, CarSummary.read(car));
         });
         if (Farewell.isEnabled(this)) {
             ui.post(() -> {
@@ -168,7 +200,8 @@ public class CarEventsService extends Service {
 
     private void accOn(String reason) {
         if (!running) return;
-        Trip.start(this, CarSummary.read(car));
+        Prefs.get(this).edit().putBoolean(Prefs.EVENTS_ACC_OFF, false).apply();
+        if (Features.FAREWELL) Trip.start(this, CarSummary.read(car));
         if (!CarSummary.isEnabled(this, Prefs.SUMMARY_WELCOME)) return;
         CarDiag.log(this, "SUMMARY " + reason + ", waiting for the welcome screen");
         waitForWelcome(SystemClock.elapsedRealtime() + WELCOME_WAIT_MS);
@@ -185,10 +218,10 @@ public class CarEventsService extends Service {
         handler.postDelayed(() -> showSummary(Prefs.SUMMARY_WELCOME), AFTER_WELCOME_MS);
     }
 
-    /** @param occasion Prefs.SUMMARY_WELCOME (зажигание включено) или Prefs.SUMMARY_FAREWELL (выключено) */
+    /** @param occasion Prefs.SUMMARY_WELCOME (начало поездки) или Prefs.SUMMARY_FAREWELL (конец) */
     private void showSummary(String occasion) {
         boolean welcome = Prefs.SUMMARY_WELCOME.equals(occasion);
-        if (!running || car == null || acc == null || (welcome ? acc == 0 : acc != 0)) return;
+        if (!running || car == null || (welcome && (acc == null || acc == 0))) return;
         CarSummary.Values v = CarSummary.read(this, car);
         ui.post(() -> {
             long speechDelay = welcome ? 0 : farewell.soundMs() + SPEECH_AFTER_SOUND_MS;

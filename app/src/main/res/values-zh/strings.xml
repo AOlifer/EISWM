@@ -61,11 +61,11 @@
 
     <!-- Home screen -->
     <string name="home_version">版本 %1$s</string>
-    <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾，并在关闭点火时告别。</string>
+    <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾。启动时概况显示温度、续航、电量和警告。</string>
     <string name="home_open_sounds">声音</string>
     <string name="home_open_pictures">图片</string>
     <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\ngithub.com/AOlifer/EISWM\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
-    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动和关闭点火时播放的 MP3 文件。\n图片：车辆启动和关闭点火时屏幕上的图片。\n概况：启动和关闭点火时——温度、续航、电量、保养。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
+    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动时播放的 MP3 文件。\n图片：迎宾画面上的图片。\n概况：启动时——温度、续航、电量、保养和警告。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
     <string name="home_disclaimer_short">⚠ 非官方应用，使用风险自负。</string>
     <string name="disclaimer_title">免责声明</string>
     <string name="disclaimer_text">EISWM 是非官方应用。它与 Evolute 汽车制造商、其经销商及主机供应商无关，也未获得其认可或支持。\n\n本应用以系统权限运行，会修改原厂软件的数据：启动器的文件和数据库以及迎宾设置。\n\n本软件按“原样”提供，不附带任何形式的保证。安装和使用的风险由您自行承担。作者不对任何损害负责，包括主机或车辆其他系统故障、数据或设置丢失、需要重置或重新刷写主机、被拒绝保修，以及驾驶车辆时产生的任何后果。\n\n固件更新或制造商服务器可能会更改或删除所做的设置。\n\n请勿在行驶中使用本应用，仅在车辆停止时使用。</string>
@@ -310,7 +310,7 @@
     <string name="summary_play_desc">试听“%1$s”</string>
     <string name="summary_speak">语音播报概况</string>
     <string name="summary_engine">语音：%1$s</string>
-    <string name="summary_no_engine">未找到语音合成器：概况只在屏幕上显示</string>
+    <string name="summary_no_engine">未找到语音合成器：概况只会显示在屏幕上。如需语音播报，请安装语音合成器，例如 RHVoice。</string>
     <string name="summary_tip">打开点火且迎宾画面关闭后，屏幕底部会显示 10 秒钟的概况条。距离按车辆设置显示为公里或英里，温度为 °C 或 °F。</string>
     <string name="summary_show">立即显示</string>
     <string name="summary_item_temp">车外温度</string>
@@ -339,7 +339,7 @@
     <string name="speech_range_ev">续航%1$s，纯电%2$s。</string>
     <string name="speech_charge">电池电量%1$s。</string>
     <string name="speech_fuel">油箱油量%1$s。</string>
-    <string name="speech_service">距保养%1$s。</string>
+    <string name="speech_service">距离保养还有%1$s。</string>
     <plurals name="speech_degrees">
         <item quantity="other">%d 度</item>
     </plurals>
@@ -403,7 +403,7 @@
     <string name="warn_title_battery">蓄电池电压低：低于</string>
     <string name="warn_settings">警告</string>
     <string name="warn_settings_desc">设置警告</string>
-    <string name="warn_settings_hint">勾选框开启警告，“−”和“+”调整阈值。迎宾和告别概况共用这些设置。</string>
+    <string name="warn_settings_hint">勾选框开启警告，“−”和“+”调整阈值。</string>
     <string name="warn_decrease">降低“%1$s”的阈值</string>
     <string name="warn_increase">提高“%1$s”的阈值</string>
     <string name="unit_c">%1$s °C</string>

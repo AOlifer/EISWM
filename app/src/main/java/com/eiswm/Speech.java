@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
 import android.speech.tts.TextToSpeech;
 
 import org.json.JSONObject;
@@ -12,8 +11,11 @@ import org.json.JSONObject;
 import java.util.List;
 
 /**
- * Озвучка текста. На машине — голосовой ассистент com.bw.asr тем же вызовом, которым лаунчер
- * озвучивает погоду; без него — стандартный синтезатор Android, если он установлен.
+ * Озвучка текста. Голосовой ассистент com.bw.asr — тем же вызовом, которым лаунчер озвучивает
+ * погоду; без него — стандартный синтезатор Android, если он установлен.
+ * На Evolute i-Space (прошивка Yato1 2.23) нет ни com.bw.asr, ни синтезатора Android: лаунчер
+ * погоду там не озвучивает (couldSpeakWeather() всегда false). Нужно поставить синтезатор,
+ * например RHVoice.
  */
 final class Speech {
     private static final String CAR_VOICE = "com.bw.asr";
@@ -64,9 +66,8 @@ final class Speech {
         shutdown();
         tts = new TextToSpeech(context, status -> {
             if (status != TextToSpeech.SUCCESS || tts == null) return;
-            tts.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
+            // Канал машины WARNING, как у звука прощания: он слышен и после выключения зажигания.
+            tts.setAudioAttributes(Farewell.carWarningAttributes());
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "eiswm");
         });
     }

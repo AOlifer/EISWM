@@ -66,7 +66,7 @@ final class Farewell {
 
     /** Включено ли хоть что-то: тогда нужна служба {@link CarEventsService}. */
     static boolean isEnabled(Context c) {
-        return isSoundEnabled(c) || isPictureEnabled(c);
+        return Features.FAREWELL && (isSoundEnabled(c) || isPictureEnabled(c));
     }
 
     static File[] sounds(Context c) {
@@ -189,7 +189,7 @@ final class Farewell {
      * Вне машины (нет bw.car.proxy, эмулятор) звук играет как обычное уведомление.
      */
     @SuppressLint("WrongConstant")
-    private static AudioAttributes carWarningAttributes() {
+    static AudioAttributes carWarningAttributes() {
         AudioAttributes.Builder b = new AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION);

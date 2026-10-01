@@ -107,6 +107,7 @@ final class CarSummary {
     // или Prefs.SUMMARY_FAREWELL, префикс ключей.
 
     static boolean isEnabled(Context c, String occasion) {
+        if (Prefs.SUMMARY_FAREWELL.equals(occasion) && !Features.FAREWELL) return false;
         return Prefs.get(c).getBoolean(occasion + Prefs.SUMMARY_ENABLED, false);
     }
 

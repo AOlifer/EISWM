@@ -57,6 +57,10 @@ final class Prefs {
     /** Порядок пунктов: имена через запятую. */
     static final String SUMMARY_ORDER = "order";
 
+    // События машины ({@link CarEventsService})
+    /** Последним видели выключение зажигания: следующее включение — новая поездка. */
+    static final String EVENTS_ACC_OFF = "events_acc_off";
+
     // Предупреждения сводки ({@link Warnings}): ключ = WARN + имя + WARN_ON или WARN_LIMIT
     static final String WARN = "warn_";
     static final String WARN_ON = "_on";

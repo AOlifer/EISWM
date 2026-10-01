@@ -62,11 +62,11 @@
 
     <!-- Startbildschirm -->
     <string name="home_version">Version %1$s</string>
-    <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten und sich beim Ausschalten der Zündung verabschieden.</string>
+    <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten. Eine Übersicht beim Start zeigt Temperatur, Reichweite, Ladestand und Warnungen.</string>
     <string name="home_open_sounds">Klänge</string>
     <string name="home_open_pictures">Bilder</string>
     <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
-    <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten und beim Ausschalten der Zündung abspielt.\nBilder: Bilder auf dem Bildschirm beim Einschalten und beim Ausschalten der Zündung.\nÜbersicht: beim Einschalten und beim Ausschalten der Zündung — Temperatur, Reichweite, Ladestand, Wartung.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
+    <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten abspielt.\nBilder: Bilder auf dem Begrüßungsbildschirm.\nÜbersicht: beim Einschalten — Temperatur, Reichweite, Ladestand, Wartung und Warnungen.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
     <string name="home_disclaimer_short">⚠ Inoffizielle App, Nutzung auf eigenes Risiko.</string>
     <string name="disclaimer_title">Haftungsausschluss</string>
     <string name="disclaimer_text">EISWM ist eine inoffizielle Anwendung. Sie steht in keiner Verbindung zum Fahrzeughersteller Evolute, seinen Händlern oder den Lieferanten des Infotainmentsystems und wird von ihnen weder unterstützt noch gebilligt.\n\nDie Anwendung läuft mit Systemrechten und ändert Daten der Serien-Software: Dateien und Datenbank des Launchers sowie die Begrüßungseinstellungen.\n\nDie Software wird „wie besehen“ ohne jegliche Gewährleistung bereitgestellt. Installation und Nutzung erfolgen auf eigenes Risiko. Der Autor haftet nicht für Schäden jeglicher Art, einschließlich Fehlfunktionen des Infotainmentsystems oder anderer Fahrzeugsysteme, Verlust von Daten oder Einstellungen, notwendiger Zurücksetzung oder Neuinstallation der Firmware, verweigerter Garantieleistungen und jeglicher Folgen während des Fahrzeugbetriebs.\n\nFirmware-Updates oder der Server des Herstellers können vorgenommene Einstellungen ändern oder entfernen.\n\nNutzen Sie die Anwendung nicht während der Fahrt – nur bei stehendem Fahrzeug.</string>
@@ -322,7 +322,7 @@
     <string name="summary_play_desc">„%1$s“ anhören</string>
     <string name="summary_speak">Übersicht ansagen</string>
     <string name="summary_engine">Stimme: %1$s</string>
-    <string name="summary_no_engine">Keine Sprachausgabe gefunden: Die Übersicht erscheint nur auf dem Bildschirm</string>
+    <string name="summary_no_engine">Keine Sprachausgabe gefunden: Die Übersicht erscheint nur auf dem Bildschirm. Installieren Sie eine Sprachausgabe, zum Beispiel RHVoice.</string>
     <string name="summary_tip">Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Übersichtsleiste. Entfernungen in Kilometern oder Meilen und Temperatur in °C oder °F wie in den Fahrzeugeinstellungen.</string>
     <string name="summary_show">Jetzt zeigen</string>
     <string name="summary_item_temp">Außentemperatur</string>
@@ -351,7 +351,7 @@
     <string name="speech_range_ev">Reichweite %1$s, elektrisch %2$s.</string>
     <string name="speech_charge">Ladestand %1$s.</string>
     <string name="speech_fuel">Kraftstoff im Tank: %1$s.</string>
-    <string name="speech_service">Wartung in %1$s.</string>
+    <string name="speech_service">Bis zur Wartung verbleiben %1$s.</string>
     <plurals name="speech_degrees">
         <item quantity="one">%d Grad</item>
         <item quantity="other">%d Grad</item>
@@ -421,7 +421,7 @@
     <string name="warn_title_battery">Niedrige Batteriespannung: unter</string>
     <string name="warn_settings">Warnungen</string>
     <string name="warn_settings_desc">Warnungen einstellen</string>
-    <string name="warn_settings_hint">Das Häkchen schaltet eine Warnung ein, − und + ändern den Schwellenwert. Die Einstellungen gelten für Begrüßung und Abschied.</string>
+    <string name="warn_settings_hint">Das Häkchen schaltet eine Warnung ein, − und + ändern den Schwellenwert.</string>
     <string name="warn_decrease">Schwellenwert „%1$s“ senken</string>
     <string name="warn_increase">Schwellenwert „%1$s“ erhöhen</string>
     <string name="unit_c">%1$s °C</string>
