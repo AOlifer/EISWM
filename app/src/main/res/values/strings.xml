@@ -65,11 +65,11 @@
 
     <!-- Home screen -->
     <string name="home_version">Version %1$s</string>
-    <string name="home_description">The sounds and pictures Evolute i-Space greets the driver with at start-up: add your own, pick standard ones by season, turn the greeting on and off.</string>
+    <string name="home_description">The sounds and pictures Evolute i-Space greets the driver with at start-up: add your own, pick standard ones by season, turn the greeting on and off, and say goodbye when the ignition is switched off.</string>
     <string name="home_open_sounds">Sounds</string>
     <string name="home_open_pictures">Pictures</string>
     <string name="home_developer">Developer: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLicense PolyForm Noncommercial: non-commercial use only</string>
-    <string name="home_help">Choose a section on the left or with a button on this screen:\n\nSounds: MP3 files the car plays at start-up.\nPictures: images on the welcome screen.\n\nEach section has its own Help. Tap the logo or the title at the top to return to this screen.</string>
+    <string name="home_help">Choose a section on the left or with a button on this screen:\n\nSounds: MP3 files the car plays at start-up and when the ignition is switched off.\nPictures: images on the welcome screen and when the ignition is switched off.\n\nEach section has its own Help. Tap the logo or the title at the top to return to this screen.</string>
     <string name="home_disclaimer_short">⚠ Unofficial app, use at your own risk.</string>
     <string name="disclaimer_title">Disclaimer</string>
     <string name="disclaimer_text">EISWM is an unofficial application. It is not affiliated with, endorsed or supported by the Evolute car manufacturer, its dealers or the head unit suppliers.\n\nThe application runs with system privileges and changes data of the stock software: the launcher’s files and database and the welcome settings.\n\nThe software is provided “as is”, without warranty of any kind. You install and use it at your own risk. The author is not liable for any damage, including malfunction of the head unit or other vehicle systems, loss of data or settings, the need to reset or reflash the unit, refusal of warranty service, and any consequences while operating the vehicle.\n\nFirmware updates or the manufacturer’s server may change or remove the settings made.\n\nDo not use the application while driving — only while the vehicle is stationary.</string>
@@ -281,4 +281,37 @@
     <string name="diag_car_connected">Car service connected</string>
     <string name="diag_car_connecting">Connecting to the car service…</string>
     <string name="diag_car_missing">No car API in this firmware</string>
+    <!-- Farewell when the ignition is switched off: Welcome | Farewell tabs in the Sounds and Pictures sections -->
+    <string name="tab_welcome">Welcome</string>
+    <string name="tab_farewell">Farewell</string>
+    <string name="farewell_sounds_header">Farewell sounds</string>
+    <string name="farewell_pictures_header">Farewell pictures</string>
+    <string name="farewell_sound_on">Farewell sound is on</string>
+    <string name="farewell_sound_off">Farewell sound is off</string>
+    <string name="farewell_picture_on">Farewell picture is on</string>
+    <string name="farewell_picture_off">Farewell picture is off</string>
+    <string name="farewell_sound_switch_desc">Farewell sound when the ignition is switched off</string>
+    <string name="farewell_picture_switch_desc">Farewell picture when the ignition is switched off</string>
+    <string name="farewell_sounds_tip">When the ignition is switched off, the car plays a random sound from this list. The head unit keeps working for about 30 seconds after that, so sounds longer than 20 seconds are marked.</string>
+    <string name="farewell_pictures_tip">When the ignition is switched off, the car shows a random picture from this list for a few seconds. Pictures are fitted to the 1920×720 screen.</string>
+    <string name="farewell_test_sound">Test the sound</string>
+    <string name="farewell_test_picture">Test the picture</string>
+    <plurals name="farewell_sounds_summary">
+        <item quantity="one">Loaded: %d sound</item>
+        <item quantity="other">Loaded: %d sounds</item>
+    </plurals>
+    <plurals name="farewell_pictures_summary">
+        <item quantity="one">Loaded: %d picture</item>
+        <item quantity="other">Loaded: %d pictures</item>
+    </plurals>
+    <string name="farewell_sounds_empty">No farewell sounds yet</string>
+    <string name="farewell_pictures_empty">No farewell pictures yet</string>
+    <string name="farewell_add_details">Add files with the button on the right.</string>
+    <string name="farewell_no_sound">Add a sound first</string>
+    <string name="farewell_no_picture">Add a picture first</string>
+    <string name="farewell_delete_sound">Delete the farewell sound?</string>
+    <string name="farewell_delete_picture">Delete the farewell picture?</string>
+    <string name="delete_desc">Delete %1$s</string>
+    <string name="farewell_sounds_help">The car plays a farewell sound when the ignition is switched off. Each time it picks one of them at random.\n\n▶  play a sound; tap again to stop.\n✕  delete the sound.\nAdd sounds  choose MP3 files in internal memory or on a USB drive.\nTest the sound  play a farewell sound right now.\n\nThe head unit keeps working for about 30 seconds after the ignition is off, so sounds longer than 20 seconds are marked.\n\nThe switch on the right turns the farewell sound on and off.</string>
+    <string name="farewell_pictures_help">The car shows a farewell picture on its screen for a few seconds when the ignition is switched off. Each time it picks one of them at random. Tap the picture on the screen to close it earlier.\n\n✕  delete the picture.\nAdd pictures  choose PNG or JPG files in internal memory or on a USB drive. Each picture is fitted to the 1920×720 screen; anything beyond the edges is cropped.\nTest the picture  show a farewell picture right now.\n\nThe switch on the right turns the farewell picture on and off.</string>
 </resources>

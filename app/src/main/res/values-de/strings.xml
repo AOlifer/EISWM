@@ -62,11 +62,11 @@
 
     <!-- Startbildschirm -->
     <string name="home_version">Version %1$s</string>
-    <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten.</string>
+    <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten und sich beim Ausschalten der Zündung verabschieden.</string>
     <string name="home_open_sounds">Klänge</string>
     <string name="home_open_pictures">Bilder</string>
     <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
-    <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten abspielt.\nBilder: Bilder auf dem Begrüßungsbildschirm.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
+    <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten und beim Ausschalten der Zündung abspielt.\nBilder: Bilder auf dem Bildschirm beim Einschalten und beim Ausschalten der Zündung.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
     <string name="home_disclaimer_short">⚠ Inoffizielle App, Nutzung auf eigenes Risiko.</string>
     <string name="disclaimer_title">Haftungsausschluss</string>
     <string name="disclaimer_text">EISWM ist eine inoffizielle Anwendung. Sie steht in keiner Verbindung zum Fahrzeughersteller Evolute, seinen Händlern oder den Lieferanten des Infotainmentsystems und wird von ihnen weder unterstützt noch gebilligt.\n\nDie Anwendung läuft mit Systemrechten und ändert Daten der Serien-Software: Dateien und Datenbank des Launchers sowie die Begrüßungseinstellungen.\n\nDie Software wird „wie besehen“ ohne jegliche Gewährleistung bereitgestellt. Installation und Nutzung erfolgen auf eigenes Risiko. Der Autor haftet nicht für Schäden jeglicher Art, einschließlich Fehlfunktionen des Infotainmentsystems oder anderer Fahrzeugsysteme, Verlust von Daten oder Einstellungen, notwendiger Zurücksetzung oder Neuinstallation der Firmware, verweigerter Garantieleistungen und jeglicher Folgen während des Fahrzeugbetriebs.\n\nFirmware-Updates oder der Server des Herstellers können vorgenommene Einstellungen ändern oder entfernen.\n\nNutzen Sie die Anwendung nicht während der Fahrt – nur bei stehendem Fahrzeug.</string>
@@ -278,4 +278,37 @@
     <string name="diag_car_connected">Fahrzeugdienst verbunden</string>
     <string name="diag_car_connecting">Verbindung zum Fahrzeugdienst…</string>
     <string name="diag_car_missing">Diese Firmware hat keine Fahrzeug-API</string>
+    <!-- Abschied beim Ausschalten der Zündung: Registerkarten Begrüßung | Abschied in den Bereichen Klänge und Bilder -->
+    <string name="tab_welcome">Begrüßung</string>
+    <string name="tab_farewell">Abschied</string>
+    <string name="farewell_sounds_header">Abschiedsklänge</string>
+    <string name="farewell_pictures_header">Abschiedsbilder</string>
+    <string name="farewell_sound_on">Abschiedsklang ist an</string>
+    <string name="farewell_sound_off">Abschiedsklang ist aus</string>
+    <string name="farewell_picture_on">Abschiedsbild ist an</string>
+    <string name="farewell_picture_off">Abschiedsbild ist aus</string>
+    <string name="farewell_sound_switch_desc">Abschiedsklang beim Ausschalten der Zündung</string>
+    <string name="farewell_picture_switch_desc">Abschiedsbild beim Ausschalten der Zündung</string>
+    <string name="farewell_sounds_tip">Beim Ausschalten der Zündung spielt das Auto einen zufälligen Klang aus dieser Liste. Das Radio läuft danach noch etwa 30 Sekunden, deshalb sind Klänge über 20 Sekunden markiert.</string>
+    <string name="farewell_pictures_tip">Beim Ausschalten der Zündung zeigt das Auto einige Sekunden lang ein zufälliges Bild aus dieser Liste. Bilder werden an den Bildschirm 1920×720 angepasst.</string>
+    <string name="farewell_test_sound">Klang testen</string>
+    <string name="farewell_test_picture">Bild testen</string>
+    <plurals name="farewell_sounds_summary">
+        <item quantity="one">Geladen: %d Klang</item>
+        <item quantity="other">Geladen: %d Klänge</item>
+    </plurals>
+    <plurals name="farewell_pictures_summary">
+        <item quantity="one">Geladen: %d Bild</item>
+        <item quantity="other">Geladen: %d Bilder</item>
+    </plurals>
+    <string name="farewell_sounds_empty">Noch keine Abschiedsklänge</string>
+    <string name="farewell_pictures_empty">Noch keine Abschiedsbilder</string>
+    <string name="farewell_add_details">Fügen Sie Dateien mit der Schaltfläche rechts hinzu.</string>
+    <string name="farewell_no_sound">Fügen Sie zuerst einen Klang hinzu</string>
+    <string name="farewell_no_picture">Fügen Sie zuerst ein Bild hinzu</string>
+    <string name="farewell_delete_sound">Abschiedsklang löschen?</string>
+    <string name="farewell_delete_picture">Abschiedsbild löschen?</string>
+    <string name="delete_desc">%1$s löschen</string>
+    <string name="farewell_sounds_help">Das Auto spielt beim Ausschalten der Zündung einen Abschiedsklang. Jedes Mal wählt es zufällig einen davon aus.\n\n▶  Klang anhören; erneutes Tippen stoppt ihn.\n✕  Klang löschen.\nKlänge hinzufügen  MP3-Dateien im Speicher oder auf einem USB-Stick auswählen.\nKlang testen  sofort einen Abschiedsklang abspielen.\n\nNach dem Ausschalten der Zündung läuft das Radio noch etwa 30 Sekunden, deshalb sind Klänge über 20 Sekunden markiert.\n\nDer Schalter rechts schaltet den Abschiedsklang ein und aus.</string>
+    <string name="farewell_pictures_help">Das Auto zeigt beim Ausschalten der Zündung einige Sekunden lang ein Abschiedsbild. Jedes Mal wählt es zufällig eines davon aus. Ein Tipp auf das Bild schließt es früher.\n\n✕  Bild löschen.\nBilder hinzufügen  PNG- oder JPG-Dateien im Speicher oder auf einem USB-Stick auswählen. Jedes Bild wird an den Bildschirm 1920×720 angepasst; was über die Ränder hinausgeht, wird abgeschnitten.\nBild testen  sofort ein Abschiedsbild zeigen.\n\nDer Schalter rechts schaltet das Abschiedsbild ein und aus.</string>
 </resources>

@@ -18,17 +18,22 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 /**
  * EISWM — Evolute I-Space Welcome Manager.
  * Главный экран: колонка разделов слева, содержимое выбранного раздела справа.
- * Разделы: «Звуки» ({@link SoundsPanel}) и «Картинки» ({@link PicturesPanel}).
+ * Разделы: «Звуки» ({@link SoundsPanel}) и «Картинки» ({@link PicturesPanel}); в каждом вкладки
+ * «Приветствие» и «Прощание» ({@link SectionTabs}, {@link FarewellTab}).
  * Новый раздел = панель в activity_main.xml + запись в {@link #setupSections()}.
  * Файлы добавляются через {@link PickerActivity}.
  */
 public class MainActivity extends BaseActivity {
     private static final String STATE_SECTION = "section";
+    private static final String STATE_SOUNDS_TAB = "soundsTab", STATE_PICTURES_TAB = "picturesTab";
 
     /** Раздел приложения: пункт в колонке слева, панель и своя справка. */
     private static final class Section {
         final int icon;
         final String title, helpText;
+        /** Справка вкладки «Прощание»; null, если вкладок нет. */
+        String farewellHelp;
+        SectionTabs tabs;
         final View panel;
         TextView railItem;
 
@@ -47,6 +52,7 @@ public class MainActivity extends BaseActivity {
     private SharedPreferences prefs;
     private SoundsPanel soundsPanel;
     private PicturesPanel picturesPanel;
+    private FarewellTab farewellSounds, farewellPictures;
     private UpdateController updates;
 
     @Override protected void onCreate(Bundle b) {
@@ -61,6 +67,7 @@ public class MainActivity extends BaseActivity {
         setupSections();
         setupHome();
         picturesPanel = new PicturesPanel(this);
+        setupFarewellTabs(b);
         // Запуск — со стартового экрана; после смены темы остаёмся в том же разделе.
         showSection(b != null ? b.getInt(STATE_SECTION, -1) : -1);
         if (b == null && !prefs.getBoolean(Prefs.DISCLAIMER_SHOWN, false)) showDisclaimer(true);
@@ -79,12 +86,15 @@ public class MainActivity extends BaseActivity {
 
     @Override protected void onStop() {
         soundsPanel.onStop();
+        stopFarewellPreviews();
         super.onStop();
     }
 
     @Override protected void onDestroy() {
         if (soundsPanel != null) soundsPanel.destroy();
         if (picturesPanel != null) picturesPanel.destroy();
+        if (farewellSounds != null) farewellSounds.destroy();
+        if (farewellPictures != null) farewellPictures.destroy();
         if (updates != null) updates.destroy();
         super.onDestroy();
     }
@@ -92,6 +102,8 @@ public class MainActivity extends BaseActivity {
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (picturesPanel != null && picturesPanel.onActivityResult(requestCode, resultCode, data)) return;
+        if (farewellSounds != null && farewellSounds.onActivityResult(requestCode, resultCode, data)) return;
+        if (farewellPictures != null && farewellPictures.onActivityResult(requestCode, resultCode, data)) return;
         soundsPanel.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -107,7 +119,9 @@ public class MainActivity extends BaseActivity {
      * копирование при выходе доделается в фоне, но итог «Добавлено: N» никто не увидит.
      */
     private void exitApp() {
-        if (!soundsPanel.isBusy() && (picturesPanel == null || !picturesPanel.isBusy())) {
+        if (!soundsPanel.isBusy() && (picturesPanel == null || !picturesPanel.isBusy())
+                && (farewellSounds == null || !farewellSounds.isBusy())
+                && (farewellPictures == null || !farewellPictures.isBusy())) {
             finishAndRemoveTask();
             return;
         }
@@ -146,6 +160,34 @@ public class MainActivity extends BaseActivity {
         rail.addView(theme);
     }
 
+    /** Вкладки «Приветствие | Прощание» в разделах «Звуки» и «Картинки». */
+    private void setupFarewellTabs(Bundle b) {
+        farewellSounds = FarewellTab.sounds(this, prefs);
+        farewellPictures = FarewellTab.pictures(this, prefs);
+        SectionTabs.Listener stopAll = tab -> {
+            soundsPanel.stopPreview();
+            stopFarewellPreviews();
+        };
+        Section sounds = sections.get(0), pictures = sections.get(1);
+        sounds.tabs = new SectionTabs(this, R.id.soundsTabs,
+                new int[]{R.id.soundsWelcomeContent, R.id.soundsWelcomeSide},
+                new int[]{R.id.soundsFarewellContent, R.id.soundsFarewellSide}, stopAll);
+        sounds.farewellHelp = getString(R.string.farewell_sounds_help);
+        pictures.tabs = new SectionTabs(this, R.id.picturesTabs,
+                new int[]{R.id.picturesWelcomeContent, R.id.picturesWelcomeSide},
+                new int[]{R.id.picturesFarewellContent, R.id.picturesFarewellSide}, stopAll);
+        pictures.farewellHelp = getString(R.string.farewell_pictures_help);
+        if (b != null) {
+            sounds.tabs.select(b.getInt(STATE_SOUNDS_TAB, SectionTabs.WELCOME));
+            pictures.tabs.select(b.getInt(STATE_PICTURES_TAB, SectionTabs.WELCOME));
+        }
+    }
+
+    private void stopFarewellPreviews() {
+        if (farewellSounds != null) farewellSounds.stopPreview();
+        if (farewellPictures != null) farewellPictures.stopPreview();
+    }
+
     /** @param index номер раздела; -1 — стартовый экран, где ни один раздел не выбран. */
     private void showSection(int index) {
         if (index >= sections.size()) index = -1;
@@ -157,12 +199,15 @@ public class MainActivity extends BaseActivity {
             s.panel.setVisibility(i == index ? View.VISIBLE : View.GONE);
         }
         if (index != 0) soundsPanel.stopPreview();
+        stopFarewellPreviews();
     }
 
     /** Состояние раздела переживает пересоздание экрана (например, смену темы). */
     @Override protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putInt(STATE_SECTION, currentSection);
+        if (sections.get(0).tabs != null) out.putInt(STATE_SOUNDS_TAB, sections.get(0).tabs.current());
+        if (sections.get(1).tabs != null) out.putInt(STATE_PICTURES_TAB, sections.get(1).tabs.current());
     }
 
     /** Стартовый экран: картинка, описание, версия, разработчик и быстрый переход в разделы. */
@@ -237,9 +282,10 @@ public class MainActivity extends BaseActivity {
             return;
         }
         Section s = sections.get(currentSection);
+        boolean farewell = s.tabs != null && s.tabs.current() == SectionTabs.FAREWELL;
         new AlertDialog.Builder(this)
                 .setTitle(s.title)
-                .setMessage(s.helpText)
+                .setMessage(farewell ? s.farewellHelp : s.helpText)
                 .setPositiveButton(R.string.got_it, null)
                 .show();
     }

@@ -296,14 +296,4 @@ public class CarDiagService extends Service {
         long ms = SystemClock.uptimeMillis() - android.os.Process.getStartUptimeMillis();
         return ", process age " + ms + " ms, uptime " + SystemClock.elapsedRealtime() / 1000 + " s";
     }
-
-    /**
-     * Запуск записи при загрузке и пробуждении машины. Во время сна машина убивает процесс
-     * приложения; этот приёмник поднимает службу как можно раньше, если запись включена.
-     */
-    public static class WakeReceiver extends BroadcastReceiver {
-        @Override public void onReceive(Context c, Intent i) {
-            if (Prefs.get(c).getBoolean(Prefs.DIAG_RECORDING, false)) start(c, "broadcast " + i.getAction());
-        }
-    }
 }

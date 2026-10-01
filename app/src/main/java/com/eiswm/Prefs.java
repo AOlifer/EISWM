@@ -43,6 +43,10 @@ final class Prefs {
     /** Последняя открытая папка; к ключу добавляется режим выбора. */
     static final String PICKER_LAST_DIR = "picker_last_dir_";
 
+    // Прощание при выключении зажигания ({@link Farewell}): звук и картинка включаются отдельно
+    static final String FAREWELL_SOUND = "farewell_sound";
+    static final String FAREWELL_PICTURE = "farewell_picture";
+
     // Диагностика машины
     /** Идёт запись событий ({@link CarDiagService}); после перезагрузки и сна машины запись продолжается. */
     static final String DIAG_RECORDING = "diag_recording";

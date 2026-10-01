@@ -7,6 +7,8 @@ final class RequestCodes {
     static final int PICTURES_ADD = 11;
     static final int PICTURES_SAVE = 12;
     static final int PICTURES_STANDARD = 13;
+    static final int FAREWELL_ADD_SOUNDS = 21;
+    static final int FAREWELL_ADD_PICTURES = 22;
 
     private RequestCodes() {}
 }

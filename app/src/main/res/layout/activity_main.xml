@@ -174,7 +174,7 @@
                 </ScrollView>
             </LinearLayout>
 
-            <!-- Раздел «Звуки приветствия». -->
+            <!-- Раздел «Звуки»: вкладки «Приветствие» и «Прощание». -->
             <LinearLayout
                 android:id="@+id/soundsPanel"
                 android:layout_width="match_parent"
@@ -189,29 +189,79 @@
                     android:background="@color/surface"
                     android:orientation="vertical">
 
-                    <TextView
-                        style="@style/EISWM.SectionHeader"
-                        android:text="@string/sounds_header" />
+                    <!-- Вкладки «Приветствие | Прощание»: создаются в SectionTabs. -->
+                    <LinearLayout
+                        android:id="@+id/soundsTabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp" />
 
                     <View style="@style/EISWM.Divider" />
 
-                    <ScrollView
+                    <!-- Вкладка «Приветствие»: логика в SoundsPanel. -->
+                    <LinearLayout
+                        android:id="@+id/soundsWelcomeContent"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <LinearLayout
-                            android:id="@+id/soundList"
+                        <TextView
+                            style="@style/EISWM.SectionHeader"
+                            android:text="@string/sounds_header" />
+    
+                        <View style="@style/EISWM.Divider" />
+    
+                        <ScrollView
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical" />
-                    </ScrollView>
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+    
+                            <LinearLayout
+                                android:id="@+id/soundList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+                        </ScrollView>
+                    </LinearLayout>
+
+                    <!-- Вкладка «Прощание»: список заполняет FarewellTab. -->
+                    <LinearLayout
+                        android:id="@+id/soundsFarewellContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            style="@style/EISWM.SectionHeader"
+                            android:text="@string/farewell_sounds_header" />
+
+                        <View style="@style/EISWM.Divider" />
+
+                        <ScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:id="@+id/farewellSoundList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+                        </ScrollView>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <View style="@style/EISWM.VDivider" />
 
                 <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
                 <ScrollView
+                    android:id="@+id/soundsWelcomeSide"
                     android:layout_width="@dimen/side_panel_width"
                     android:layout_height="match_parent"
                     android:background="@color/background"
@@ -283,9 +333,82 @@
                         android:text="@string/sounds_add" />
                 </LinearLayout>
                 </ScrollView>
+
+                <!-- Правая панель вкладки «Прощание». -->
+                <ScrollView
+                    android:id="@+id/soundsFarewellSide"
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true"
+                    android:visibility="gone">
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="match_parent"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/farewellSoundLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/farewellSoundSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/farewell_sound_switch_desc"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/farewellSoundStatus"
+                        style="@style/EISWM.Caption"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/farewell_sounds_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnFarewellSoundTest"
+                        style="@style/EISWM.TextButton"
+                        android:layout_width="match_parent"
+                        android:text="@string/farewell_test_sound" />
+
+                    <Button
+                        android:id="@+id/btnFarewellSoundAdd"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/sounds_add" />
+                </LinearLayout>
+                </ScrollView>
             </LinearLayout>
 
-            <!-- Раздел «Картинки»: картинки приветствия; логика в PicturesPanel. -->
+            <!-- Раздел «Картинки»: вкладки «Приветствие» (PicturesPanel) и «Прощание» (FarewellTab). -->
             <LinearLayout
                 android:id="@+id/picturesPanel"
                 android:layout_width="match_parent"
@@ -300,68 +423,118 @@
                     android:background="@color/surface"
                     android:orientation="vertical">
 
-                    <!-- Заголовок и действия с выделенными картинками. -->
+                    <!-- Вкладки «Приветствие | Прощание»: создаются в SectionTabs. -->
                     <LinearLayout
+                        android:id="@+id/picturesTabs"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:background="@color/surface"
+                        android:layout_height="60dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingEnd="8dp">
-
-                        <TextView
-                            android:id="@+id/picturesHeader"
-                            style="@style/EISWM.SectionHeader"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:singleLine="true"
-                            android:text="@string/pictures_header" />
-
-                        <!-- «Удалить» появляется слева от остальных кнопок и сжимает заголовок,
-                             поэтому «Выделить все» и «Очистить» не сдвигаются. Пока ничего не
-                             выделено, он скрыт совсем, чтобы в узком окне заголовку хватало места. -->
-                        <Button
-                            android:id="@+id/btnPicturesDelete"
-                            style="@style/EISWM.TextButton"
-                            android:layout_height="48dp"
-                            android:layout_marginEnd="16dp"
-                            android:textColor="@color/pill_bad_fg"
-                            android:visibility="invisible" />
-
-                        <Button
-                            android:id="@+id/btnPicturesSelectAll"
-                            style="@style/EISWM.TextButton"
-                            android:layout_height="48dp"
-                            android:text="@string/select_all" />
-
-                        <Button
-                            android:id="@+id/btnPicturesClear"
-                            style="@style/EISWM.TextButton"
-                            android:layout_height="48dp"
-                            android:text="@string/clear_selection" />
-                    </LinearLayout>
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp" />
 
                     <View style="@style/EISWM.Divider" />
 
-                    <ScrollView
+                    <!-- Вкладка «Приветствие»: логика в PicturesPanel. -->
+                    <LinearLayout
+                        android:id="@+id/picturesWelcomeContent"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <!-- Сетка превью: строки по две карточки создаются в коде. -->
+                        <!-- Заголовок и действия с выделенными картинками. -->
                         <LinearLayout
-                            android:id="@+id/pictureGrid"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="8dp" />
-                    </ScrollView>
+                            android:layout_height="52dp"
+                            android:background="@color/surface"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingEnd="8dp">
+    
+                            <TextView
+                                android:id="@+id/picturesHeader"
+                                style="@style/EISWM.SectionHeader"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:singleLine="true"
+                                android:text="@string/pictures_header" />
+    
+                            <!-- «Удалить» появляется слева от остальных кнопок и сжимает заголовок,
+                                 поэтому «Выделить все» и «Очистить» не сдвигаются. Пока ничего не
+                                 выделено, он скрыт совсем, чтобы в узком окне заголовку хватало места. -->
+                            <Button
+                                android:id="@+id/btnPicturesDelete"
+                                style="@style/EISWM.TextButton"
+                                android:layout_height="48dp"
+                                android:layout_marginEnd="16dp"
+                                android:textColor="@color/pill_bad_fg"
+                                android:visibility="invisible" />
+    
+                            <Button
+                                android:id="@+id/btnPicturesSelectAll"
+                                style="@style/EISWM.TextButton"
+                                android:layout_height="48dp"
+                                android:text="@string/select_all" />
+    
+                            <Button
+                                android:id="@+id/btnPicturesClear"
+                                style="@style/EISWM.TextButton"
+                                android:layout_height="48dp"
+                                android:text="@string/clear_selection" />
+                        </LinearLayout>
+    
+                        <View style="@style/EISWM.Divider" />
+    
+                        <ScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+    
+                            <!-- Сетка превью: строки по две карточки создаются в коде. -->
+                            <LinearLayout
+                                android:id="@+id/pictureGrid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="8dp" />
+                        </ScrollView>
+                    </LinearLayout>
+
+                    <!-- Вкладка «Прощание»: список заполняет FarewellTab. -->
+                    <LinearLayout
+                        android:id="@+id/picturesFarewellContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            style="@style/EISWM.SectionHeader"
+                            android:text="@string/farewell_pictures_header" />
+
+                        <View style="@style/EISWM.Divider" />
+
+                        <ScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+
+                            <LinearLayout
+                                android:id="@+id/farewellPictureList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+                        </ScrollView>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <View style="@style/EISWM.VDivider" />
 
                 <!-- Прокрутка нужна, только если окно ниже экрана машины. -->
                 <ScrollView
+                    android:id="@+id/picturesWelcomeSide"
                     android:layout_width="@dimen/side_panel_width"
                     android:layout_height="match_parent"
                     android:background="@color/background"
@@ -435,6 +608,79 @@
 
                     <Button
                         android:id="@+id/btnAddPictures"
+                        style="@style/EISWM.PrimaryButton"
+                        android:text="@string/pictures_add" />
+                </LinearLayout>
+                </ScrollView>
+
+                <!-- Правая панель вкладки «Прощание». -->
+                <ScrollView
+                    android:id="@+id/picturesFarewellSide"
+                    android:layout_width="@dimen/side_panel_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/background"
+                    android:fillViewport="true"
+                    android:visibility="gone">
+
+                <LinearLayout
+                    style="@style/EISWM.SidePanel"
+                    android:layout_width="match_parent"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/farewellPictureLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <Switch
+                            android:id="@+id/farewellPictureSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/farewell_picture_switch_desc"
+                            android:scaleX="1.3"
+                            android:scaleY="1.3" />
+                    </LinearLayout>
+
+                    <View
+                        style="@style/EISWM.Divider"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/farewellPictureStatus"
+                        style="@style/EISWM.Caption"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        style="@style/EISWM.Caption"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/farewell_pictures_tip" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/btnFarewellPictureTest"
+                        style="@style/EISWM.TextButton"
+                        android:layout_width="match_parent"
+                        android:text="@string/farewell_test_picture" />
+
+                    <Button
+                        android:id="@+id/btnFarewellPictureAdd"
                         style="@style/EISWM.PrimaryButton"
                         android:text="@string/pictures_add" />
                 </LinearLayout>

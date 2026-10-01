@@ -61,11 +61,11 @@
 
     <!-- Home screen -->
     <string name="home_version">版本 %1$s</string>
-    <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾。</string>
+    <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾，并在关闭点火时告别。</string>
     <string name="home_open_sounds">声音</string>
     <string name="home_open_pictures">图片</string>
     <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\ngithub.com/AOlifer/EISWM\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
-    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动时播放的 MP3 文件。\n图片：迎宾画面上的图片。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
+    <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动和关闭点火时播放的 MP3 文件。\n图片：车辆启动和关闭点火时屏幕上的图片。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
     <string name="home_disclaimer_short">⚠ 非官方应用，使用风险自负。</string>
     <string name="disclaimer_title">免责声明</string>
     <string name="disclaimer_text">EISWM 是非官方应用。它与 Evolute 汽车制造商、其经销商及主机供应商无关，也未获得其认可或支持。\n\n本应用以系统权限运行，会修改原厂软件的数据：启动器的文件和数据库以及迎宾设置。\n\n本软件按“原样”提供，不附带任何形式的保证。安装和使用的风险由您自行承担。作者不对任何损害负责，包括主机或车辆其他系统故障、数据或设置丢失、需要重置或重新刷写主机、被拒绝保修，以及驾驶车辆时产生的任何后果。\n\n固件更新或制造商服务器可能会更改或删除所做的设置。\n\n请勿在行驶中使用本应用，仅在车辆停止时使用。</string>
@@ -268,4 +268,35 @@
     <string name="diag_car_connected">已连接车辆服务</string>
     <string name="diag_car_connecting">正在连接车辆服务…</string>
     <string name="diag_car_missing">此固件没有车辆接口</string>
+    <!-- 关闭点火时告别：“声音”和“图片”栏目中的“迎宾 | 告别”标签 -->
+    <string name="tab_welcome">迎宾</string>
+    <string name="tab_farewell">告别</string>
+    <string name="farewell_sounds_header">告别声音</string>
+    <string name="farewell_pictures_header">告别图片</string>
+    <string name="farewell_sound_on">告别声音已开启</string>
+    <string name="farewell_sound_off">告别声音已关闭</string>
+    <string name="farewell_picture_on">告别图片已开启</string>
+    <string name="farewell_picture_off">告别图片已关闭</string>
+    <string name="farewell_sound_switch_desc">关闭点火时的告别声音</string>
+    <string name="farewell_picture_switch_desc">关闭点火时的告别图片</string>
+    <string name="farewell_sounds_tip">关闭点火时，车辆会从此列表中随机播放一个声音。之后主机还会工作约 30 秒，因此超过 20 秒的声音会被标记。</string>
+    <string name="farewell_pictures_tip">关闭点火时，车辆会从此列表中随机显示一张图片几秒钟。图片会适配 1920×720 屏幕。</string>
+    <string name="farewell_test_sound">测试声音</string>
+    <string name="farewell_test_picture">测试图片</string>
+    <plurals name="farewell_sounds_summary">
+        <item quantity="other">已加载：%d 个声音</item>
+    </plurals>
+    <plurals name="farewell_pictures_summary">
+        <item quantity="other">已加载：%d 张图片</item>
+    </plurals>
+    <string name="farewell_sounds_empty">还没有告别声音</string>
+    <string name="farewell_pictures_empty">还没有告别图片</string>
+    <string name="farewell_add_details">请用右侧按钮添加文件。</string>
+    <string name="farewell_no_sound">请先添加声音</string>
+    <string name="farewell_no_picture">请先添加图片</string>
+    <string name="farewell_delete_sound">删除告别声音？</string>
+    <string name="farewell_delete_picture">删除告别图片？</string>
+    <string name="delete_desc">删除 %1$s</string>
+    <string name="farewell_sounds_help">关闭点火时车辆会播放告别声音。每次随机选择其中一个。\n\n▶  播放声音，再次点击停止。\n✕  删除声音。\n“添加声音”  在内部存储或 U 盘中选择 MP3 文件。\n“测试声音”  立即播放告别声音。\n\n关闭点火后主机还会工作约 30 秒，因此超过 20 秒的声音会被标记。\n\n右侧的开关用于开启和关闭告别声音。</string>
+    <string name="farewell_pictures_help">关闭点火时车辆会在屏幕上显示告别图片几秒钟。每次随机选择其中一张。点击屏幕上的图片可提前关闭。\n\n✕  删除图片。\n“添加图片”  在内部存储或 U 盘中选择 PNG 或 JPG 文件。图片会适配 1920×720 屏幕，超出边缘的部分会被裁剪。\n“测试图片”  立即显示告别图片。\n\n右侧的开关用于开启和关闭告别图片。</string>
 </resources>

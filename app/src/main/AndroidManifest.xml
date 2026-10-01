@@ -49,9 +49,12 @@
         <service
             android:name=".CarDiagService"
             android:exported="false" />
-        <!-- Запуск записи диагностики при загрузке и при каждом пробуждении машины после сна. -->
+        <service
+            android:name=".FarewellService"
+            android:exported="false" />
+        <!-- Загрузка и каждое пробуждение машины после сна: запуск прощания и записи диагностики. -->
         <receiver
-            android:name=".CarDiagService$WakeReceiver"
+            android:name=".WakeReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
