@@ -1,10 +1,10 @@
 {
-  "versionCode": 29,
-  "versionName": "1.6",
+  "versionCode": 30,
+  "versionName": "1.6.0",
   "date": "2026-10-04",
-  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.6/EISWM-1.6.apk",
-  "size": 13693320,
-  "sha256": "5cd23314e149f3a7855fd873d8450f3ac5ab8780191cc3abd2f41f08496d788b",
+  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.6.0/EISWM-1.6.0.apk",
+  "size": 13693348,
+  "sha256": "8b2f48ea7c320fdfbcd8b9af3978c5d21f544025119a9471200a6be4b532ba9a",
   "changes": {
     "ru": "• Новый раздел «Сводка»: при старте — температура, запас хода, заряд, топливо, пробег до сервиса и настраиваемые предупреждения; в конце поездки (при переключении в P) — её итоги.\n• Топливо в литрах или процентах, время показа плашки настраивается.\n• Исправлено: переключатель звукового приветствия был неактивен на машинах, где эту настройку ещё не меняли.",
     "en": "• New Summary section: at start-up — temperature, range, charge, fuel, distance to service and adjustable warnings; at the end of a trip (when shifting to P) — trip results.\n• Fuel in litres or percent, adjustable display time of the bar.\n• Fixed: the welcome sound switch was inactive on cars where this setting had never been changed.",
