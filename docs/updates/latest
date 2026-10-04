@@ -1,14 +1,14 @@
 {
-  "versionCode": 8,
-  "versionName": "1.5.1",
-  "date": "2026-09-29",
-  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.5.1/EISWM-1.5.1.apk",
-  "size": 13589865,
-  "sha256": "c52b97f8081cf1b5415617bd3e721f4d8a84bd1ebe57c7b12f3aaf39dca9a34c",
+  "versionCode": 29,
+  "versionName": "1.6",
+  "date": "2026-10-04",
+  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.6/EISWM-1.6.apk",
+  "size": 0,
+  "sha256": "",
   "changes": {
-    "ru": "• Обновления берутся с нового адреса сервера.",
-    "en": "• Updates are now fetched from a new server address.",
-    "de": "• Updates werden jetzt von einer neuen Serveradresse geladen.",
-    "zh": "• 更新现在从新的服务器地址获取。"
+    "ru": "• Новый раздел «Сводка»: при старте — температура, запас хода, заряд, топливо, пробег до сервиса и настраиваемые предупреждения; в конце поездки (при переключении в P) — её итоги.\n• Топливо в литрах или процентах, время показа плашки настраивается.\n• Исправлено: переключатель звукового приветствия был неактивен на машинах, где эту настройку ещё не меняли.",
+    "en": "• New Summary section: at start-up — temperature, range, charge, fuel, distance to service and adjustable warnings; at the end of a trip (when shifting to P) — trip results.\n• Fuel in litres or percent, adjustable display time of the bar.\n• Fixed: the welcome sound switch was inactive on cars where this setting had never been changed.",
+    "de": "• Neuer Bereich „Übersicht“: beim Start — Temperatur, Reichweite, Ladestand, Kraftstoff, Strecke bis zur Wartung und einstellbare Warnungen; am Ende der Fahrt (beim Schalten auf P) — das Fahrtergebnis.\n• Kraftstoff in Litern oder Prozent, Anzeigedauer der Leiste einstellbar.\n• Behoben: Der Schalter für den Begrüßungsklang war auf Autos inaktiv, auf denen diese Einstellung nie geändert wurde.",
+    "zh": "• 新增“概况”栏目：启动时显示温度、续航、电量、油量、距保养里程和可设置的警告；行程结束（换入 P 挡）时显示行程结果。\n• 油量可按升或百分比显示，概况条显示时长可调。\n• 修复：在从未更改过迎宾声音设置的车辆上，迎宾声音开关无法使用。"
   }
 }
