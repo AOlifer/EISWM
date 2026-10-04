@@ -13,9 +13,16 @@ import android.util.Log;
 
 /**
  * События машины для функций приложения: при включении зажигания — начало поездки ({@link Trip})
- * и сводка ({@link CarSummary}); в конце поездки — прощание ({@link Farewell}) и сводка с
- * итогами поездки (пока выключено, {@link Features#FAREWELL}). Работает в фоне, пока включена
- * хоть одна из них; после загрузки и пробуждения машины запускается из {@link WakeReceiver}.
+ * и сводка «Старт» ({@link CarSummary}); в конце поездки — сводка «Итоги» с итогами поездки и
+ * прощание ({@link Farewell}, пока выключено). Работает в фоне, пока включена хоть одна из них;
+ * после загрузки и пробуждения машины запускается из {@link WakeReceiver}.
+ * <p>
+ * Конец поездки для сводки «Итоги» — событие, выбранное на вкладке ({@link CarSummary#finishTrigger}):
+ * переключение в P, P и отстёгнутый ремень водителя, P и открытая дверь водителя или стояночный
+ * тормоз; машина при этом стоит. Выключение зажигания не годится: экран и усилитель гаснут сразу
+ * (в коде оно оставлено — {@link CarSummary#FINISH_ACC_OFF}). Сводка не повторяется, пока машина
+ * снова не поедет, и не показывается после совсем короткой поездки. Если после неё снова поехали,
+ * поездка продолжается: итоги всегда от включения зажигания.
  * <p>
  * Зажигание: свойство машины SYSTEM_CAN_ACC_STATUS (0 — выключено); запасной признак
  * выключения — переход сервиса машины в режим ожидания. Подписка присылает только изменения,
@@ -26,6 +33,17 @@ public class CarEventsService extends Service {
     private static final String TAG = "EISWM";
     private static final int ACC_STATUS = 0x21400054;
     private static final int POWER_STANDBY = 0, POWER_RUNNING = 1;
+    private static final int GEAR_SELECTION = 0x11400400, GEAR_PARK = 4;
+    private static final int PARKING_BRAKE_ON = 0x11200402;
+    private static final int SEAT_BELT_BUCKLED = 0x15200b82, DOOR_POS = 0x16400b00;
+    /** Ремень и дверь водителя (area 1, проверено диагностикой). */
+    private static final int DRIVER = 1;
+    private static final int PERF_VEHICLE_SPEED = 0x11600207;            // м/с
+    /** Поехали: быстрее 10 км/ч. Стоим: медленнее 2 км/ч. */
+    private static final float MOVING_MS = 2.8f, STOPPED_MS = 0.5f;
+    /** Короче — поездки почти не было, итоги не показываются. */
+    private static final float MIN_TRIP_KM = 0.5f;
+    private static final long MIN_TRIP_MS = 120_000;
     /** Повторно не прощаться, если оба признака выключения пришли почти одновременно. */
     private static final long REPEAT_GUARD_MS = 10_000;
     /** Процесс запустился вскоре после загрузки машины — зажигание только что включили. */
@@ -44,6 +62,14 @@ public class CarEventsService extends Service {
     /** Последнее известное состояние ACC: null — ещё не пришло. */
     private Integer acc;
     private long lastFarewell;
+    // Последние значения для события «Итоги»; null — ещё не приходили.
+    private Integer gear, door;
+    private Boolean brake, belt;
+    private float speed;
+    /** С начала поездки или с прошлой сводки «Итоги» машина ехала. */
+    private boolean moved;
+    /** Сводка «Итоги» на этой остановке уже была; сбрасывается, когда снова поехали. */
+    private boolean finished;
     private boolean running;
 
     /** Запустить, если включено прощание или сводка; иначе остановить. */
@@ -109,34 +135,124 @@ public class CarEventsService extends Service {
             if (state == POWER_STANDBY) accOff("power standby");
             else if (state == POWER_RUNNING) cancelFarewell();
         });
+        if (Features.FAREWELL_SUMMARY) listenFinish();
         // Текущее зажигание: подписка присылает только изменения.
         Integer current = readInt(ACC_STATUS);
         Log.d(TAG, "EVENTS listening: acc " + (l != null) + ", power " + power + ", acc now " + current);
         if (current != null && acc == null) onAcc(current);
     }
 
+    /** Свойства для события «Итоги»: передача, тормоз, ремень и дверь водителя, скорость. */
+    private void listenFinish() {
+        car.registerProperty(GEAR_SELECTION, 0f, listener(0, v -> {
+            if (v instanceof Integer) gear = (Integer) v;
+            checkFinish();
+        }));
+        car.registerProperty(PARKING_BRAKE_ON, 0f, listener(0, v -> {
+            if (v instanceof Boolean) brake = (Boolean) v;
+            checkFinish();
+        }));
+        car.registerProperty(SEAT_BELT_BUCKLED, 0f, listener(DRIVER, v -> {
+            if (v instanceof Boolean) belt = (Boolean) v;
+            checkFinish();
+        }));
+        car.registerProperty(DOOR_POS, 0f, listener(DRIVER, v -> {
+            if (v instanceof Integer) door = (Integer) v;
+            checkFinish();
+        }));
+        car.registerProperty(PERF_VEHICLE_SPEED, 1f, listener(0, v -> {
+            if (v instanceof Number) onSpeed(((Number) v).floatValue());
+        }));
+        // Подписка присылает только изменения: текущие значения — отдельно.
+        Object g = read(GEAR_SELECTION, 0), b = read(PARKING_BRAKE_ON, 0);
+        Object s = read(SEAT_BELT_BUCKLED, DRIVER), d = read(DOOR_POS, DRIVER);
+        if (gear == null && g instanceof Integer) gear = (Integer) g;
+        if (brake == null && b instanceof Boolean) brake = (Boolean) b;
+        if (belt == null && s instanceof Boolean) belt = (Boolean) s;
+        if (door == null && d instanceof Integer) door = (Integer) d;
+    }
+
     private interface ValueListener {
         void onValue(Object value);
     }
 
-    private static CarApi.PropertyListener listener(ValueListener l) {
+    /** @param area только эта зона (0 — любая) */
+    private static CarApi.PropertyListener listener(int area, ValueListener l) {
         return new CarApi.PropertyListener() {
-            @Override public void onChange(int id, int area, int status, Object value) {
-                l.onValue(value);
+            @Override public void onChange(int id, int a, int status, Object value) {
+                if (area == 0 || a == area) l.onValue(value);
             }
 
-            @Override public void onError(int id, int area) {
+            @Override public void onError(int id, int a) {
             }
         };
     }
 
+    private static CarApi.PropertyListener listener(ValueListener l) {
+        return listener(0, l);
+    }
+
     private Integer readInt(int id) {
+        Object v = read(id, 0);
+        return v instanceof Integer ? (Integer) v : null;
+    }
+
+    private Object read(int id, int area) {
         try {
-            Object[] sv = car.getProperty(id, 0);
-            return Integer.valueOf(0).equals(sv[0]) && sv[1] instanceof Integer ? (Integer) sv[1] : null;
+            Object[] sv = car.getProperty(id, area);
+            return Integer.valueOf(0).equals(sv[0]) ? sv[1] : null;
         } catch (Throwable e) {
             return null;
         }
+    }
+
+    // ---------------------------------------------------------------- Итоги
+
+    private void onSpeed(float value) {
+        speed = value;
+        if (value >= MOVING_MS && acc != null && acc != 0) {
+            if (finished) {
+                // Сводка «Итоги» уже была, но поехали дальше: поездка продолжается.
+                finished = false;
+                Trip.resume(this);
+                ui.post(summary::hide);
+                Log.d(TAG, "FINISH moving again, trip resumed");
+            }
+            moved = true;
+        }
+        checkFinish();
+    }
+
+    /** Наступило ли выбранное событие «Итоги»: машина ехала, теперь стоит, условие выполнено. */
+    private void checkFinish() {
+        if (!running || car == null || acc == null || acc == 0 || !moved || finished || speed > STOPPED_MS) return;
+        if (!CarSummary.isEnabled(this, Prefs.SUMMARY_FAREWELL)) return;
+        boolean park = gear != null && gear == GEAR_PARK;
+        boolean met;
+        switch (CarSummary.finishTrigger(this)) {
+            case CarSummary.FINISH_PARK_BELT:
+                met = park && Boolean.FALSE.equals(belt);
+                break;
+            case CarSummary.FINISH_PARK_DOOR:
+                met = park && door != null && door > 0;
+                break;
+            case CarSummary.FINISH_BRAKE:
+                met = Boolean.TRUE.equals(brake);
+                break;
+            case CarSummary.FINISH_ACC_OFF:
+                met = false;   // срабатывает в accOff
+                break;
+            default:
+                met = park;
+        }
+        if (!met) return;
+        finished = true;
+        moved = false;
+        Trip.finish(this, CarSummary.read(car));
+        CarSummary.Values v = CarSummary.read(this, car);
+        boolean shortTrip = v.tripKm == null || v.tripMs == null || v.tripKm < MIN_TRIP_KM || v.tripMs < MIN_TRIP_MS;
+        Log.d(TAG, "FINISH " + CarSummary.finishTrigger(this) + (shortTrip ? ", trip too short" : ""));
+        if (!shortTrip) showSummary(Prefs.SUMMARY_FAREWELL);
     }
 
     private void onAcc(int value) {
@@ -149,7 +265,7 @@ public class CarEventsService extends Service {
             if (value == 0) return;
             boolean wasOff = Prefs.get(this).getBoolean(Prefs.EVENTS_ACC_OFF, false);
             if (wasOff || SystemClock.elapsedRealtime() < FRESH_BOOT_MS) accOn(wasOff ? "acc was off" : "boot");
-            else if (Features.FAREWELL) Trip.startIfMissing(this, CarSummary.read(car));
+            else if (Features.trip()) Trip.startIfMissing(this, CarSummary.read(car));
             return;
         }
         if (value == 0 && prev != 0) accOff("acc off");
@@ -173,8 +289,9 @@ public class CarEventsService extends Service {
         if (!running || now - lastFarewell < REPEAT_GUARD_MS) return;
         lastFarewell = now;
         // Итоги поездки — по значениям в этот момент.
+        // Если «Итоги» уже был в P, конец поездки зафиксирован тогда — Trip.finish его не тронет.
         handler.post(() -> {
-            if (Features.FAREWELL && car != null && car.isConnected()) Trip.finish(this, CarSummary.read(car));
+            if (Features.trip() && car != null && car.isConnected()) Trip.finish(this, CarSummary.read(car));
         });
         if (Farewell.isEnabled(this)) {
             ui.post(() -> {
@@ -182,8 +299,10 @@ public class CarEventsService extends Service {
                 Log.d(TAG, "FAREWELL " + reason + (played ? ", played" : ", nothing to play"));
             });
         }
-        // Сводка на прощании — поверх картинки прощания; голос — после звука прощания.
-        if (CarSummary.isEnabled(this, Prefs.SUMMARY_FAREWELL)) {
+        // Сводка «Итоги» при выключении зажигания — только если так выбрано (пока в настройках нет:
+        // экран гаснет сразу). Поверх картинки прощания; голос — после звука прощания.
+        if (CarSummary.isEnabled(this, Prefs.SUMMARY_FAREWELL)
+                && CarSummary.FINISH_ACC_OFF.equals(CarSummary.finishTrigger(this))) {
             handler.postDelayed(() -> showSummary(Prefs.SUMMARY_FAREWELL), FAREWELL_SUMMARY_DELAY_MS);
         }
     }
@@ -203,7 +322,9 @@ public class CarEventsService extends Service {
     private void accOn(String reason) {
         if (!running) return;
         Prefs.get(this).edit().putBoolean(Prefs.EVENTS_ACC_OFF, false).apply();
-        if (Features.FAREWELL) Trip.start(this, CarSummary.read(car));
+        moved = false;
+        finished = false;
+        if (Features.trip()) Trip.start(this, CarSummary.read(car));
         if (!CarSummary.isEnabled(this, Prefs.SUMMARY_WELCOME)) return;
         Log.d(TAG, "SUMMARY " + reason + ", waiting for the welcome screen");
         waitForWelcome(SystemClock.elapsedRealtime() + WELCOME_WAIT_MS);

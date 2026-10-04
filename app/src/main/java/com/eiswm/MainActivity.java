@@ -187,7 +187,8 @@ public class MainActivity extends BaseActivity {
         Section summaryTabs = sections.get(2);
         summaryTabs.tabs = new SectionTabs(this, R.id.summaryTabs,
                 new int[]{R.id.summaryWelcomeContent, R.id.summaryWelcomeSide},
-                new int[]{R.id.summaryFarewellContent, R.id.summaryFarewellSide}, tab -> {
+                new int[]{R.id.summaryFarewellContent, R.id.summaryFarewellSide}, Features.FAREWELL_SUMMARY,
+                new int[]{R.string.tab_summary_start, R.string.tab_summary_finish}, tab -> {
                     summarySection.stopPreview();
                     summarySection.onShown();
                 });

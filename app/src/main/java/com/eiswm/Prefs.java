@@ -52,12 +52,16 @@ final class Prefs {
     static final String SUMMARY_FAREWELL = "farewell_summary_";
     static final String SUMMARY_ENABLED = "enabled";
     static final String SUMMARY_SPEAK = "speak";
+    /** Сколько секунд видна плашка. */
+    static final String SUMMARY_SHOW_SECONDS = "show_seconds";
     /** К суффиксу добавляется имя пункта (CarSummary.ITEMS). */
     static final String SUMMARY_ITEM = "item_";
     /** Порядок пунктов: имена через запятую. */
     static final String SUMMARY_ORDER = "order";
-    /** Топливо в литрах (галлонах), а не в процентах; общая для всех пунктов о топливе. */
+    /** Топливо в литрах (галлонах), а не в процентах; к ключу добавляется «_» и пункт. Без пункта — общий выбор прежних сборок. */
     static final String SUMMARY_FUEL_VOLUME = "summary_fuel_volume";
+    /** Событие для сводки «Итоги»: CarSummary.FINISH_*. */
+    static final String SUMMARY_FINISH_TRIGGER = "summary_finish_trigger";
 
     // События машины ({@link CarEventsService})
     /** Последним видели выключение зажигания: следующее включение — новая поездка. */

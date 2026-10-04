@@ -832,14 +832,13 @@
                         android:id="@+id/summaryWelcomeEngine"
                         style="@style/EISWM.Caption" />
 
-                    <View
-                        style="@style/EISWM.Divider"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        style="@style/EISWM.Caption"
-                        android:text="@string/summary_tip" />
+                    <!-- Сколько секунд видна плашка: «−  10 с  +», строка заполняется в SummarySection. -->
+                    <LinearLayout
+                        android:id="@+id/summaryWelcomeDuration"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" />
 
                     <Space
                         android:layout_width="match_parent"
@@ -919,14 +918,28 @@
                         android:id="@+id/summaryFarewellEngine"
                         style="@style/EISWM.Caption" />
 
-                    <View
-                        style="@style/EISWM.Divider"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="12dp" />
+                    <LinearLayout
+                        android:id="@+id/summaryFarewellDuration"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" />
 
+                    <!-- Когда показывать «Итоги»: варианты заполняются в SummarySection, пояснения — в справке. -->
                     <TextView
-                        style="@style/EISWM.Caption"
-                        android:text="@string/summary_farewell_tip" />
+                        android:id="@+id/summaryFinishWhen"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/summary_finish_when"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <Spinner
+                        android:id="@+id/summaryFinishTrigger"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="4dp" />
 
                     <Space
                         android:layout_width="match_parent"

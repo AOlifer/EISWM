@@ -44,6 +44,13 @@ final class Trip {
         e.apply();
     }
 
+    /** После конца поездки снова поехали (зажигание не выключали): поездка продолжается. */
+    static void resume(Context c) {
+        SharedPreferences.Editor e = Prefs.get(c).edit();
+        clear(e, Prefs.TRIP_END);
+        e.apply();
+    }
+
     /**
      * Заполнить в v итоги поездки: последней законченной или, если она ещё идёт, — на сейчас.
      * Без начала поездки поля остаются null.

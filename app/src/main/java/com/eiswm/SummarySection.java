@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ final class SummarySection extends SectionPanel {
         TITLES.put(CarSummary.WARNINGS, R.string.summary_item_warnings);
         TITLES.put(CarSummary.TEMP, R.string.summary_item_temp);
         TITLES.put(CarSummary.TEMP_INSIDE, R.string.summary_item_temp_inside);
+        TITLES.put(CarSummary.FUEL_FREE, R.string.summary_item_fuel_free);
         TITLES.put(CarSummary.RANGE, R.string.summary_item_range);
         TITLES.put(CarSummary.CHARGE, R.string.summary_item_charge);
         TITLES.put(CarSummary.FUEL, R.string.summary_item_fuel);
@@ -89,6 +93,8 @@ final class SummarySection extends SectionPanel {
                 R.id.summaryFarewellSpeakSwitch, R.id.summaryFarewellEngine, R.id.btnSummaryFarewellShow);
 
         checkEngine();
+        buildFinishTriggers();
+        buildDurations();
 
         carThread.start();
         carHandler = new Handler(carThread.getLooper());
@@ -254,19 +260,21 @@ final class SummarySection extends SectionPanel {
             textsLp.setMarginStart(Ui.dp(activity, 2));
             row.addView(texts, textsLp);
 
-            // «л» / «%» у топлива — в чём показывать бак и расход; выбор общий для обоих пунктов.
-            if (CarSummary.FUEL.equals(item) || CarSummary.FUEL_USED.equals(item)) {
+            // «л» / «%» у пунктов о топливе — в чём показывать; у каждого пункта свой выбор.
+            if (CarSummary.FUEL.equals(item) || CarSummary.FUEL_FREE.equals(item) || CarSummary.FUEL_USED.equals(item)) {
                 Button unit = Ui.iconButton(activity, "");
                 unit.setTextSize(20);
                 unit.setAllCaps(false);
                 unit.setContentDescription(activity.getString(R.string.summary_fuel_unit_desc));
                 unit.setOnClickListener(v -> {
-                    CarSummary.setFuelVolume(prefs, !CarSummary.isFuelVolume(activity));
+                    CarSummary.setFuelVolume(prefs, item, !CarSummary.isFuelVolume(activity, item));
                     SummarySection.this.updatePreviews();
                 });
                 row.addView(unit, Ui.iconButtonParams(activity));
+                unit.setTag(item);
                 fuelUnitButtons.add(unit);
             }
+
 
             // ⚙ у предупреждений — какие показывать и пороги.
             if (CarSummary.WARNINGS.equals(item)) {
@@ -396,6 +404,109 @@ final class SummarySection extends SectionPanel {
         }
     }
 
+    // ---------------------------------------------------------------- Итоги
+
+    private static final int[] FINISH_LABELS = {R.string.summary_finish_park, R.string.summary_finish_park_belt,
+            R.string.summary_finish_park_door, R.string.summary_finish_brake};
+
+    /** Выпадающий список «Когда показывать» на вкладке «Итоги». */
+    private void buildFinishTriggers() {
+        if (!Features.FINISH_EXTRA) {
+            // Вариант один — переключение в P: выбирать нечего.
+            activity.findViewById(R.id.summaryFinishWhen).setVisibility(View.GONE);
+            activity.findViewById(R.id.summaryFinishTrigger).setVisibility(View.GONE);
+            return;
+        }
+        String[] labels = new String[FINISH_LABELS.length];
+        for (int i = 0; i < labels.length; i++) labels[i] = activity.getString(FINISH_LABELS[i]);
+        int current = java.util.Arrays.asList(CarSummary.FINISH_TRIGGERS).indexOf(CarSummary.finishTrigger(activity));
+        spinner(R.id.summaryFinishTrigger, labels, current,
+                i -> CarSummary.setFinishTrigger(prefs, CarSummary.FINISH_TRIGGERS[i]));
+    }
+
+    /** «Время показа» на обеих вкладках: «−  10 с  +», как пороги предупреждений. */
+    private void buildDurations() {
+        durationRow(R.id.summaryWelcomeDuration, Prefs.SUMMARY_WELCOME);
+        durationRow(R.id.summaryFarewellDuration, Prefs.SUMMARY_FAREWELL);
+    }
+
+
+    private void durationRow(int id, String occasion) {
+        LinearLayout row = activity.findViewById(id);
+        TextView label = new TextView(activity);
+        label.setText(R.string.summary_duration);
+        label.setTextSize(18);
+        label.setTextColor(activity.getColor(R.color.text_primary));
+        row.addView(label, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
+        Button minus = Ui.iconButton(activity, "−");
+        TextView value = new TextView(activity);
+        value.setTextSize(19);
+        value.setGravity(Gravity.CENTER);
+        value.setTextColor(activity.getColor(R.color.text_primary));
+        Button plus = Ui.iconButton(activity, "+");
+        String title = activity.getString(R.string.summary_duration);
+        minus.setContentDescription(activity.getString(R.string.warn_decrease, title));
+        plus.setContentDescription(activity.getString(R.string.warn_increase, title));
+        Runnable show = () -> {
+            int s = CarSummary.showSeconds(activity, occasion);
+            value.setText(activity.getString(R.string.summary_duration_seconds, s));
+            minus.setEnabled(s > CarSummary.MIN_SHOW_SECONDS);
+            plus.setEnabled(s < CarSummary.MAX_SHOW_SECONDS);
+        };
+        minus.setOnClickListener(v -> {
+            CarSummary.stepShowSeconds(prefs, activity, occasion, -1);
+            show.run();
+        });
+        plus.setOnClickListener(v -> {
+            CarSummary.stepShowSeconds(prefs, activity, occasion, 1);
+            show.run();
+        });
+        show.run();
+        row.addView(minus, Ui.iconButtonParams(activity));
+        row.addView(value, new LinearLayout.LayoutParams(Ui.dp(activity, 72), WRAP_CONTENT));
+        row.addView(plus, Ui.iconButtonParams(activity));
+    }
+
+    private interface OnChoice {
+        void onChoice(int index);
+    }
+
+    /** Выпадающий список крупным шрифтом. */
+    private void spinner(int id, String[] labels, int selected, OnChoice onChoice) {
+        Spinner spinner = activity.findViewById(id);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, labels) {
+            // Крупный шрифт — под палец в машине.
+            @Override public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                return large(super.getView(position, convertView, parent));
+            }
+
+            @Override public View getDropDownView(int position, View convertView, android.view.ViewGroup parent) {
+                View v = large(super.getDropDownView(position, convertView, parent));
+                v.setMinimumHeight(Ui.dp(activity, 56));
+                return v;
+            }
+        };
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(Math.max(0, selected), false);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int position, long rowId) {
+                onChoice.onChoice(position);
+            }
+
+            @Override public void onNothingSelected(AdapterView<?> p) {
+            }
+        });
+    }
+
+    private View large(View v) {
+        if (v instanceof TextView) {
+            ((TextView) v).setTextSize(17);
+            ((TextView) v).setTextColor(activity.getColor(R.color.text_primary));
+        }
+        return v;
+    }
+
     // ---------------------------------------------------------------- Предупреждения
 
     /** Окно настройки предупреждений: галочка и порог «−  значение  +» у каждого. */
@@ -484,13 +595,10 @@ final class SummarySection extends SectionPanel {
 
     private void updatePreviews() {
         boolean miles = CarSummary.useMiles(activity);
-        // На кнопке — текущая единица; без объёма бака из машины выбирать не из чего.
-        boolean volumeKnown = values != null && values.fuelCapacity != null && values.fuelCapacity > 0;
-        String label = CarSummary.isFuelVolume(activity)
-                ? activity.getString(miles ? R.string.unit_gal : R.string.unit_l, "").trim() : "%";
+        // На кнопке — текущая единица своего пункта.
+        String volume = activity.getString(miles ? R.string.unit_gal : R.string.unit_l, "").trim();
         for (Button b : fuelUnitButtons) {
-            b.setText(label);
-            b.setVisibility(volumeKnown ? View.VISIBLE : View.GONE);
+            b.setText(CarSummary.isFuelVolume(activity, (String) b.getTag()) ? volume : "%");
         }
         welcome.updatePreviews(miles);
         farewell.updatePreviews(miles);

@@ -34,13 +34,13 @@ import java.util.Locale;
  */
 final class CarSummary {
     /** Пункты сводки: имя — часть ключа настройки. */
-    static final String WARNINGS = "warnings", TEMP = "temp", TEMP_INSIDE = "temp_inside", RANGE = "range", CHARGE = "charge",
+    static final String WARNINGS = "warnings", TEMP = "temp", TEMP_INSIDE = "temp_inside", FUEL_FREE = "fuel_free", RANGE = "range", CHARGE = "charge",
             FUEL = "fuel", SERVICE = "service";
     /** Итоги поездки ({@link Trip}) — для сводки прощания. */
     static final String TRIP_DISTANCE = "trip_distance", TRIP_TIME = "trip_time", TRIP_SPEED = "trip_speed",
             CHARGE_USED = "charge_used", FUEL_USED = "fuel_used";
     /** Пункты при включении зажигания; порядок по умолчанию — как здесь. */
-    static final String[] WELCOME_ITEMS = {WARNINGS, TEMP, TEMP_INSIDE, RANGE, CHARGE, FUEL, SERVICE};
+    static final String[] WELCOME_ITEMS = {WARNINGS, TEMP, TEMP_INSIDE, RANGE, CHARGE, FUEL, FUEL_FREE, SERVICE};
     /** Пункты при выключении зажигания: итоги поездки и остаток запаса хода. */
     static final String[] FAREWELL_ITEMS = {TRIP_DISTANCE, TRIP_TIME, TRIP_SPEED, CHARGE_USED, FUEL_USED, RANGE};
 
@@ -56,6 +56,8 @@ final class CarSummary {
     private static final int VEHICLE_BATTERY_VOLTAGE = 0x2160584b;
     private static final int PERF_ODOMETER = 0x11600204;                // км, шаг 0,1
     private static final int INFO_FUEL_CAPACITY = 0x11600104;           // мл
+    /** Уровень топлива, мл. На Evolute i-Space — процент от неверного объёма бака (15 л). */
+    private static final int FUEL_LEVEL = 0x11600307;
     /** Единица температуры на экранах машины (VehicleUnit: 0x30 — °C, 0x31 — °F). */
     private static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 0x1140050e;
     private static final int FAHRENHEIT = 0x31;
@@ -64,7 +66,8 @@ final class CarSummary {
     static final float KM_PER_MILE = 1.609344f;
     private static final float LITRES_PER_GALLON = 3.785412f;
 
-    private static final long SHOW_MS = 10_000;
+    /** Сколько секунд видна плашка: по умолчанию, пределы и шаг кнопок «−» и «+». */
+    static final int DEFAULT_SHOW_SECONDS = 10, MIN_SHOW_SECONDS = 5, MAX_SHOW_SECONDS = 60, SHOW_STEP = 5;
     private static final int WARNING_COLOR = 0xFFFFC107;
 
     /** Значения из машины (км и °C); null — машина не отдала значение. */
@@ -74,6 +77,8 @@ final class CarSummary {
         Float temp, rangeKm, evRangeKm, charge, fuel, serviceKm, voltage, odometer;
         /** Объём бака, мл. */
         Float fuelCapacity;
+        /** Уровень топлива от машины, мл (для проверки; в расчётах не используется). */
+        Float fuelLevel;
         boolean fahrenheit;
         /** Итоги поездки ({@link Trip#fill}): пробег в км, время, расход заряда и бака в процентах. */
         Float tripKm, chargeUsed, fuelUsed;
@@ -111,8 +116,37 @@ final class CarSummary {
     // или Prefs.SUMMARY_FAREWELL, префикс ключей.
 
     static boolean isEnabled(Context c, String occasion) {
-        if (Prefs.SUMMARY_FAREWELL.equals(occasion) && !Features.FAREWELL) return false;
+        if (Prefs.SUMMARY_FAREWELL.equals(occasion) && !Features.FAREWELL_SUMMARY) return false;
         return Prefs.get(c).getBoolean(occasion + Prefs.SUMMARY_ENABLED, false);
+    }
+
+    // Событие для сводки «Итоги» (конец поездки); выбирается на вкладке, хранится в Prefs.
+    static final String FINISH_PARK = "park", FINISH_PARK_BELT = "park_belt", FINISH_PARK_DOOR = "park_door",
+            FINISH_BRAKE = "brake";
+    /** Выключение зажигания: экран и усилитель гаснут сразу, поэтому в настройках не предлагается. */
+    static final String FINISH_ACC_OFF = "acc_off";
+    /** Варианты на вкладке «Итоги», по порядку; первый — по умолчанию. */
+    static final String[] FINISH_TRIGGERS = {FINISH_PARK, FINISH_PARK_BELT, FINISH_PARK_DOOR, FINISH_BRAKE};
+
+    static String finishTrigger(Context c) {
+        if (!Features.FINISH_EXTRA) return FINISH_PARK;
+        String t = Prefs.get(c).getString(Prefs.SUMMARY_FINISH_TRIGGER, FINISH_PARK);
+        return Arrays.asList(FINISH_TRIGGERS).contains(t) || FINISH_ACC_OFF.equals(t) ? t : FINISH_PARK;
+    }
+
+    static void setFinishTrigger(SharedPreferences prefs, String trigger) {
+        prefs.edit().putString(Prefs.SUMMARY_FINISH_TRIGGER, trigger).apply();
+    }
+
+    static int showSeconds(Context c, String occasion) {
+        return Prefs.get(c).getInt(occasion + Prefs.SUMMARY_SHOW_SECONDS, DEFAULT_SHOW_SECONDS);
+    }
+
+    /** Время показа на шаг больше (direction 1) или меньше (-1), в пределах. */
+    static void stepShowSeconds(SharedPreferences prefs, Context c, String occasion, int direction) {
+        int s = showSeconds(c, occasion) + direction * SHOW_STEP;
+        s = Math.max(MIN_SHOW_SECONDS, Math.min(MAX_SHOW_SECONDS, s));
+        prefs.edit().putInt(occasion + Prefs.SUMMARY_SHOW_SECONDS, s).apply();
     }
 
     /** Включена ли сводка хоть где-то: тогда нужна служба {@link CarEventsService}. */
@@ -126,7 +160,8 @@ final class CarSummary {
     }
 
     static boolean isItemOn(Context c, String occasion, String item) {
-        return Prefs.get(c).getBoolean(occasion + Prefs.SUMMARY_ITEM + item, true);
+        // «Свободно в баке» по умолчанию выключен: обычно хватает остатка.
+        return Prefs.get(c).getBoolean(occasion + Prefs.SUMMARY_ITEM + item, !FUEL_FREE.equals(item));
     }
 
     static void setItemOn(SharedPreferences prefs, String occasion, String item, boolean on) {
@@ -149,7 +184,12 @@ final class CarSummary {
     }
 
     static String[] items(String occasion) {
-        return Prefs.SUMMARY_FAREWELL.equals(occasion) ? FAREWELL_ITEMS : WELCOME_ITEMS;
+        if (Prefs.SUMMARY_FAREWELL.equals(occasion)) return FAREWELL_ITEMS;
+        if (Features.CABIN_TEMP) return WELCOME_ITEMS;
+        // Температуры в салоне машина не отдаёт — пункт скрыт.
+        List<String> out = new ArrayList<>(Arrays.asList(WELCOME_ITEMS));
+        out.remove(TEMP_INSIDE);
+        return out.toArray(new String[0]);
     }
 
     /** Пункт — итог поездки: без поездки у него нет значения. */
@@ -192,6 +232,7 @@ final class CarSummary {
         v.voltage = get(car, VEHICLE_BATTERY_VOLTAGE);
         v.odometer = get(car, PERF_ODOMETER);
         v.fuelCapacity = get(car, INFO_FUEL_CAPACITY);
+        v.fuelLevel = get(car, FUEL_LEVEL);
         Float unit = get(car, HVAC_TEMPERATURE_DISPLAY_UNITS);
         v.fahrenheit = unit != null && Math.round(unit) == FAHRENHEIT;
         return v;
@@ -300,22 +341,28 @@ final class CarSummary {
 
     // ---------------------------------------------------------------- Топливо
 
-    /** Топливо в литрах (галлонах при милях): так выбрано и машина отдала объём бака. */
-    static boolean useVolume(Context c, Values v) {
-        return isFuelVolume(c) && known(v.fuelCapacity);
+    /**
+     * Объём бака, л. Машина отдаёт свой (INFO_FUEL_CAPACITY), но на Evolute i-Space он неверный —
+     * 15 л; по паспорту и по ELM бак 60 л (31 % = 18,6 л).
+     */
+    static final int TANK_LITRES = 60;
+
+    /**
+     * Пункт о топливе (остаток, свободно в баке, расход) — в литрах (галлонах при милях), а не
+     * в процентах. У каждого пункта свой выбор; по умолчанию — общий выбор прежних сборок.
+     */
+    static boolean isFuelVolume(Context c, String item) {
+        SharedPreferences p = Prefs.get(c);
+        return p.getBoolean(Prefs.SUMMARY_FUEL_VOLUME + "_" + item, p.getBoolean(Prefs.SUMMARY_FUEL_VOLUME, true));
     }
 
-    static boolean isFuelVolume(Context c) {
-        return Prefs.get(c).getBoolean(Prefs.SUMMARY_FUEL_VOLUME, true);
+    static void setFuelVolume(SharedPreferences prefs, String item, boolean volume) {
+        prefs.edit().putBoolean(Prefs.SUMMARY_FUEL_VOLUME + "_" + item, volume).apply();
     }
 
-    static void setFuelVolume(SharedPreferences prefs, boolean volume) {
-        prefs.edit().putBoolean(Prefs.SUMMARY_FUEL_VOLUME, volume).apply();
-    }
-
-    /** Процент бака в литрах (галлонах), с одним знаком после запятой. */
-    private static String volume(Values v, float percent, boolean miles) {
-        float litres = percent * v.fuelCapacity / 100f / 1000f;
+    /** Процент бака в литрах (галлонах) по объёму бака из настроек, с одним знаком после запятой. */
+    private static String volume(Context c, float percent, boolean miles) {
+        float litres = percent * TANK_LITRES / 100f;
         return decimal(miles ? litres / LITRES_PER_GALLON : litres);
     }
 
@@ -392,8 +439,8 @@ final class CarSummary {
                         c.getString(R.string.speech_charge, percent(c, v.charge)));
             case FUEL:
                 if (v.fuel == null) return null;
-                if (useVolume(c, v)) {
-                    String n = volume(v, v.fuel, miles);
+                if (isFuelVolume(c, item)) {
+                    String n = volume(c, v.fuel, miles);
                     return new Part(item, c.getString(R.string.summary_fuel_volume,
                             c.getString(miles ? R.string.unit_gal : R.string.unit_l, n)),
                             c.getString(R.string.speech_fuel,
@@ -401,6 +448,20 @@ final class CarSummary {
                 }
                 return new Part(item, c.getString(R.string.summary_fuel, number(v.fuel)),
                         c.getString(R.string.speech_fuel, percent(c, v.fuel)));
+            case FUEL_FREE: {
+                // Сколько ещё войдёт в бак: в литрах или процентах, как остаток.
+                if (v.fuel == null) return null;
+                float free = Math.max(0f, 100f - v.fuel);
+                if (isFuelVolume(c, item)) {
+                    String n = volume(c, free, miles);
+                    return new Part(item, c.getString(R.string.summary_fuel_free_volume,
+                            c.getString(miles ? R.string.unit_gal : R.string.unit_l, n)),
+                            c.getString(R.string.speech_fuel_free,
+                                    c.getString(miles ? R.string.speech_gallons : R.string.speech_litres, n)));
+                }
+                return new Part(item, c.getString(R.string.summary_fuel_free, number(free)),
+                        c.getString(R.string.speech_fuel_free, percent(c, free)));
+            }
             case SERVICE:
                 if (!known(v.serviceKm)) return null;
                 return new Part(item, c.getString(R.string.summary_service, distance(c, v.serviceKm, miles)),
@@ -440,8 +501,8 @@ final class CarSummary {
                         c.getString(R.string.speech_charge_used, percent(c, v.chargeUsed)));
             case FUEL_USED:
                 if (v.fuelUsed == null || Math.round(v.fuelUsed) < 1) return null;
-                if (useVolume(c, v)) {
-                    String n = volume(v, v.fuelUsed, miles);
+                if (isFuelVolume(c, item)) {
+                    String n = volume(c, v.fuelUsed, miles);
                     return new Part(item, c.getString(R.string.summary_fuel_used_volume,
                             c.getString(miles ? R.string.unit_gal : R.string.unit_l, n)),
                             c.getString(R.string.speech_fuel_used_volume,
@@ -523,7 +584,7 @@ final class CarSummary {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         if (Overlay.show(context, frame, Gravity.BOTTOM, ViewGroup.LayoutParams.WRAP_CONTENT)) {
             banner = frame;
-            ui.postDelayed(hideTask, SHOW_MS);
+            ui.postDelayed(hideTask, showSeconds(context, occasion) * 1000L);
         }
         if (isSpeakEnabled(context, occasion)) {
             String s = speechText(parts);

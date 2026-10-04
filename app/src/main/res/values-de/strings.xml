@@ -293,16 +293,15 @@
     <!-- Bereich Übersicht: Reiter „Begrüßung“ (beim Start) und „Abschied“ -->
     <string name="summary_section">Übersicht</string>
     <string name="home_open_summary">Übersicht</string>
-    <string name="summary_help">Übersicht beim Start: Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Leiste mit Warnungen, Außen- und Innentemperatur, Reichweite, Ladestand, Kraftstoff und Strecke bis zur Wartung. Ein Tipp auf die Leiste schließt sie früher.\n\n⚙ beim Punkt Warnungen  auswählen, wovor gewarnt wird, und Schwellenwerte festlegen: Glätte, geringe Reichweite, Ladung oder Kraftstoff, Wartung bald, niedrige Batteriespannung.\nl / % beim Kraftstoff  Tank und Verbrauch in Litern oder Prozent zeigen.\n\nJeder Punkt zeigt mit den aktuellen Werten des Autos, wie er auf der Leiste aussieht.\nDas Häkchen schaltet einen Punkt ein oder aus.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Übersicht ein und aus.\nJetzt zeigen  die Übersicht sofort zeigen.\n\nEinheiten wie in den Fahrzeugeinstellungen: Kilometer oder Meilen, °C oder °F. Sind beide Temperaturen eingeschaltet, erscheinen sie zusammen: „Temperatur außen +2, innen +18 °C“.</string>
-    <string name="summary_farewell_help">Fahrtergebnis: Beim Ausschalten der Zündung erscheint unten für 10 Sekunden eine Leiste mit gefahrener Strecke, Fahrzeit, Durchschnittsgeschwindigkeit, Ladungs- und Kraftstoffverbrauch und verbleibender Reichweite. Die Leiste liegt über dem Abschiedsbild, falls es eingeschaltet ist; die Stimme folgt nach dem Abschiedsklang. Das Radio läuft nach dem Ausschalten noch etwa 30 Sekunden.\n\nEine Fahrt dauert vom Einschalten bis zum Ausschalten der Zündung und wird über Kilometerzähler und Uhr gemessen. Der Verbrauch ist der Rückgang in Prozent; ist die Ladung nicht gesunken, wird der Punkt nicht gezeigt. Die Vorschauen zeigen die letzte Fahrt (oder die laufende).\n\nDieser Reiter hat eigene Punkte und eine eigene Reihenfolge, unabhängig von der Übersicht beim Start.\nDas Häkchen schaltet einen Punkt ein oder aus.\n▶  anhören, wie der Punkt klingt.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Abschiedsübersicht ein und aus.\nÜbersicht ansagen  das Auto liest die Übersicht vor.\nJetzt zeigen  die Übersicht sofort zeigen.</string>
-    <string name="summary_farewell_tip">Beim Ausschalten der Zündung erscheint unten für 10 Sekunden eine Leiste mit dem Fahrtergebnis über dem Abschiedsbild; die Stimme folgt nach dem Abschiedsklang. Eine Fahrt dauert vom Einschalten bis zum Ausschalten der Zündung. Das Radio läuft nach dem Ausschalten noch etwa 30 Sekunden, halten Sie diese Übersicht also kurz.</string>
+    <string name="summary_help">Übersicht beim Start: Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Leiste mit Warnungen, Außentemperatur, Reichweite, Ladestand, Kraftstoff und Strecke bis zur Wartung. Ein Tipp auf die Leiste schließt sie früher.\n\n⚙ beim Punkt Warnungen  auswählen, wovor gewarnt wird, und Schwellenwerte festlegen: Glätte, geringe Reichweite, Ladung oder Kraftstoff, Wartung bald, niedrige Batteriespannung.\nl / % bei den Kraftstoffpunkten  Liter oder Prozent, für jeden Punkt einzeln (60-l-Tank).\n\nJeder Punkt zeigt mit den aktuellen Werten des Autos, wie er auf der Leiste aussieht.\nDas Häkchen schaltet einen Punkt ein oder aus.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Übersicht ein und aus.\n− und + bei Anzeigedauer  wie viele Sekunden die Leiste sichtbar ist: 5 bis 60, standardmäßig 10.
+Jetzt zeigen  die Übersicht sofort zeigen.\n\nEinheiten wie in den Fahrzeugeinstellungen: Kilometer oder Meilen, °C oder °F.</string>
+    <string name="summary_farewell_help">Fahrtergebnis: Strecke, Fahrzeit, Durchschnittsgeschwindigkeit, Ladungs- und Kraftstoffverbrauch, verbleibende Reichweite. Die Leiste erscheint am Ende der Fahrt, wenn das Auto steht und der Wählhebel auf P steht.\nBeim Ausschalten der Zündung erscheint nichts: das Radio geht sofort aus.\n\nEine Fahrt dauert vom Einschalten der Zündung bis zum Schalten auf P und wird über Kilometerzähler und Uhr des Autos gemessen. Fährt man danach weiter, geht die Fahrt weiter, und beim nächsten Halt gilt das Ergebnis seit dem Einschalten. Nach einer sehr kurzen Fahrt (unter 0,5 km oder 2 Minuten) erscheint nichts.\n\nDieser Reiter hat eigene Punkte und eine eigene Reihenfolge, unabhängig vom Reiter Start.\nDas Häkchen schaltet einen Punkt ein oder aus.\nl / % beim Kraftstoff  Verbrauch in Litern oder Prozent.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet das Fahrtergebnis ein und aus.\n− und + bei Anzeigedauer  wie viele Sekunden die Leiste sichtbar ist: 5 bis 60, standardmäßig 10.\nJetzt zeigen  das Ergebnis der letzten Fahrt sofort zeigen.</string>
     <string name="summary_show_switch">Übersicht zeigen</string>
     <string name="summary_drag_desc">„%1$s“ ziehen</string>
     <string name="summary_play_desc">„%1$s“ anhören</string>
     <string name="summary_speak">Übersicht ansagen</string>
     <string name="summary_engine">Stimme: %1$s</string>
     <string name="summary_no_engine">Keine Sprachausgabe gefunden: Die Übersicht erscheint nur auf dem Bildschirm. Installieren Sie eine Sprachausgabe für Android.</string>
-    <string name="summary_tip">Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Übersichtsleiste. Entfernungen in Kilometern oder Meilen und Temperatur in °C oder °F wie in den Fahrzeugeinstellungen.</string>
     <string name="summary_show">Jetzt zeigen</string>
     <string name="summary_item_temp">Außentemperatur</string>
     <string name="summary_item_range">Reichweite</string>
@@ -416,4 +415,17 @@
     <string name="speech_temp_two">Temperatur %1$s %2$s, %3$s %4$s.</string>
     <string name="summary_fuel_volume">Tank %1$s</string>
     <string name="summary_fuel_unit_desc">Kraftstoff in Litern oder Prozent</string>
+    <string name="tab_summary_start">Start</string>
+    <string name="tab_summary_finish">Fahrtbilanz</string>
+    <string name="summary_finish_when">Wann zeigen</string>
+    <string name="summary_finish_park">Beim Schalten auf P</string>
+    <string name="summary_finish_park_belt">P und Fahrer abgeschnallt</string>
+    <string name="summary_finish_park_door">P und Fahrertür offen</string>
+    <string name="summary_finish_brake">Feststellbremse angezogen</string>
+    <string name="summary_duration">Anzeigedauer</string>
+    <string name="summary_duration_seconds">%1$d s</string>
+    <string name="summary_item_fuel_free">Frei im Tank</string>
+    <string name="summary_fuel_free">Frei %1$s %%</string>
+    <string name="summary_fuel_free_volume">Frei %1$s</string>
+    <string name="speech_fuel_free">Frei im Tank: %1$s.</string>
 </resources>

@@ -24,6 +24,7 @@ final class SectionTabs {
     private final View[][] views;
     private final Listener listener;
     private int current = -1;
+    private final boolean enabled;
 
     /**
      * @param containerId строка вкладок в разметке
@@ -31,11 +32,22 @@ final class SectionTabs {
      * @param farewellViews список и панель вкладки «Прощание»
      */
     SectionTabs(Activity a, int containerId, int[] welcomeViews, int[] farewellViews, Listener listener) {
+        this(a, containerId, welcomeViews, farewellViews, Features.FAREWELL,
+                new int[]{R.string.tab_welcome, R.string.tab_farewell}, listener);
+    }
+
+    /**
+     * @param enabled false — вкладок нет, видно только первую (функция второй выключена)
+     * @param labels названия вкладок
+     */
+    SectionTabs(Activity a, int containerId, int[] welcomeViews, int[] farewellViews, boolean enabled,
+                int[] labels, Listener listener) {
         this.listener = listener;
+        this.enabled = enabled;
         views = new View[][]{find(a, welcomeViews), find(a, farewellViews)};
         LinearLayout row = a.findViewById(containerId);
-        if (!Features.FAREWELL) {
-            // Без прощания вкладок нет: строка вкладок и разделитель под ней скрыты.
+        if (!enabled) {
+            // Без второй функции вкладок нет: строка вкладок и разделитель под ней скрыты.
             row.setVisibility(View.GONE);
             ViewGroup parent = (ViewGroup) row.getParent();
             View divider = parent.getChildAt(parent.indexOfChild(row) + 1);
@@ -45,7 +57,6 @@ final class SectionTabs {
             return;
         }
         int[] icons = {R.drawable.ic_welcome, R.drawable.ic_farewell};
-        int[] labels = {R.string.tab_welcome, R.string.tab_farewell};
         for (int i = 0; i < 2; i++) {
             final int tab = i;
             TextView item = Ui.railItem(a, icons[i], a.getString(labels[i]), false);
@@ -72,7 +83,7 @@ final class SectionTabs {
     }
 
     void select(int tab) {
-        if (tab != WELCOME && tab != FAREWELL || !Features.FAREWELL) tab = WELCOME;
+        if (tab != WELCOME && tab != FAREWELL || !enabled) tab = WELCOME;
         if (items[0] == null) return;
         boolean changed = tab != current;
         current = tab;

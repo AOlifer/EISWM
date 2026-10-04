@@ -296,16 +296,15 @@
     <!-- Summary section: "Welcome" (at start-up) and "Farewell" tabs -->
     <string name="summary_section">Summary</string>
     <string name="home_open_summary">Summary</string>
-    <string name="summary_help">Summary at start-up: after you switch on the ignition and the welcome screen closes, a bar appears at the bottom of the screen for 10 seconds with warnings, the outside and cabin temperature, range, charge, fuel and distance to service. Tap the bar to close it earlier.\n\n⚙ next to Warnings  choose which warnings to show and set their thresholds: possible ice, low range, charge or fuel, service soon, low battery voltage.\nL / % next to fuel  show the tank and fuel used in litres or percent.\n\nEach item shows how it looks on the bar with the current values from the car.\nThe checkbox turns an item on or off.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the summary on or off.\nShow now  show the summary right now.\n\nUnits follow the car settings: kilometres or miles, °C or °F. If both temperatures are on, they are shown together: “Temperature outside +2, in the cabin +18 °C”.</string>
-    <string name="summary_farewell_help">Trip results: when you switch off the ignition, a bar appears at the bottom of the screen for 10 seconds with the distance driven, driving time, average speed, charge and fuel used, and the remaining range. The bar appears over the farewell picture if it is on; the voice follows the farewell sound. The head unit keeps running for about 30 seconds after switch-off.\n\nA trip lasts from switching the ignition on to switching it off and is measured by the odometer and the clock. Charge and fuel used are the drop in percent; if the charge did not drop, the item is not shown. The previews show the last trip (or the current one, if you are driving).\n\nThis tab has its own items and order, independent of the start-up summary.\nThe checkbox turns an item on or off.\n▶  hear how the item sounds.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the farewell summary on or off.\nSpeak the summary  the car reads the summary aloud.\nShow now  show the summary right now.</string>
-    <string name="summary_farewell_tip">When you switch off the ignition, a bar with the trip results appears at the bottom of the screen for 10 seconds, over the farewell picture; the voice follows the farewell sound. A trip lasts from switching the ignition on to switching it off. The head unit keeps running for about 30 seconds after switch-off, so keep this summary short.</string>
+    <string name="summary_help">Summary at start-up: after you switch on the ignition and the welcome screen closes, a bar appears at the bottom of the screen for 10 seconds with warnings, the outside temperature, range, charge, fuel and distance to service. Tap the bar to close it earlier.\n\n⚙ next to Warnings  choose which warnings to show and set their thresholds: possible ice, low range, charge or fuel, service soon, low battery voltage.\nL / % next to fuel items  litres or percent, separately for each item (60 L tank).\n\nEach item shows how it looks on the bar with the current values from the car.\nThe checkbox turns an item on or off.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the summary on or off.\n− and + next to Show for  how many seconds the bar stays on screen: 5 to 60, 10 by default.
+Show now  show the summary right now.\n\nUnits follow the car settings: kilometres or miles, °C or °F.</string>
+    <string name="summary_farewell_help">Trip results: distance, driving time, average speed, charge and fuel used, remaining range. The bar appears at the end of a trip, when the car has stopped and the selector is moved to P.\nNo results are shown when the ignition is switched off: the head unit turns off at once.\n\nA trip lasts from switching on the ignition to shifting to P, by the odometer and the car clock. If you drive on afterwards, the trip continues and the next stop shows results since the ignition was switched on. After a very short trip (under 0.5 km or 2 minutes) no results are shown.\n\nThis tab has its own items and order, independent of the Start tab.\nThe checkbox turns an item on or off.\nL / % next to fuel  fuel used in litres or percent.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns trip results on or off.\n− and + next to Show for  how many seconds the bar stays on screen: 5 to 60, 10 by default.\nShow now  show the results of the last trip right now.</string>
     <string name="summary_show_switch">Show the summary</string>
     <string name="summary_drag_desc">Drag “%1$s”</string>
     <string name="summary_play_desc">Listen to “%1$s”</string>
     <string name="summary_speak">Speak the summary</string>
     <string name="summary_engine">Voice: %1$s</string>
     <string name="summary_no_engine">No speech synthesizer found: the summary will only be shown on the screen. To hear it, install a speech synthesizer for Android.</string>
-    <string name="summary_tip">After you switch on the ignition and the welcome screen closes, a summary bar appears at the bottom of the screen for 10 seconds. Distances are in kilometres or miles and temperature in °C or °F, as set in the car settings.</string>
     <string name="summary_show">Show now</string>
     <string name="summary_item_temp">Outside temperature</string>
     <string name="summary_item_range">Range</string>
@@ -419,4 +418,17 @@
     <string name="speech_temp_two">Temperature %1$s %2$s, %3$s %4$s.</string>
     <string name="summary_fuel_volume">Fuel %1$s</string>
     <string name="summary_fuel_unit_desc">Fuel in litres or percent</string>
+    <string name="tab_summary_start">Start</string>
+    <string name="tab_summary_finish">Trip summary</string>
+    <string name="summary_finish_when">When to show</string>
+    <string name="summary_finish_park">When shifting to P</string>
+    <string name="summary_finish_park_belt">P and driver unbuckled</string>
+    <string name="summary_finish_park_door">P and driver door open</string>
+    <string name="summary_finish_brake">Parking brake on</string>
+    <string name="summary_duration">Show for</string>
+    <string name="summary_duration_seconds">%1$d s</string>
+    <string name="summary_item_fuel_free">Free space in the tank</string>
+    <string name="summary_fuel_free">Free %1$s %%</string>
+    <string name="summary_fuel_free_volume">Free %1$s</string>
+    <string name="speech_fuel_free">Free space in the tank: %1$s.</string>
 </resources>
