@@ -169,18 +169,17 @@ MP3-файлы лежат в каталоге
 ### Где лежат обновления
 
 - JSON последней версии — файл `docs/updates/latest` (без расширения, UTF-8 без BOM).
-  Его публикует на стандартном адресе GitHub Pages репозитория workflow
-  `.github/workflows/release.yml` при каждом пуше в `master` (Settings → Pages: Source —
-  GitHub Actions, без своего домена), адрес файла — строка `update_url` в `config.xml`.
-  Свой домен не используется: проверка DNS у GitHub не проходила для домена на DNS-серверах reg.ru.
-- В репозитории в `latest` правятся только тексты `changes` и `versionName` (для проверки,
-  что тексты обновлены к новой версии). `versionCode`, `versionName`, `date`, `apk`, `size`
-  и `sha256` workflow при публикации подставляет сам по собранному APK.
-- APK — файл выпуска на GitHub (Releases, тег версии без «v»). В JSON в `apk` ссылка вида
+  GitHub Pages публикует папку `docs/` ветки `master` на стандартном адресе Pages репозитория
+  (Settings → Pages: Deploy from a branch, `master`, `/docs`, без своего домена), адрес
+  файла — строка `update_url` в `config.xml`. Свой домен не используется: проверка DNS
+  у GitHub не проходила для домена на DNS-серверах reg.ru.
+  Поэтому машины видят только выпущенную версию: изменения `latest` в `develop` попадают
+  на сайт вместе со слиянием в `master`.
+- APK — файл выпуска на GitHub (Releases, тег версии). В JSON в `apk` ссылка вида
   `https://github.com/AOlifer/EISWM/releases/download/1.6/EISWM-1.6.apk`; GitHub
   перенаправляет её на своё хранилище, приложение идёт по перенаправлению.
-- Сайт публикуется после создания выпуска, поэтому машина не увидит ссылку на ещё не
-  загруженный файл. Pages кэширует файлы до 10 минут.
+- Порядок публикации: сначала выпуск с APK, потом слияние в `master`, чтобы машина не увидела
+  ссылку на ещё не загруженный файл. Pages кэширует файлы до 10 минут.
 
 ## 5. Языки
 
@@ -249,7 +248,7 @@ adb install -r -g app\build\outputs\apk\emulator\debug\app-emulator-debug.apk
 (`.gitignore`). Gradle ищет папку с ключом по порядку:
 
 1. Свойство `eiswm.keysDir`, например в `%USERPROFILE%\.gradle\gradle.properties`.
-2. Переменная окружения `EISWM_KEYS_DIR` (так собирает workflow выпуска).
+2. Переменная окружения `EISWM_KEYS_DIR` (для CI).
 3. Папка `keys/` в корне проекта (игнорируется git).
 
 Какие файлы нужны в этой папке, написано в `app/build.gradle`. Без ключа проект открывается и
@@ -287,23 +286,13 @@ Android 7 и ниже остаётся обычная `ic_launcher.png`.
 
 Каждое изменение сразу записывается в `CHANGELOG.md` в раздел «Не выпущено». Выпуск версии:
 
-1. В `develop` поднять `versionCode`/`versionName` в `app/build.gradle`, переименовать раздел
-   «Не выпущено» в номер версии с датой (`## [1.6] — 2026-10-05`), в `docs/updates/latest`
-   записать новый `versionName` и тексты `changes`, запушить `develop`.
-2. Слить `develop` в `master` (`git merge --no-ff develop`) и запушить `master`.
-
-Дальше всё делает workflow `.github/workflows/release.yml` (вкладка Actions на GitHub):
-собирает APK варианта `car`, подписывает ключом платформы из секретов репозитория, создаёт
-выпуск с тегом, равным `versionName`, прикладывает `EISWM-<версия>.apk`, в описание выпуска
-кладёт раздел версии из CHANGELOG и публикует сайт обновлений. Если выпуск с таким тегом уже
-есть (например, в `master` слита правка без новой версии), APK не собирается, а сайт
-публикуется заново по APK из существующего выпуска. Если нет раздела версии в CHANGELOG или
-`versionName` в `latest` не совпадает с `app/build.gradle`, workflow останавливается до
-создания выпуска: тег выпуска потом не поменять.
-
-Секреты (Settings → Secrets and variables → Actions): `EISWM_PLATFORM_PK8` — `platform.pk8`
-в base64 одной строкой, `EISWM_PLATFORM_X509` — содержимое `platform.x509.pem`. В окружении
-`github-pages` (Settings → Environments) ветке `master` должно быть разрешено публиковать.
+1. В `develop` обновить `versionCode`/`versionName` в `app/build.gradle`, переименовать раздел
+   «Не выпущено» в номер версии с датой.
+2. Собрать APK варианта `car`, посчитать размер и SHA-256, записать новую версию в
+   `docs/updates/latest` (раздел «Обновления»), запушить `develop`.
+3. Создать на GitHub выпуск (Releases) с новым тегом без «v» (например, `1.6`) на ветке `develop`
+   и приложить к нему APK.
+4. Слить `develop` в `master` и запушить: сайт обновлений покажет новую версию.
 
 ## 11. Сторонние материалы
 
