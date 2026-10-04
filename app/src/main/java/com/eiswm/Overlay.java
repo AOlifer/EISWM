@@ -6,6 +6,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
+import android.util.Log;
 
 /**
  * Окно поверх всего экрана, включая экран ожидания машины: картинка прощания, плашка сводки.
@@ -13,6 +14,7 @@ import android.view.WindowManager;
  * приложений, если оно разрешено.
  */
 final class Overlay {
+    private static final String TAG = "EISWM";
     private Overlay() {
     }
 
@@ -40,7 +42,7 @@ final class Overlay {
                 return true;
             } catch (Exception e) {
                 // Этот тип окна недоступен — пробуем следующий.
-                CarDiag.log(c, "OVERLAY type " + type + " failed: " + e);
+                Log.d(TAG, "OVERLAY type " + type + " failed: " + e);
                 // Неудачное окно остаётся зарегистрированным — иначе следующая попытка не пройдёт.
                 try {
                     wm.removeViewImmediate(v);

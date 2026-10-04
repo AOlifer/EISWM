@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * например sherpa-onnx TTS Engine с голосом Piper (ставится одним APK, без интернета).
  */
 final class Speech {
+    private static final String TAG = "EISWM";
     private static final String CAR_VOICE = "com.bw.asr";
     private static final String CAR_VOICE_ACTION = "com.bw.asr.BW_RECEIVE_SERVICE_ACTION";
 
@@ -82,7 +84,7 @@ final class Speech {
                     .putExtra("json", json.toString());
             context.startService(i);
         } catch (Exception e) {
-            CarDiag.log(context, "SPEECH car voice failed: " + e);
+            Log.d(TAG, "SPEECH car voice failed: " + e);
         }
     }
 

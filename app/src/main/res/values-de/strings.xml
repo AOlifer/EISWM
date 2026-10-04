@@ -257,27 +257,6 @@
     <string name="update_error_package">die Datei ist kein EISWM-Update</string>
     <string name="update_error_version">die Datei ist nicht neuer als die installierte Version</string>
     <string name="update_error_install">Installation fehlgeschlagen: %1$s</string>
-    <!-- Fahrzeugdiagnose (versteckter Bildschirm: lange auf die Version auf dem Startbildschirm drücken) -->
-    <string name="diag_title">Fahrzeugdiagnose</string>
-    <string name="diag_notification">Fahrzeugereignisse werden für die Diagnose aufgezeichnet</string>
-    <string name="diag_hint">Nur Lesen: Ins Fahrzeug wird nichts geschrieben. Aufzeichnung starten, vor jeder Aktion „Markierung“ drücken (Zündung aus, Tür öffnen, Telefon verbinden), dann die Dateien auf einen USB-Stick speichern.</string>
-    <string name="diag_record_start">Aufzeichnung starten</string>
-    <string name="diag_record_stop">Aufzeichnung beenden</string>
-    <string name="diag_mark">Markierung im Protokoll</string>
-    <string name="diag_marked">Markierung %1$d hinzugefügt</string>
-    <string name="diag_snapshot">Fahrzeugzustand erfassen</string>
-    <string name="diag_snapshot_busy">Fahrzeugzustand wird erfasst…</string>
-    <string name="diag_snapshot_done">Zustand gespeichert: %1$s</string>
-    <string name="diag_error">Fehler: %1$s</string>
-    <string name="diag_save">Dateien speichern unter…</string>
-    <string name="diag_clear">Protokoll leeren</string>
-    <string name="diag_files">Dateien: %1$d, %2$s</string>
-    <string name="diag_log_empty">Das Protokoll ist leer. Aufzeichnung starten oder Zustand erfassen.</string>
-    <string name="diag_status_recording">Aufzeichnung läuft</string>
-    <string name="diag_status_idle">Aufzeichnung aus</string>
-    <string name="diag_car_connected">Fahrzeugdienst verbunden</string>
-    <string name="diag_car_connecting">Verbindung zum Fahrzeugdienst…</string>
-    <string name="diag_car_missing">Diese Firmware hat keine Fahrzeug-API</string>
     <!-- Abschied beim Ausschalten der Zündung: Registerkarten Begrüßung | Abschied in den Bereichen Klänge und Bilder -->
     <string name="tab_welcome">Begrüßung</string>
     <string name="tab_farewell">Abschied</string>
@@ -314,7 +293,7 @@
     <!-- Bereich Übersicht: Reiter „Begrüßung“ (beim Start) und „Abschied“ -->
     <string name="summary_section">Übersicht</string>
     <string name="home_open_summary">Übersicht</string>
-    <string name="summary_help">Übersicht beim Start: Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Leiste mit Warnungen, Außentemperatur, Reichweite, Ladestand, Kraftstoff und Strecke bis zur Wartung. Ein Tipp auf die Leiste schließt sie früher.\n\n⚙ beim Punkt Warnungen  auswählen, wovor gewarnt wird, und Schwellenwerte festlegen: Glätte, geringe Reichweite, Ladung oder Kraftstoff, Wartung bald, niedrige Batteriespannung.\n\nJeder Punkt zeigt mit den aktuellen Werten des Autos, wie er auf der Leiste aussieht.\nDas Häkchen schaltet einen Punkt ein oder aus.\n▶  anhören, wie der Punkt klingt.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Übersicht ein und aus.\nÜbersicht ansagen  das Auto liest die Übersicht vor.\nJetzt zeigen  die Übersicht sofort zeigen.\n\nEinheiten wie in den Fahrzeugeinstellungen: Kilometer oder Meilen, °C oder °F.</string>
+    <string name="summary_help">Übersicht beim Start: Nach dem Einschalten der Zündung, sobald der Begrüßungsbildschirm geschlossen ist, erscheint unten für 10 Sekunden eine Leiste mit Warnungen, Außen- und Innentemperatur, Reichweite, Ladestand, Kraftstoff und Strecke bis zur Wartung. Ein Tipp auf die Leiste schließt sie früher.\n\n⚙ beim Punkt Warnungen  auswählen, wovor gewarnt wird, und Schwellenwerte festlegen: Glätte, geringe Reichweite, Ladung oder Kraftstoff, Wartung bald, niedrige Batteriespannung.\nl / % beim Kraftstoff  Tank und Verbrauch in Litern oder Prozent zeigen.\n\nJeder Punkt zeigt mit den aktuellen Werten des Autos, wie er auf der Leiste aussieht.\nDas Häkchen schaltet einen Punkt ein oder aus.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Übersicht ein und aus.\nJetzt zeigen  die Übersicht sofort zeigen.\n\nEinheiten wie in den Fahrzeugeinstellungen: Kilometer oder Meilen, °C oder °F. Sind beide Temperaturen eingeschaltet, erscheinen sie zusammen: „Temperatur außen +2, innen +18 °C“.</string>
     <string name="summary_farewell_help">Fahrtergebnis: Beim Ausschalten der Zündung erscheint unten für 10 Sekunden eine Leiste mit gefahrener Strecke, Fahrzeit, Durchschnittsgeschwindigkeit, Ladungs- und Kraftstoffverbrauch und verbleibender Reichweite. Die Leiste liegt über dem Abschiedsbild, falls es eingeschaltet ist; die Stimme folgt nach dem Abschiedsklang. Das Radio läuft nach dem Ausschalten noch etwa 30 Sekunden.\n\nEine Fahrt dauert vom Einschalten bis zum Ausschalten der Zündung und wird über Kilometerzähler und Uhr gemessen. Der Verbrauch ist der Rückgang in Prozent; ist die Ladung nicht gesunken, wird der Punkt nicht gezeigt. Die Vorschauen zeigen die letzte Fahrt (oder die laufende).\n\nDieser Reiter hat eigene Punkte und eine eigene Reihenfolge, unabhängig von der Übersicht beim Start.\nDas Häkchen schaltet einen Punkt ein oder aus.\n▶  anhören, wie der Punkt klingt.\n≡  nach oben oder unten ziehen, um die Reihenfolge zu ändern (oder lange auf den Punkt drücken).\nÜbersicht zeigen  schaltet die Abschiedsübersicht ein und aus.\nÜbersicht ansagen  das Auto liest die Übersicht vor.\nJetzt zeigen  die Übersicht sofort zeigen.</string>
     <string name="summary_farewell_tip">Beim Ausschalten der Zündung erscheint unten für 10 Sekunden eine Leiste mit dem Fahrtergebnis über dem Abschiedsbild; die Stimme folgt nach dem Abschiedsklang. Eine Fahrt dauert vom Einschalten bis zum Ausschalten der Zündung. Das Radio läuft nach dem Ausschalten noch etwa 30 Sekunden, halten Sie diese Übersicht also kurz.</string>
     <string name="summary_show_switch">Übersicht zeigen</string>
@@ -346,7 +325,6 @@
     <string name="summary_warn_battery">Niedrige Batteriespannung</string>
     <string name="speech_plus">plus</string>
     <string name="speech_minus">minus</string>
-    <string name="speech_temp">Draußen %1$s.</string>
     <string name="speech_range">Reichweite %1$s.</string>
     <string name="speech_range_ev">Reichweite %1$s, elektrisch %2$s.</string>
     <string name="speech_charge">Ladestand %1$s.</string>
@@ -428,4 +406,14 @@
     <string name="unit_f">%1$s °F</string>
     <string name="unit_percent">%1$s %%</string>
     <string name="unit_volt">%1$s V</string>
+    <!-- Außen- und Innentemperatur, Kraftstoff in Litern oder Prozent -->
+    <string name="summary_item_temp_inside">Innentemperatur</string>
+    <string name="summary_temp_outside">außen</string>
+    <string name="summary_temp_inside">innen</string>
+    <string name="summary_temp_one">Temperatur %1$s %2$s</string>
+    <string name="summary_temp_two">Temperatur %1$s %2$s, %3$s %4$s</string>
+    <string name="speech_temp_one">Temperatur %1$s %2$s.</string>
+    <string name="speech_temp_two">Temperatur %1$s %2$s, %3$s %4$s.</string>
+    <string name="summary_fuel_volume">Tank %1$s</string>
+    <string name="summary_fuel_unit_desc">Kraftstoff in Litern oder Prozent</string>
 </resources>

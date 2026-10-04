@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 
 /**
  * События машины для функций приложения: при включении зажигания — начало поездки ({@link Trip})
@@ -22,6 +23,7 @@ import android.provider.Settings;
  * перезагрузка) приложение стартует, когда зажигание уже давно включено.
  */
 public class CarEventsService extends Service {
+    private static final String TAG = "EISWM";
     private static final int ACC_STATUS = 0x21400054;
     private static final int POWER_STANDBY = 0, POWER_RUNNING = 1;
     /** Повторно не прощаться, если оба признака выключения пришли почти одновременно. */
@@ -29,7 +31,7 @@ public class CarEventsService extends Service {
     /** Процесс запустился вскоре после загрузки машины — зажигание только что включили. */
     private static final long FRESH_BOOT_MS = 180_000;
     /** Сводка ждёт, пока закроется штатный экран приветствия, но не дольше этого. */
-    private static final long WELCOME_WAIT_MS = 60_000, WELCOME_POLL_MS = 500, AFTER_WELCOME_MS = 1500;
+    private static final long WELCOME_WAIT_MS = 60_000, WELCOME_POLL_MS = 200, AFTER_WELCOME_MS = 300;
     /** Сводка на прощании: чуть позже картинки прощания, голос — после звука прощания. */
     private static final long FAREWELL_SUMMARY_DELAY_MS = 1000, SPEECH_AFTER_SOUND_MS = 500;
 
@@ -94,7 +96,7 @@ public class CarEventsService extends Service {
         try {
             car.connect(handler, this::onCarConnected, () -> acc = null);
         } catch (Throwable e) {
-            CarDiag.log(this, "EVENTS car connect failed: " + e);
+            Log.d(TAG, "EVENTS car connect failed: " + e);
         }
     }
 
@@ -109,7 +111,7 @@ public class CarEventsService extends Service {
         });
         // Текущее зажигание: подписка присылает только изменения.
         Integer current = readInt(ACC_STATUS);
-        CarDiag.log(this, "EVENTS listening: acc " + (l != null) + ", power " + power + ", acc now " + current);
+        Log.d(TAG, "EVENTS listening: acc " + (l != null) + ", power " + power + ", acc now " + current);
         if (current != null && acc == null) onAcc(current);
     }
 
@@ -177,7 +179,7 @@ public class CarEventsService extends Service {
         if (Farewell.isEnabled(this)) {
             ui.post(() -> {
                 boolean played = farewell.play(Farewell.isSoundEnabled(this), Farewell.isPictureEnabled(this));
-                CarDiag.log(this, "FAREWELL " + reason + (played ? ", played" : ", nothing to play"));
+                Log.d(TAG, "FAREWELL " + reason + (played ? ", played" : ", nothing to play"));
             });
         }
         // Сводка на прощании — поверх картинки прощания; голос — после звука прощания.
@@ -203,7 +205,7 @@ public class CarEventsService extends Service {
         Prefs.get(this).edit().putBoolean(Prefs.EVENTS_ACC_OFF, false).apply();
         if (Features.FAREWELL) Trip.start(this, CarSummary.read(car));
         if (!CarSummary.isEnabled(this, Prefs.SUMMARY_WELCOME)) return;
-        CarDiag.log(this, "SUMMARY " + reason + ", waiting for the welcome screen");
+        Log.d(TAG, "SUMMARY " + reason + ", waiting for the welcome screen");
         waitForWelcome(SystemClock.elapsedRealtime() + WELCOME_WAIT_MS);
     }
 
@@ -226,7 +228,7 @@ public class CarEventsService extends Service {
         ui.post(() -> {
             long speechDelay = welcome ? 0 : farewell.soundMs() + SPEECH_AFTER_SOUND_MS;
             boolean shown = summary.show(occasion, v, speechDelay);
-            CarDiag.log(this, "SUMMARY " + occasion + (shown ? "shown" : "nothing to show"));
+            Log.d(TAG, "SUMMARY " + occasion + (shown ? "shown" : "nothing to show"));
         });
     }
 }

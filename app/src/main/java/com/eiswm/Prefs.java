@@ -56,6 +56,8 @@ final class Prefs {
     static final String SUMMARY_ITEM = "item_";
     /** Порядок пунктов: имена через запятую. */
     static final String SUMMARY_ORDER = "order";
+    /** Топливо в литрах (галлонах), а не в процентах; общая для всех пунктов о топливе. */
+    static final String SUMMARY_FUEL_VOLUME = "summary_fuel_volume";
 
     // События машины ({@link CarEventsService})
     /** Последним видели выключение зажигания: следующее включение — новая поездка. */
@@ -73,10 +75,6 @@ final class Prefs {
     static final String TRIP_ODOMETER = "odometer";
     static final String TRIP_CHARGE = "charge";
     static final String TRIP_FUEL = "fuel";
-
-    // Диагностика машины
-    /** Идёт запись событий ({@link CarDiagService}); после перезагрузки и сна машины запись продолжается. */
-    static final String DIAG_RECORDING = "diag_recording";
 
     private Prefs() {}
 

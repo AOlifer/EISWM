@@ -247,27 +247,6 @@
     <string name="update_error_package">该文件不是 EISWM 更新</string>
     <string name="update_error_version">该文件的版本不比已安装的版本新</string>
     <string name="update_error_install">安装失败：%1$s</string>
-    <!-- 车辆诊断（隐藏界面：在启动界面长按版本号） -->
-    <string name="diag_title">车辆诊断</string>
-    <string name="diag_notification">正在记录车辆事件用于诊断</string>
-    <string name="diag_hint">只读：不会向车辆写入任何内容。开始记录，在每个操作前按“标记”（关闭点火、打开车门、连接手机），然后把文件保存到U盘。</string>
-    <string name="diag_record_start">开始记录事件</string>
-    <string name="diag_record_stop">停止记录</string>
-    <string name="diag_mark">在日志中标记</string>
-    <string name="diag_marked">已添加标记 %1$d</string>
-    <string name="diag_snapshot">获取车辆快照</string>
-    <string name="diag_snapshot_busy">正在获取车辆状态…</string>
-    <string name="diag_snapshot_done">快照已保存：%1$s</string>
-    <string name="diag_error">错误：%1$s</string>
-    <string name="diag_save">保存文件到…</string>
-    <string name="diag_clear">清空日志</string>
-    <string name="diag_files">文件：%1$d，%2$s</string>
-    <string name="diag_log_empty">日志为空。请开始记录或获取快照。</string>
-    <string name="diag_status_recording">正在记录</string>
-    <string name="diag_status_idle">未在记录</string>
-    <string name="diag_car_connected">已连接车辆服务</string>
-    <string name="diag_car_connecting">正在连接车辆服务…</string>
-    <string name="diag_car_missing">此固件没有车辆接口</string>
     <!-- 关闭点火时告别：“声音”和“图片”栏目中的“迎宾 | 告别”标签 -->
     <string name="tab_welcome">迎宾</string>
     <string name="tab_farewell">告别</string>
@@ -302,7 +281,7 @@
     <!-- “概况”栏目：“迎宾”（启动时）和“告别”标签页 -->
     <string name="summary_section">概况</string>
     <string name="home_open_summary">概况</string>
-    <string name="summary_help">启动时概况：打开点火且迎宾画面关闭后，屏幕底部会显示 10 秒钟的概况条，包括警告、车外温度、续航里程、电量、油量和距保养里程。点击概况条可提前关闭。\n\n“警告”旁的 ⚙  选择要显示的警告并设置阈值：可能结冰、续航低、电量或油量低、即将保养、蓄电池电压低。\n\n每一项都按车辆当前数值显示它在概况条上的样子。\n勾选框开启或关闭某一项。\n▶  试听该项的语音。\n≡  上下拖动以调整顺序（或长按该项）。\n“显示概况”  开启或关闭概况。\n“语音播报概况”  车辆朗读概况。\n“立即显示”  立即显示概况。\n\n单位与车辆设置一致：公里或英里，°C 或 °F。</string>
+    <string name="summary_help">启动时概况：打开点火且迎宾画面关闭后，屏幕底部会显示 10 秒钟的概况条，包括警告、车外和车内温度、续航里程、电量、油量和距保养里程。点击概况条可提前关闭。\n\n“警告”旁的 ⚙  选择要显示的警告并设置阈值：可能结冰、续航低、电量或油量低、即将保养、蓄电池电压低。\n油量旁的“升 / %”  以升或百分比显示油量和耗油。\n\n每一项都按车辆当前数值显示它在概况条上的样子。\n勾选框开启或关闭某一项。\n≡  上下拖动以调整顺序（或长按该项）。\n“显示概况”  开启或关闭概况。\n“立即显示”  立即显示概况。\n\n单位与车辆设置一致：公里或英里，°C 或 °F。两个温度都开启时会合并显示：“车外温度 +2，车内 +18 °C”。</string>
     <string name="summary_farewell_help">行程结果：关闭点火时，屏幕底部会显示 10 秒钟的概况条，包括行驶里程、行驶时间、平均速度、耗电、耗油和剩余续航。如已开启告别图片，概况条显示在其上方；语音在告别声音之后播放。关闭点火后主机还会运行约 30 秒。\n\n一次行程从打开点火到关闭点火，按里程表和时钟计算。耗电和耗油为下降的百分比；电量未下降时不显示该项。示例显示上一次行程（行驶中则显示当前行程）。\n\n此标签页有自己的项目和顺序，与启动时概况无关。\n勾选框开启或关闭某一项。\n▶  试听该项的语音。\n≡  上下拖动以调整顺序（或长按该项）。\n“显示概况”  开启或关闭告别概况。\n“语音播报概况”  车辆朗读概况。\n“立即显示”  立即显示概况。</string>
     <string name="summary_farewell_tip">关闭点火时，屏幕底部会在告别图片之上显示 10 秒钟的行程结果；语音在告别声音之后播放。一次行程从打开点火到关闭点火。关闭点火后主机还会运行约 30 秒，因此这里的概况宜简短。</string>
     <string name="summary_show_switch">显示概况</string>
@@ -334,7 +313,6 @@
     <string name="summary_warn_battery">蓄电池电压低</string>
     <string name="speech_plus">零上</string>
     <string name="speech_minus">零下</string>
-    <string name="speech_temp">车外%1$s。</string>
     <string name="speech_range">续航%1$s。</string>
     <string name="speech_range_ev">续航%1$s，纯电%2$s。</string>
     <string name="speech_charge">电池电量%1$s。</string>
@@ -410,4 +388,14 @@
     <string name="unit_f">%1$s °F</string>
     <string name="unit_percent">%1$s %%</string>
     <string name="unit_volt">%1$s V</string>
+    <!-- 车外和车内温度，油量以升或百分比显示 -->
+    <string name="summary_item_temp_inside">车内温度</string>
+    <string name="summary_temp_outside">车外</string>
+    <string name="summary_temp_inside">车内</string>
+    <string name="summary_temp_one">%1$s温度 %2$s</string>
+    <string name="summary_temp_two">%1$s温度 %2$s，%3$s %4$s</string>
+    <string name="speech_temp_one">%1$s温度%2$s。</string>
+    <string name="speech_temp_two">%1$s温度%2$s，%3$s%4$s。</string>
+    <string name="summary_fuel_volume">油箱 %1$s</string>
+    <string name="summary_fuel_unit_desc">油量以升或百分比显示</string>
 </resources>

@@ -47,6 +47,7 @@ final class SummarySection extends SectionPanel {
     static {
         TITLES.put(CarSummary.WARNINGS, R.string.summary_item_warnings);
         TITLES.put(CarSummary.TEMP, R.string.summary_item_temp);
+        TITLES.put(CarSummary.TEMP_INSIDE, R.string.summary_item_temp_inside);
         TITLES.put(CarSummary.RANGE, R.string.summary_item_range);
         TITLES.put(CarSummary.CHARGE, R.string.summary_item_charge);
         TITLES.put(CarSummary.FUEL, R.string.summary_item_fuel);
@@ -71,6 +72,8 @@ final class SummarySection extends SectionPanel {
     private CarSummary.Values values;
     /** Есть синтезатор речи: без него ▶ и «Озвучивать сводку» недоступны. */
     private boolean voiceAvailable = true;
+    /** Кнопки «л» / «%» у пунктов о топливе. */
+    private final List<Button> fuelUnitButtons = new ArrayList<>();
 
     private final Runnable refreshTask = this::refresh;
 
@@ -127,6 +130,7 @@ final class SummarySection extends SectionPanel {
      * Проверяется при каждом показе раздела: синтезатор могли поставить, пока приложение открыто.
      */
     private void checkEngine() {
+        if (!Features.SPEECH) return;
         io.execute(() -> {
             String name = Speech.engineName(activity);
             String text = name != null ? activity.getString(R.string.summary_engine, name)
@@ -179,6 +183,11 @@ final class SummarySection extends SectionPanel {
             toggle.setChecked(CarSummary.isEnabled(activity, occasion));
             speakToggle.setChecked(CarSummary.isSpeakEnabled(activity, occasion));
             updating = false;
+            if (!Features.SPEECH) {
+                // Озвучка выключена: строка выключателя и подпись про синтезатор скрыты.
+                ((View) speakToggle.getParent()).setVisibility(View.GONE);
+                engine.setVisibility(View.GONE);
+            }
             buildList();
         }
 
@@ -245,6 +254,20 @@ final class SummarySection extends SectionPanel {
             textsLp.setMarginStart(Ui.dp(activity, 2));
             row.addView(texts, textsLp);
 
+            // «л» / «%» у топлива — в чём показывать бак и расход; выбор общий для обоих пунктов.
+            if (CarSummary.FUEL.equals(item) || CarSummary.FUEL_USED.equals(item)) {
+                Button unit = Ui.iconButton(activity, "");
+                unit.setTextSize(20);
+                unit.setAllCaps(false);
+                unit.setContentDescription(activity.getString(R.string.summary_fuel_unit_desc));
+                unit.setOnClickListener(v -> {
+                    CarSummary.setFuelVolume(prefs, !CarSummary.isFuelVolume(activity));
+                    SummarySection.this.updatePreviews();
+                });
+                row.addView(unit, Ui.iconButtonParams(activity));
+                fuelUnitButtons.add(unit);
+            }
+
             // ⚙ у предупреждений — какие показывать и пороги.
             if (CarSummary.WARNINGS.equals(item)) {
                 Button settings = Ui.iconButton(activity, "⚙");
@@ -261,6 +284,7 @@ final class SummarySection extends SectionPanel {
                 if (p != null) voice.speak(p.speech);
             });
             row.addView(play, Ui.iconButtonParams(activity));
+            if (!Features.SPEECH) play.setVisibility(View.GONE);
 
             // Ручка: нажать и тянуть вверх или вниз.
             TextView handle = new TextView(activity);
@@ -460,6 +484,14 @@ final class SummarySection extends SectionPanel {
 
     private void updatePreviews() {
         boolean miles = CarSummary.useMiles(activity);
+        // На кнопке — текущая единица; без объёма бака из машины выбирать не из чего.
+        boolean volumeKnown = values != null && values.fuelCapacity != null && values.fuelCapacity > 0;
+        String label = CarSummary.isFuelVolume(activity)
+                ? activity.getString(miles ? R.string.unit_gal : R.string.unit_l, "").trim() : "%";
+        for (Button b : fuelUnitButtons) {
+            b.setText(label);
+            b.setVisibility(volumeKnown ? View.VISIBLE : View.GONE);
+        }
         welcome.updatePreviews(miles);
         farewell.updatePreviews(miles);
     }
@@ -501,6 +533,7 @@ final class SummarySection extends SectionPanel {
     private static CarSummary.Values demo() {
         CarSummary.Values v = new CarSummary.Values();
         v.temp = 2f;
+        v.tempInside = 18f;
         v.rangeKm = 376f;
         v.evRangeKm = 70f;
         v.charge = 78f;

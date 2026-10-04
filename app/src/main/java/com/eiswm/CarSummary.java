@@ -34,18 +34,20 @@ import java.util.Locale;
  */
 final class CarSummary {
     /** Пункты сводки: имя — часть ключа настройки. */
-    static final String WARNINGS = "warnings", TEMP = "temp", RANGE = "range", CHARGE = "charge",
+    static final String WARNINGS = "warnings", TEMP = "temp", TEMP_INSIDE = "temp_inside", RANGE = "range", CHARGE = "charge",
             FUEL = "fuel", SERVICE = "service";
     /** Итоги поездки ({@link Trip}) — для сводки прощания. */
     static final String TRIP_DISTANCE = "trip_distance", TRIP_TIME = "trip_time", TRIP_SPEED = "trip_speed",
             CHARGE_USED = "charge_used", FUEL_USED = "fuel_used";
     /** Пункты при включении зажигания; порядок по умолчанию — как здесь. */
-    static final String[] WELCOME_ITEMS = {WARNINGS, TEMP, RANGE, CHARGE, FUEL, SERVICE};
+    static final String[] WELCOME_ITEMS = {WARNINGS, TEMP, TEMP_INSIDE, RANGE, CHARGE, FUEL, SERVICE};
     /** Пункты при выключении зажигания: итоги поездки и остаток запаса хода. */
     static final String[] FAREWELL_ITEMS = {TRIP_DISTANCE, TRIP_TIME, TRIP_SPEED, CHARGE_USED, FUEL_USED, RANGE};
 
     // Свойства машины (проверены диагностикой на Evolute i-Space).
     private static final int ENV_OUTSIDE_TEMPERATURE = 0x11600703;     // °C
+    /** Температура в салоне (ZONED_TEMP_ACTUAL у лаунчера); на Evolute i-Space всегда 0 — датчика, видимо, нет. */
+    private static final int HVAC_TEMPERATURE_CURRENT = 0x15600502, HVAC_AREA_ALL = 0x75;
     private static final int RANGE_REMAINING = 0x11600308;              // метры
     private static final int VEHICLE_EV_RANGE_REMAINING = 0x21605858;   // км
     private static final int EV_BATTERY_PERCENT = 0x1160030d;
@@ -67,6 +69,8 @@ final class CarSummary {
 
     /** Значения из машины (км и °C); null — машина не отдала значение. */
     static final class Values {
+        /** Температура в салоне, °C; 0 — нет данных. */
+        Float tempInside;
         Float temp, rangeKm, evRangeKm, charge, fuel, serviceKm, voltage, odometer;
         /** Объём бака, мл. */
         Float fuelCapacity;
@@ -117,6 +121,7 @@ final class CarSummary {
     }
 
     static boolean isSpeakEnabled(Context c, String occasion) {
+        if (!Features.SPEECH) return false;
         return Prefs.get(c).getBoolean(occasion + Prefs.SUMMARY_SPEAK, false);
     }
 
@@ -177,6 +182,7 @@ final class CarSummary {
     static Values read(CarApi car) {
         Values v = new Values();
         v.temp = get(car, ENV_OUTSIDE_TEMPERATURE);
+        v.tempInside = get(car, HVAC_TEMPERATURE_CURRENT, HVAC_AREA_ALL);
         Float meters = get(car, RANGE_REMAINING);
         v.rangeKm = meters != null ? meters / 1000f : null;
         v.evRangeKm = get(car, VEHICLE_EV_RANGE_REMAINING);
@@ -192,8 +198,12 @@ final class CarSummary {
     }
 
     private static Float get(CarApi car, int id) {
+        return get(car, id, 0);
+    }
+
+    private static Float get(CarApi car, int id, int area) {
         try {
-            Object[] sv = car.getProperty(id, 0);
+            Object[] sv = car.getProperty(id, area);
             if (!Integer.valueOf(0).equals(sv[0]) || !(sv[1] instanceof Number)) return null;
             return ((Number) sv[1]).floatValue();
         } catch (Throwable e) {
@@ -242,8 +252,71 @@ final class CarSummary {
         return m == 0 ? hours : hours + " " + mins;
     }
 
-    private static int degrees(Values v) {
-        return Math.round(v.fahrenheit ? v.temp * 9f / 5f + 32f : v.temp);
+    // ---------------------------------------------------------------- Температура
+
+    /** @return температура пункта в °C или null, если машина её не отдала */
+    private static Float temperature(String item, Values v) {
+        if (TEMP.equals(item)) return v.temp;
+        // В салоне 0 — нет данных: на Evolute i-Space свойство всегда 0.
+        return v.tempInside != null && v.tempInside != 0f ? v.tempInside : null;
+    }
+
+    private static int tempLabel(String item) {
+        return TEMP.equals(item) ? R.string.summary_temp_outside : R.string.summary_temp_inside;
+    }
+
+    private static int degrees(Values v, float celsius) {
+        return Math.round(v.fahrenheit ? celsius * 9f / 5f + 32f : celsius);
+    }
+
+    /** На экране: «+2 °C» или без единицы — «+2». */
+    private static String screenTemp(Values v, float celsius, boolean unit) {
+        int t = degrees(v, celsius);
+        String n = String.format(Locale.getDefault(), t == 0 ? "%d" : "%+d", t);
+        return unit ? n + " " + (v.fahrenheit ? "°F" : "°C") : n;
+    }
+
+    /** Голосом: «плюс 2 градуса» или без единицы — «плюс 2». */
+    private static String spokenTemp(Context c, Values v, float celsius, boolean unit) {
+        int t = degrees(v, celsius), a = Math.abs(t);
+        String sign = t > 0 ? c.getString(R.string.speech_plus) + " " : t < 0 ? c.getString(R.string.speech_minus) + " " : "";
+        if (!unit) return sign + a;
+        String deg = c.getResources().getQuantityString(R.plurals.speech_degrees, a, a);
+        if (v.fahrenheit) deg = c.getString(R.string.speech_fahrenheit, deg);
+        return sign + deg;
+    }
+
+    /**
+     * Обе температуры одним пунктом: «Температура за бортом +2, в салоне +18 °C».
+     * Порядок — как у пунктов в списке; единица — только у второй.
+     */
+    private static Part bothTemps(Context c, Values v, String first, String second) {
+        float a = temperature(first, v), b = temperature(second, v);
+        String la = c.getString(tempLabel(first)), lb = c.getString(tempLabel(second));
+        return new Part(first,
+                c.getString(R.string.summary_temp_two, la, screenTemp(v, a, false), lb, screenTemp(v, b, true)),
+                c.getString(R.string.speech_temp_two, la, spokenTemp(c, v, a, false), lb, spokenTemp(c, v, b, true)));
+    }
+
+    // ---------------------------------------------------------------- Топливо
+
+    /** Топливо в литрах (галлонах при милях): так выбрано и машина отдала объём бака. */
+    static boolean useVolume(Context c, Values v) {
+        return isFuelVolume(c) && known(v.fuelCapacity);
+    }
+
+    static boolean isFuelVolume(Context c) {
+        return Prefs.get(c).getBoolean(Prefs.SUMMARY_FUEL_VOLUME, true);
+    }
+
+    static void setFuelVolume(SharedPreferences prefs, boolean volume) {
+        prefs.edit().putBoolean(Prefs.SUMMARY_FUEL_VOLUME, volume).apply();
+    }
+
+    /** Процент бака в литрах (галлонах), с одним знаком после запятой. */
+    private static String volume(Values v, float percent, boolean miles) {
+        float litres = percent * v.fuelCapacity / 100f / 1000f;
+        return decimal(miles ? litres / LITRES_PER_GALLON : litres);
     }
 
     private static String percent(Context c, float v) {
@@ -258,10 +331,21 @@ final class CarSummary {
      */
     static List<Part> parts(Context c, String occasion, Values v, boolean onlyEnabled, boolean miles) {
         List<Part> out = new ArrayList<>();
+        String firstTemp = null;
         for (String item : order(c, occasion)) {
             if (onlyEnabled && !isItemOn(c, occasion, item)) continue;
             Part p = part(c, item, v, miles);
-            if (p != null) out.add(p);
+            if (p == null) continue;
+            boolean temp = TEMP.equals(item) || TEMP_INSIDE.equals(item);
+            if (temp && firstTemp != null) {
+                // Вторая температура — в один пункт с первой, на её месте.
+                for (int i = 0; i < out.size(); i++) {
+                    if (out.get(i).item.equals(firstTemp)) out.set(i, bothTemps(c, v, firstTemp, item));
+                }
+                continue;
+            }
+            if (temp) firstTemp = item;
+            out.add(p);
         }
         return out;
     }
@@ -276,21 +360,21 @@ final class CarSummary {
                 for (String s : w) {
                     if (sb.length() > 0) sb.append("   ");
                     int start = sb.length();
-                    sb.append("⚠ ").append(s);
+                    // Каждое предупреждение не разрывается; перенос — только между ними.
+                    sb.append("⚠" + NBSP).append(s.replace(' ', ' '));
                     sb.setSpan(new ForegroundColorSpan(WARNING_COLOR), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     sb.setSpan(new StyleSpan(Typeface.BOLD), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 return new Part(item, sb, TextUtils.join(". ", w) + ".");
             }
-            case TEMP: {
-                if (v.temp == null) return null;
-                int t = degrees(v);
-                String screen = String.format(Locale.getDefault(), t == 0 ? "%d %s" : "%+d %s", t,
-                        v.fahrenheit ? "°F" : "°C");
-                String deg = c.getResources().getQuantityString(R.plurals.speech_degrees, Math.abs(t), Math.abs(t));
-                if (v.fahrenheit) deg = c.getString(R.string.speech_fahrenheit, deg);
-                String sign = t > 0 ? c.getString(R.string.speech_plus) + " " : t < 0 ? c.getString(R.string.speech_minus) + " " : "";
-                return new Part(item, screen, c.getString(R.string.speech_temp, sign + deg));
+            case TEMP:
+            case TEMP_INSIDE: {
+                Float t = temperature(item, v);
+                if (t == null) return null;
+                String label = c.getString(tempLabel(item));
+                return new Part(item,
+                        c.getString(R.string.summary_temp_one, label, screenTemp(v, t, true)),
+                        c.getString(R.string.speech_temp_one, label, spokenTemp(c, v, t, true)));
             }
             case RANGE: {
                 if (!known(v.rangeKm)) return null;
@@ -308,6 +392,13 @@ final class CarSummary {
                         c.getString(R.string.speech_charge, percent(c, v.charge)));
             case FUEL:
                 if (v.fuel == null) return null;
+                if (useVolume(c, v)) {
+                    String n = volume(v, v.fuel, miles);
+                    return new Part(item, c.getString(R.string.summary_fuel_volume,
+                            c.getString(miles ? R.string.unit_gal : R.string.unit_l, n)),
+                            c.getString(R.string.speech_fuel,
+                                    c.getString(miles ? R.string.speech_gallons : R.string.speech_litres, n)));
+                }
                 return new Part(item, c.getString(R.string.summary_fuel, number(v.fuel)),
                         c.getString(R.string.speech_fuel, percent(c, v.fuel)));
             case SERVICE:
@@ -349,11 +440,8 @@ final class CarSummary {
                         c.getString(R.string.speech_charge_used, percent(c, v.chargeUsed)));
             case FUEL_USED:
                 if (v.fuelUsed == null || Math.round(v.fuelUsed) < 1) return null;
-                if (known(v.fuelCapacity)) {
-                    // В литрах (в галлонах, если в машине выбраны мили) по объёму бака.
-                    float litres = v.fuelUsed * v.fuelCapacity / 100f / 1000f;
-                    float vol = miles ? litres / LITRES_PER_GALLON : litres;
-                    String n = decimal(vol);
+                if (useVolume(c, v)) {
+                    String n = volume(v, v.fuelUsed, miles);
                     return new Part(item, c.getString(R.string.summary_fuel_used_volume,
                             c.getString(miles ? R.string.unit_gal : R.string.unit_l, n)),
                             c.getString(R.string.speech_fuel_used_volume,
@@ -366,16 +454,34 @@ final class CarSummary {
         }
     }
 
-    /** Текст плашки: пункты через «·»; вокруг предупреждений — просто пробелы. */
+    /**
+     * Текст плашки: пункты через «·»; вокруг предупреждений — просто пробелы. Пункт не
+     * переносится по словам: пробелы внутри него неразрывные, перенос — только между пунктами.
+     * Точка-разделитель остаётся в конце строки.
+     */
     static CharSequence screenText(List<Part> parts) {
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String prevItem = null;
         for (Part p : parts) {
-            if (sb.length() > 0) sb.append(WARNINGS.equals(prevItem) || WARNINGS.equals(p.item) ? "     " : "  ·  ");
-            sb.append(p.screen);
+            if (sb.length() > 0) {
+                sb.append(WARNINGS.equals(prevItem) || WARNINGS.equals(p.item) ? "     " : NBSP + NBSP + "·  ");
+            }
+            // Предупреждения уже собраны с неразрывными пробелами внутри каждого.
+            sb.append(WARNINGS.equals(p.item) ? p.screen : unbreakable(p.screen));
             prevItem = p.item;
         }
         return sb.length() == 0 ? null : sb;
+    }
+
+    private static final String NBSP = " ";
+
+    /** Копия текста (со стилями), где все пробелы неразрывные. */
+    private static CharSequence unbreakable(CharSequence s) {
+        SpannableStringBuilder b = new SpannableStringBuilder(s);
+        for (int i = 0; i < b.length(); i++) {
+            if (b.charAt(i) == ' ') b.replace(i, i + 1, NBSP);
+        }
+        return b;
     }
 
     static String speechText(List<Part> parts) {

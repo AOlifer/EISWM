@@ -260,27 +260,6 @@
     <string name="update_error_package">the file is not an EISWM update</string>
     <string name="update_error_version">the file is not newer than the installed version</string>
     <string name="update_error_install">Installation failed: %1$s</string>
-    <!-- Car diagnostics (hidden screen: long press on the version on the start screen) -->
-    <string name="diag_title">Car diagnostics</string>
-    <string name="diag_notification">Recording car events for diagnostics</string>
-    <string name="diag_hint">Read only: nothing is written to the car. Start recording, press “Mark” before each action (switch the ignition off, open a door, connect the phone), then save the files to a USB drive.</string>
-    <string name="diag_record_start">Start recording events</string>
-    <string name="diag_record_stop">Stop recording</string>
-    <string name="diag_mark">Mark in the log</string>
-    <string name="diag_marked">Mark %1$d added</string>
-    <string name="diag_snapshot">Take a snapshot of the car</string>
-    <string name="diag_snapshot_busy">Taking a snapshot…</string>
-    <string name="diag_snapshot_done">Snapshot saved: %1$s</string>
-    <string name="diag_error">Error: %1$s</string>
-    <string name="diag_save">Save files to…</string>
-    <string name="diag_clear">Clear the log</string>
-    <string name="diag_files">Files: %1$d, %2$s</string>
-    <string name="diag_log_empty">The log is empty. Start recording or take a snapshot.</string>
-    <string name="diag_status_recording">Recording is on</string>
-    <string name="diag_status_idle">Recording is off</string>
-    <string name="diag_car_connected">Car service connected</string>
-    <string name="diag_car_connecting">Connecting to the car service…</string>
-    <string name="diag_car_missing">No car API in this firmware</string>
     <!-- Farewell when the ignition is switched off: Welcome | Farewell tabs in the Sounds and Pictures sections -->
     <string name="tab_welcome">Welcome</string>
     <string name="tab_farewell">Farewell</string>
@@ -317,7 +296,7 @@
     <!-- Summary section: "Welcome" (at start-up) and "Farewell" tabs -->
     <string name="summary_section">Summary</string>
     <string name="home_open_summary">Summary</string>
-    <string name="summary_help">Summary at start-up: after you switch on the ignition and the welcome screen closes, a bar appears at the bottom of the screen for 10 seconds with warnings, the outside temperature, range, charge, fuel and distance to service. Tap the bar to close it earlier.\n\n⚙ next to Warnings  choose which warnings to show and set their thresholds: possible ice, low range, charge or fuel, service soon, low battery voltage.\n\nEach item shows how it looks on the bar with the current values from the car.\nThe checkbox turns an item on or off.\n▶  hear how the item sounds.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the summary on or off.\nSpeak the summary  the car reads the summary aloud.\nShow now  show the summary right now.\n\nUnits follow the car settings: kilometres or miles, °C or °F.</string>
+    <string name="summary_help">Summary at start-up: after you switch on the ignition and the welcome screen closes, a bar appears at the bottom of the screen for 10 seconds with warnings, the outside and cabin temperature, range, charge, fuel and distance to service. Tap the bar to close it earlier.\n\n⚙ next to Warnings  choose which warnings to show and set their thresholds: possible ice, low range, charge or fuel, service soon, low battery voltage.\nL / % next to fuel  show the tank and fuel used in litres or percent.\n\nEach item shows how it looks on the bar with the current values from the car.\nThe checkbox turns an item on or off.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the summary on or off.\nShow now  show the summary right now.\n\nUnits follow the car settings: kilometres or miles, °C or °F. If both temperatures are on, they are shown together: “Temperature outside +2, in the cabin +18 °C”.</string>
     <string name="summary_farewell_help">Trip results: when you switch off the ignition, a bar appears at the bottom of the screen for 10 seconds with the distance driven, driving time, average speed, charge and fuel used, and the remaining range. The bar appears over the farewell picture if it is on; the voice follows the farewell sound. The head unit keeps running for about 30 seconds after switch-off.\n\nA trip lasts from switching the ignition on to switching it off and is measured by the odometer and the clock. Charge and fuel used are the drop in percent; if the charge did not drop, the item is not shown. The previews show the last trip (or the current one, if you are driving).\n\nThis tab has its own items and order, independent of the start-up summary.\nThe checkbox turns an item on or off.\n▶  hear how the item sounds.\n≡  drag up or down to change the order (or long-press the item).\nShow the summary  turns the farewell summary on or off.\nSpeak the summary  the car reads the summary aloud.\nShow now  show the summary right now.</string>
     <string name="summary_farewell_tip">When you switch off the ignition, a bar with the trip results appears at the bottom of the screen for 10 seconds, over the farewell picture; the voice follows the farewell sound. A trip lasts from switching the ignition on to switching it off. The head unit keeps running for about 30 seconds after switch-off, so keep this summary short.</string>
     <string name="summary_show_switch">Show the summary</string>
@@ -349,7 +328,6 @@
     <string name="summary_warn_battery">Low battery voltage</string>
     <string name="speech_plus">plus</string>
     <string name="speech_minus">minus</string>
-    <string name="speech_temp">Outside it is %1$s.</string>
     <string name="speech_range">Range %1$s.</string>
     <string name="speech_range_ev">Range %1$s, %2$s on electricity.</string>
     <string name="speech_charge">Battery charge %1$s.</string>
@@ -431,4 +409,14 @@
     <string name="unit_f">%1$s °F</string>
     <string name="unit_percent">%1$s %%</string>
     <string name="unit_volt">%1$s V</string>
+    <!-- Outside and cabin temperature, fuel in litres or percent -->
+    <string name="summary_item_temp_inside">Cabin temperature</string>
+    <string name="summary_temp_outside">outside</string>
+    <string name="summary_temp_inside">in the cabin</string>
+    <string name="summary_temp_one">Temperature %1$s %2$s</string>
+    <string name="summary_temp_two">Temperature %1$s %2$s, %3$s %4$s</string>
+    <string name="speech_temp_one">Temperature %1$s %2$s.</string>
+    <string name="speech_temp_two">Temperature %1$s %2$s, %3$s %4$s.</string>
+    <string name="summary_fuel_volume">Fuel %1$s</string>
+    <string name="summary_fuel_unit_desc">Fuel in litres or percent</string>
 </resources>
