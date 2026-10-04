@@ -9,8 +9,6 @@ import android.content.res.Configuration;
  * «Авто» следует ночному режиму системы, «Светлая» и «Тёмная» задают его принудительно.
  */
 abstract class BaseActivity extends Activity {
-    static final String PREFS = "eiswm";
-    static final String PREF_THEME = "theme";
     static final int THEME_AUTO = 0, THEME_LIGHT = 1, THEME_DARK = 2;
     static final int THEME_COUNT = 3;
 
@@ -20,7 +18,7 @@ abstract class BaseActivity extends Activity {
     }
 
     static int themeMode(Context c) {
-        int mode = c.getSharedPreferences(PREFS, MODE_PRIVATE).getInt(PREF_THEME, THEME_AUTO);
+        int mode = Prefs.get(c).getInt(Prefs.THEME, THEME_AUTO);
         return mode >= THEME_AUTO && mode <= THEME_DARK ? mode : THEME_AUTO;
     }
 

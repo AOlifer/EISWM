@@ -19,6 +19,11 @@
         android:label="@string/app_label"
         android:supportsRtl="true"
         android:theme="@style/Theme.EISWM">
+        <!-- API машины (bw.car.*) из прошивки: /system/framework/BwCarProxy.jar. Без неё
+             (эмулятор, другая прошивка) приложение работает, сводка показывает пример. -->
+        <uses-library
+            android:name="bw.car.proxy"
+            android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -33,6 +38,23 @@
         <activity
             android:name=".StandardPicturesActivity"
             android:exported="false" />
+        <service
+            android:name=".CarEventsService"
+            android:exported="false" />
+        <!-- Загрузка и каждое пробуждение машины после сна: запуск событий машины для сводки. -->
+        <receiver
+            android:name=".WakeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.bw.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.bw.intent.action.WAKEUP" />
+                <action android:name="com.bw.action.LAUNCHER_BOOT_COMPLETED" />
+                <action android:name="autochips.intent.action.QB_POWERON" />
+                <action android:name="autochips.intent.action.PREQB_POWERON" />
+                <action android:name="android.intent.action.ACTION_BOOT_IPO" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

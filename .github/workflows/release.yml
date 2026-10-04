@@ -1,0 +1,152 @@
+# Выпуск версии при слиянии develop в master.
+#
+# 1. Берёт versionName и versionCode из app/build.gradle; тег выпуска = versionName (без «v»).
+# 2. Если выпуска с таким тегом ещё нет: проверяет CHANGELOG и docs/updates/latest, собирает
+#    APK варианта car, подписывает ключом платформы из секретов и создаёт выпуск с файлом
+#    EISWM-<версия>.apk. Если выпуск уже есть, берёт APK из него.
+# 3. Публикует папку docs/ на GitHub Pages, дописав в updates/latest номер версии, дату,
+#    ссылку на APK, размер и SHA-256. Тексты «что нового» (changes) берутся из файла как есть.
+#
+# Секреты репозитория (Settings → Secrets and variables → Actions):
+#   EISWM_PLATFORM_PK8   — platform.pk8 в base64 одной строкой
+#   EISWM_PLATFORM_X509  — содержимое platform.x509.pem как есть
+# GitHub Pages: Settings → Pages → Source: GitHub Actions.
+
+name: Выпуск
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Версия
+        id: ver
+        run: |
+          name=$(sed -n "s/^ *versionName '\(.*\)'.*/\1/p" app/build.gradle)
+          code=$(sed -n 's/^ *versionCode \([0-9]*\).*/\1/p' app/build.gradle)
+          if [ -z "$name" ] || [ -z "$code" ]; then
+            echo "::error::Не найдены versionName/versionCode в app/build.gradle"; exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "apk=EISWM-$name.apk" >> "$GITHUB_OUTPUT"
+          if gh release view "$name" > /dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Выпуск $name уже есть, APK будет взят из него"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Новый выпуск $name (versionCode $code)"
+          fi
+
+      - name: Проверка CHANGELOG и docs/updates/latest
+        if: steps.ver.outputs.exists == 'false'
+        env:
+          VER: ${{ steps.ver.outputs.name }}
+        run: |
+          awk -v ver="$VER" '
+            index($0, "## [" ver "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/notes.md"; then
+            echo "::error::В CHANGELOG.md нет раздела «## [$VER]»"; exit 1
+          fi
+          latest=$(jq -r .versionName docs/updates/latest)
+          if [ "$latest" != "$VER" ]; then
+            echo "::error::В docs/updates/latest versionName «$latest», а в app/build.gradle «$VER»: обновите тексты changes для новой версии"
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        if: steps.ver.outputs.exists == 'false'
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.ver.outputs.exists == 'false'
+
+      - name: Сборка APK
+        if: steps.ver.outputs.exists == 'false'
+        env:
+          PK8: ${{ secrets.EISWM_PLATFORM_PK8 }}
+          X509: ${{ secrets.EISWM_PLATFORM_X509 }}
+          APK: ${{ steps.ver.outputs.apk }}
+        run: |
+          if [ -z "$PK8" ] || [ -z "$X509" ]; then
+            echo "::error::Не заданы секреты EISWM_PLATFORM_PK8 и EISWM_PLATFORM_X509"; exit 1
+          fi
+          keys="$RUNNER_TEMP/keys"
+          mkdir -p "$keys"
+          printf '%s' "$PK8" | base64 -d > "$keys/platform.pk8"
+          printf '%s\n' "$X509" > "$keys/platform.x509.pem"
+          EISWM_KEYS_DIR="$keys" ./gradlew --no-daemon assembleCarRelease
+          rm -rf "$keys"
+          cp app/build/outputs/apk/car/release/app-car-release.apk "$RUNNER_TEMP/$APK"
+          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          "$apksigner" verify --print-certs "$RUNNER_TEMP/$APK"
+
+      - name: Создание выпуска
+        if: steps.ver.outputs.exists == 'false'
+        env:
+          VER: ${{ steps.ver.outputs.name }}
+          APK: ${{ steps.ver.outputs.apk }}
+        run: |
+          gh release create "$VER" "$RUNNER_TEMP/$APK" \
+            --target "$GITHUB_SHA" --title "$VER" --notes-file "$RUNNER_TEMP/notes.md"
+
+      - name: APK из существующего выпуска
+        if: steps.ver.outputs.exists == 'true'
+        env:
+          VER: ${{ steps.ver.outputs.name }}
+          APK: ${{ steps.ver.outputs.apk }}
+        run: gh release download "$VER" --pattern "$APK" --dir "$RUNNER_TEMP"
+
+      - name: Сайт обновлений
+        env:
+          VER: ${{ steps.ver.outputs.name }}
+          CODE: ${{ steps.ver.outputs.code }}
+          APK: ${{ steps.ver.outputs.apk }}
+        run: |
+          file="$RUNNER_TEMP/$APK"
+          date=$(gh release view "$VER" --json publishedAt --jq '.publishedAt[0:10]')
+          mkdir -p "$RUNNER_TEMP/site"
+          cp -r docs/. "$RUNNER_TEMP/site/"
+          jq --argjson code "$CODE" --arg name "$VER" --arg date "$date" \
+             --arg apk "https://github.com/$GITHUB_REPOSITORY/releases/download/$VER/$APK" \
+             --argjson size "$(stat -c %s "$file")" \
+             --arg sha "$(sha256sum "$file" | cut -d' ' -f1)" \
+             '.versionCode = $code | .versionName = $name | .date = $date | .apk = $apk
+              | .size = $size | .sha256 = $sha' \
+             docs/updates/latest > "$RUNNER_TEMP/site/updates/latest"
+          cat "$RUNNER_TEMP/site/updates/latest"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+
+      - name: Публикация на GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,11 +31,14 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 /**
  * Выбор файлов или папки в памяти устройства и на внешних накопителях.
  * Три колонки: накопители слева, содержимое папки по центру, выбранное и кнопка действия справа.
- * Экран общий для всех видов файлов: что показывать и как проверять, задаётся через Intent.
- * Сейчас используется для звуков; для картинок приветствия достаточно передать свои расширения.
+ * Экран общий для всех видов файлов: что показывать и как проверять, задаётся через Intent
+ * (режим, вид файлов {@link #EXTRA_KIND} и расширения).
  */
 public class PickerActivity extends BaseActivity implements AudioPreview.Listener {
     static final String EXTRA_MODE = "mode";
@@ -45,6 +47,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     static final String EXTRA_ACTION = "action";
     /** Режим папки: имя файла, который будет сохранён, — показывается в правой колонке. */
     static final String EXTRA_SUBJECT = "subject";
+    /**
+     * Вид файлов в режиме файлов: {@link #KIND_SOUNDS} — прослушивание и длительность,
+     * {@link #KIND_IMAGES} — превью и размер; без него — просто список файлов.
+     */
+    static final String EXTRA_KIND = "kind";
     /** Расширения без точки, например {"mp3"}. */
     static final String EXTRA_EXTENSIONS = "extensions";
     /** Длительность, после которой машина обрывает звук; 0 — не проверять. */
@@ -59,6 +66,9 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     static final String MODE_FILES = "files";
     static final String MODE_FOLDER = "folder";
+
+    static final String KIND_SOUNDS = "sounds";
+    static final String KIND_IMAGES = "images";
 
     private String mode;
     private String[] extensions;
@@ -102,7 +112,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_picker);
-        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        prefs = Prefs.get(this);
         preview = new AudioPreview(this);
 
         Intent in = getIntent();
@@ -111,8 +121,9 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         if (extensions == null) extensions = new String[0];
         maxDurationMs = in.getLongExtra(EXTRA_MAX_DURATION_MS, 0);
         itemPlural = in.getIntExtra(EXTRA_ITEM_PLURAL, R.plurals.picker_add_files);
-       audio = Arrays.asList(extensions).contains("mp3");
-        images = Arrays.asList(extensions).contains("png");
+        String kind = in.getStringExtra(EXTRA_KIND);
+        audio = KIND_SOUNDS.equals(kind);
+        images = KIND_IMAGES.equals(kind);
 
         ((TextView) findViewById(R.id.pickerTitle)).setText(in.getStringExtra(EXTRA_TITLE));
         rootsBar = findViewById(R.id.rootsBar);
@@ -167,7 +178,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
 
     private String lastDirKey() {
         // Звуки и картинки обычно лежат в разных папках — помним их отдельно.
-        return "picker_last_dir_" + mode + (images ? "_images" : "");
+        return Prefs.PICKER_LAST_DIR + mode + (images ? "_images" : "");
     }
 
     private void openStartDir(String requested) {
@@ -261,7 +272,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
                 part.setBackgroundResource(Ui.selectableBackground(this));
                 part.setOnClickListener(v -> open(f));
             }
-            crumbs.addView(part, new LinearLayout.LayoutParams(-2, -1));
+            crumbs.addView(part, new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
         }
         crumbsScroll.post(() -> crumbsScroll.fullScroll(View.FOCUS_RIGHT));
     }
@@ -314,7 +325,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         icon.setPadding(Ui.dp(this, 16), 0, Ui.dp(this, 16), 0);
         row.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 64), Ui.dp(this, 32)));
-        LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, -2, 1);
+        LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1);
         nameLp.setMarginStart(Ui.dp(this, 8));
         row.addView(Ui.title(this, d.getName()), nameLp);
         TextView chevron = new TextView(this);
@@ -325,7 +336,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         row.addView(chevron);
         row.setBackgroundResource(Ui.selectableBackground(this));
         row.setOnClickListener(v -> open(d));
-        list.addView(row, new LinearLayout.LayoutParams(-1, -2));
+        list.addView(row, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         Ui.divider(list);
     }
 
@@ -340,7 +351,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         r.check.setFocusable(false);
         r.check.setScaleX(1.4f);
         r.check.setScaleY(1.4f);
-        LinearLayout.LayoutParams checkLp = new LinearLayout.LayoutParams(Ui.dp(this, 56), -2);
+        LinearLayout.LayoutParams checkLp = new LinearLayout.LayoutParams(Ui.dp(this, 56), WRAP_CONTENT);
         checkLp.setMarginStart(Ui.dp(this, 8));
         row.addView(r.check, checkLp);
 
@@ -353,7 +364,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             // Превью в пропорциях экрана машины 8:3; картинка подгружается в фоне.
             r.thumb = new ImageView(this);
             r.thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            r.thumb.setBackgroundColor(0xFF000000);
+            r.thumb.setBackgroundColor(Color.BLACK);
             Bitmap cached = thumbs.get(f);
             if (cached != null) r.thumb.setImageBitmap(cached);
             LinearLayout.LayoutParams thumbLp = new LinearLayout.LayoutParams(Ui.dp(this, 160), Ui.dp(this, 60));
@@ -361,18 +372,18 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             row.addView(r.thumb, thumbLp);
         }
 
-        LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, -2, 1);
+        LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1);
         nameLp.setMarginStart(Ui.dp(this, 8));
         nameLp.setMarginEnd(Ui.dp(this, 16));
         row.addView(Ui.title(this, f.getName()), nameLp);
 
         r.pill = Ui.pill(this);
-        LinearLayout.LayoutParams pillLp = new LinearLayout.LayoutParams(-2, -2);
+        LinearLayout.LayoutParams pillLp = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
         pillLp.setMarginEnd(Ui.dp(this, 12));
         row.addView(r.pill, pillLp);
 
         row.setOnClickListener(v -> onFileRowClick(r));
-        list.addView(row, new LinearLayout.LayoutParams(-1, -2));
+        list.addView(row, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         Ui.divider(list);
         rows.put(f, r);
         applyRowState(r);
@@ -405,7 +416,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             int[] size = imageSizes.get(r.file);
             if (size == null) Ui.setPill(r.pill, "…", Ui.PILL_NEUTRAL);
             else if (size[0] <= 0) Ui.setPill(r.pill, getString(R.string.picker_image_bad), Ui.PILL_BAD);
-            else if (size[0] * WelcomePictures.HEIGHT == size[1] * WelcomePictures.WIDTH)
+            else if (size[0] * Images.HEIGHT == size[1] * Images.WIDTH)
                 Ui.setPill(r.pill, getString(R.string.picker_image_ok, size[0], size[1]), Ui.PILL_OK);
             else Ui.setPill(r.pill, getString(R.string.picker_image_crop, size[0], size[1]), Ui.PILL_WARN);
             return;
@@ -427,11 +438,11 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
             for (File f : files) {
                 if (destroyed || gen != generation) return;
                 if (imageSizes.containsKey(f) && thumbs.containsKey(f)) continue;
-                int[] s = WelcomePictures.imageSize(f);
+                int[] s = Images.size(f);
                 final int[] size = s != null ? s : new int[]{0, 0};
                 Bitmap b = null;
                 try {
-                    if (s != null) b = WelcomePictures.thumbnail(f, thumbWidth);
+                    if (s != null) b = Images.thumbnail(f, thumbWidth);
                 } catch (OutOfMemoryError ignored) {
                 }
                 final Bitmap thumb = b;
@@ -544,7 +555,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         name.setSingleLine(true);
         name.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         name.setTextColor(getColor(tooLong(f) ? R.color.pill_warn_fg : R.color.text_primary));
-        row.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
+        row.addView(name, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
         Button remove = Ui.iconButton(this, "✕");
         remove.setTextSize(18);
         remove.setContentDescription(getString(R.string.picker_remove_desc, f.getName()));

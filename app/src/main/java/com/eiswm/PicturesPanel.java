@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -28,20 +25,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * Раздел «Картинки» главного экрана: сетка превью картинок приветствия, выключатель показа,
  * добавление через {@link PickerActivity} и сохранение копии. Данные — {@link WelcomePictures}.
  */
-final class PicturesPanel {
-    static final int REQ_ADD = 11;
-    static final int REQ_SAVE = 12;
-    static final int REQ_STANDARD = 13;
+final class PicturesPanel extends SectionPanel {
     private static final int COLUMNS = 2;
 
-    private final Activity activity;
     private final WelcomePictures pictures;
     private final LinearLayout grid;
     private final TextView label, warning, status;
@@ -54,20 +48,13 @@ final class PicturesPanel {
     private final Set<String> selectedIds = new HashSet<>();
     private final List<WelcomePictures.Picture> current = new ArrayList<>();
     private final Map<String, CheckBox> checks = new HashMap<>();
-    private static final int[] SEASON_TITLES = {
-            R.string.season_winter, R.string.season_spring, R.string.season_summer, R.string.season_autumn};
 
-    private final Handler ui = new Handler(Looper.getMainLooper());
-    /** Отдельный поток: обработка больших картинок не мешает звукам. */
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
     private int generation = 0;
-    private boolean busy = false;
-    private boolean destroyed = false;
     private boolean updatingSwitch = false;
     private WelcomePictures.Picture pendingSave;
 
     PicturesPanel(Activity activity) {
-        this.activity = activity;
+        super(activity);
         pictures = new WelcomePictures(activity);
         grid = activity.findViewById(R.id.pictureGrid);
         label = activity.findViewById(R.id.picturesLabel);
@@ -79,7 +66,7 @@ final class PicturesPanel {
         btnAdd.setOnClickListener(v -> openPicker());
         btnStandard = activity.findViewById(R.id.btnStandardPictures);
         btnStandard.setOnClickListener(v -> {
-            if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), REQ_STANDARD);
+            if (!busy) activity.startActivityForResult(new Intent(activity, StandardPicturesActivity.class), RequestCodes.PICTURES_STANDARD);
         });
         header = activity.findViewById(R.id.picturesHeader);
         btnSelectAll = activity.findViewById(R.id.btnPicturesSelectAll);
@@ -93,16 +80,6 @@ final class PicturesPanel {
         });
         updateSwitch();
         restoreThenLoad();
-    }
-
-    boolean isBusy() {
-        return busy;
-    }
-
-    void destroy() {
-        destroyed = true;
-        io.shutdownNow();
-        ui.removeCallbacksAndMessages(null);
     }
 
     // ---------------------------------------------------------------- Список
@@ -178,7 +155,7 @@ final class PicturesPanel {
             if (i % COLUMNS == 0) {
                 row = new LinearLayout(activity);
                 row.setOrientation(LinearLayout.HORIZONTAL);
-                grid.addView(row, new LinearLayout.LayoutParams(-1, -2));
+                grid.addView(row, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
             }
             images.add(addCard(row, list.get(i), dimmed));
         }
@@ -251,42 +228,22 @@ final class PicturesPanel {
         card.setPadding(Ui.dp(activity, 8), Ui.dp(activity, 8), Ui.dp(activity, 8), Ui.dp(activity, 4));
         card.setAlpha(dimmed ? 0.45f : 1f);
 
-        FrameLayout frame = new FrameLayout(activity) {
-            @Override protected void onMeasure(int w, int h) {
-                int width = MeasureSpec.getSize(w);
-                int height = width * WelcomePictures.HEIGHT / WelcomePictures.WIDTH;
-                super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-            }
-        };
-        frame.setBackgroundColor(0xFF000000);
-        ImageView image = new ImageView(activity);
-        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        image.setContentDescription(p.title);
-        frame.addView(image, new FrameLayout.LayoutParams(-1, -1));
+        FrameLayout frame = Ui.screenFrame(activity);
+        ImageView image = Ui.addPreviewImage(frame, p.title);
         frame.setOnClickListener(v -> showLarge(p));
 
         // Галочка выделения в углу превью; нажатие на само превью открывает картинку крупно.
-        CheckBox check = new CheckBox(activity);
-        GradientDrawable checkBg = new GradientDrawable();
-        checkBg.setColor(0x99000000);
-        checkBg.setCornerRadius(Ui.dp(activity, 6));
-        check.setBackground(checkBg);
-        check.setScaleX(1.3f);
-        check.setScaleY(1.3f);
+        CheckBox check = Ui.addPreviewCheck(frame, 8);
         check.setChecked(selectedIds.contains(p.id));
-        check.setContentDescription(activity.getString(R.string.select_all));
+        check.setContentDescription(activity.getString(R.string.select_item_desc, p.title));
         check.setOnCheckedChangeListener((v, on) -> {
             if (on) selectedIds.add(p.id); else selectedIds.remove(p.id);
             card.setBackgroundColor(on ? activity.getColor(R.color.row_active) : Color.TRANSPARENT);
             updateSelectionUi();
         });
-        FrameLayout.LayoutParams checkLp = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START);
-        checkLp.setMargins(Ui.dp(activity, 8), Ui.dp(activity, 8), 0, 0);
-        frame.addView(check, checkLp);
         checks.put(p.id, check);
         if (check.isChecked()) card.setBackgroundColor(activity.getColor(R.color.row_active));
-        card.addView(frame, new LinearLayout.LayoutParams(-1, -2));
+        card.addView(frame, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
         LinearLayout info = new LinearLayout(activity);
         info.setGravity(Gravity.CENTER_VERTICAL);
@@ -296,15 +253,15 @@ final class PicturesPanel {
         date.setSingleLine(true);
         date.setEllipsize(android.text.TextUtils.TruncateAt.END);
         date.setText(describe(p));
-        LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(0, -2, 1);
+        LinearLayout.LayoutParams dateLp = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1);
         dateLp.setMarginStart(Ui.dp(activity, 4));
         info.addView(date, dateLp);
         int season = WelcomePictures.seasonOf(p);
-        if (season >= 0 && season < SEASON_TITLES.length) {
+        if (season >= 0 && season < Ui.SEASON_TITLES.length) {
             // Картинка «по временам года»: подпись сезона, зелёная — если он идёт сейчас.
             TextView pill = Ui.pill(activity);
             boolean now = p.activeNow() && !pictures.isDisabled();
-            Ui.setPill(pill, activity.getString(SEASON_TITLES[season]) + (now ? " · " + activity.getString(R.string.season_now) : ""),
+            Ui.setPill(pill, activity.getString(Ui.SEASON_TITLES[season]) + (now ? " · " + activity.getString(R.string.season_now) : ""),
                     now ? Ui.PILL_OK : Ui.PILL_NEUTRAL);
             info.addView(pill);
         } else if (!p.activeNow() && !pictures.isDisabled()) {
@@ -317,9 +274,9 @@ final class PicturesPanel {
         more.setContentDescription(activity.getString(R.string.pictures_menu_delete));
         more.setOnClickListener(v -> showMenu(v, p));
         info.addView(more, new LinearLayout.LayoutParams(Ui.dp(activity, 56), Ui.dp(activity, 52)));
-        card.addView(info, new LinearLayout.LayoutParams(-1, -2));
+        card.addView(info, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
-        row.addView(card, new LinearLayout.LayoutParams(0, -2, 1));
+        row.addView(card, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
         return image;
     }
 
@@ -339,7 +296,7 @@ final class PicturesPanel {
         io.execute(() -> {
             for (int i = 0; i < list.size(); i++) {
                 if (destroyed || gen != generation) return;
-                final Bitmap bmp = WelcomePictures.thumbnail(list.get(i).file, width);
+                final Bitmap bmp = Images.thumbnail(list.get(i).file, width);
                 final ImageView view = images.get(i);
                 ui.post(() -> {
                     if (destroyed || gen != generation) return;
@@ -354,14 +311,14 @@ final class PicturesPanel {
         ImageView big = new ImageView(activity);
         big.setAdjustViewBounds(true);
         big.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        big.setBackgroundColor(0xFF000000);
+        big.setBackgroundColor(Color.BLACK);
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setView(big)
                 .setPositiveButton(R.string.close, null)
                 .create();
         dialog.show();
         io.execute(() -> {
-            final Bitmap bmp = WelcomePictures.thumbnail(p.file, WelcomePictures.WIDTH / 2);
+            final Bitmap bmp = Images.thumbnail(p.file, Images.WIDTH / 2);
             ui.post(() -> {
                 if (!destroyed && bmp != null) big.setImageBitmap(bmp);
             });
@@ -416,12 +373,13 @@ final class PicturesPanel {
         if (busy) return;
         Intent i = new Intent(activity, PickerActivity.class)
                 .putExtra(PickerActivity.EXTRA_MODE, PickerActivity.MODE_FILES)
+                .putExtra(PickerActivity.EXTRA_KIND, PickerActivity.KIND_IMAGES)
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.pictures_add_title))
                 .putExtra(PickerActivity.EXTRA_EXTENSIONS, WelcomePictures.EXTENSIONS)
                 .putExtra(PickerActivity.EXTRA_ITEM_PLURAL, R.plurals.picker_add_pictures)
                 .putExtra(PickerActivity.EXTRA_START_DIR,
-                        new File(FileUtils.INTERNAL_ROOT, "Pictures").getAbsolutePath());
-        activity.startActivityForResult(i, REQ_ADD);
+                        FileUtils.PICTURES_DIR.getAbsolutePath());
+        activity.startActivityForResult(i, RequestCodes.PICTURES_ADD);
     }
 
     private void openSaveFolderPicker(WelcomePictures.Picture p) {
@@ -432,18 +390,18 @@ final class PicturesPanel {
                 .putExtra(PickerActivity.EXTRA_TITLE, activity.getString(R.string.save_where_title))
                 .putExtra(PickerActivity.EXTRA_SUBJECT, copyName(p))
                 .putExtra(PickerActivity.EXTRA_ACTION, activity.getString(R.string.save_here));
-        activity.startActivityForResult(i, REQ_SAVE);
+        activity.startActivityForResult(i, RequestCodes.PICTURES_SAVE);
     }
 
     /** @return true, если результат относится к этому разделу. */
     boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQ_STANDARD) {
+        if (requestCode == RequestCodes.PICTURES_STANDARD) {
             load();
             return true;
         }
-        if (requestCode != REQ_ADD && requestCode != REQ_SAVE) return false;
+        if (requestCode != RequestCodes.PICTURES_ADD && requestCode != RequestCodes.PICTURES_SAVE) return false;
         if (resultCode != Activity.RESULT_OK || data == null) return true;
-        if (requestCode == REQ_ADD) {
+        if (requestCode == RequestCodes.PICTURES_ADD) {
             ArrayList<String> paths = data.getStringArrayListExtra(PickerActivity.EXTRA_PATHS);
             if (paths != null && !paths.isEmpty()) addAll(paths);
         } else if (pendingSave != null) {
@@ -486,33 +444,21 @@ final class PicturesPanel {
 
     // ---------------------------------------------------------------- Фоновые операции
 
-    private interface Job {
-        /** @return сообщение для пользователя или null. */
-        String run() throws Exception;
-    }
-
     /** Выполнить в фоне с блокировкой кнопок, затем обновить выключатель и список. */
     private void run(Job job) {
-        setBusy(true);
-        io.execute(() -> {
-            String message;
-            try {
-                message = job.run();
-            } catch (Exception | OutOfMemoryError e) {
-                message = activity.getString(R.string.pictures_error, String.valueOf(e.getMessage()));
-            }
-            final String msg = message;
-            ui.post(() -> {
-                if (destroyed) return;
-                setBusy(false);
-                updateSwitch();
-                load();
-                if (msg != null) Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
-            });
-        });
+        runBusy(job, Toast.LENGTH_LONG);
     }
 
-    private void setBusy(boolean value) {
+    @Override void afterJob() {
+        updateSwitch();
+        load();
+    }
+
+    @Override String errorMessage(Throwable e) {
+        return activity.getString(R.string.pictures_error, String.valueOf(e.getMessage()));
+    }
+
+    @Override void setBusy(boolean value) {
         busy = value;
         btnAdd.setEnabled(!value);
         btnStandard.setEnabled(!value);
