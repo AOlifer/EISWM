@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 /**
  * Системный переключатель звукового приветствия лаунчера — глобальная настройка
- * bw_welcome_voice_switch (1 — включено, 0 — выключено). С system uid читается и пишется
+ * bw_welcome_voice_switch (1 — включено, 0 — выключено, нет ключа — включено). С system uid читается и пишется
  * напрямую; если нет доступа, пробуем команду settings (запись — через su).
  */
 final class WelcomeSwitch {
@@ -28,17 +28,26 @@ final class WelcomeSwitch {
         return Settings.Global.getUriFor(KEY);
     }
 
+    /**
+     * Нет настройки — так лаунчер считает приветствие включённым (Settings.Global.getInt(…, 1)
+     * в DFSK_F517_WarningService). На многих машинах ключа нет, пока его никто не менял.
+     */
+    private static final int LAUNCHER_DEFAULT = 1;
+
     /** @return 0, 1, другое число из настройки или {@link #UNKNOWN}. */
     int read() {
+        String value;
         try {
-            return Settings.Global.getInt(resolver, KEY);
-        } catch (Settings.SettingNotFoundException | SecurityException e) {
-            String value = runCommand("settings", "get", "global", KEY);
-            try {
-                return Integer.parseInt(value.trim());
-            } catch (Exception ignored) {
-                return UNKNOWN;
-            }
+            value = Settings.Global.getString(resolver, KEY);
+        } catch (SecurityException e) {
+            value = runCommand("settings", "get", "global", KEY).trim();
+            if (value.isEmpty()) return UNKNOWN;
+        }
+        if (value == null || "null".equals(value)) return LAUNCHER_DEFAULT;
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return UNKNOWN;
         }
     }
 
