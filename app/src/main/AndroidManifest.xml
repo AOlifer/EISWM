@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:sharedUserId="android.uid.system">
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
-    <!-- Сейчас доступ к памяти даёт system uid; разрешения объявлены явно на случай другой прошивки. -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Доступ к памяти и USB даёт system uid, поэтому разрешений на хранилище («фото, видео и
+         файлы») в машинной сборке нет; эмулятору они добавлены в src/emulator/AndroidManifest.xml. -->
     <!-- Восстановление картинок приветствия при старте машины (BootReceiver). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Проверка и установка обновлений с сервера (Updater); INSTALL_PACKAGES даёт system uid. -->

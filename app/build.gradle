@@ -60,7 +60,7 @@ android {
         applicationId 'com.eiswm'
         minSdk 23
         targetSdk 28
-        versionCode 30
+        versionCode 31
         versionName '1.6.0'
     }
 
@@ -82,7 +82,12 @@ android {
             signingConfig null
         }
         release {
-            minifyEnabled false
+            // R8 убирает неиспользуемый код (в том числе Kotlin stdlib, которую добавляет AGP),
+            // shrinkResources — неиспользуемые ресурсы. Машина (bw.car.*) вызывается через
+            // рефлексию по именам классов прошивки, их в APK нет, правила не нужны.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig null
         }
     }
@@ -108,6 +113,12 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // Список зависимостей для Google Play в APK не нужен.
+    dependenciesInfo {
+        includeInApk false
+        includeInBundle false
     }
 }
 

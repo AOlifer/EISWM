@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,8 +47,13 @@ final class WelcomePictures {
     private static final String BLACK_ID = "eiswm_off";
     /** Срок показа наших картинок: до 2100 года. */
     private static final long FOREVER = 4102444800000L;
-    /** Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам. */
+    /**
+     * Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам.
+     * В APK они лежат в WebP, чтобы приложение было меньше, а лаунчеру записываются в PNG.
+     * В коде и настройках картинка по-прежнему называется bw_welcome_….png.
+     */
     private static final String STANDARD_DIR = "standard";
+    private static final String STANDARD_EXT = ".webp";
     private static final String STD_PREFIX = "eiswm_std_";
     private static final String SEASON_PREFIX = "eiswm_season_";
     /** Картинка по умолчанию при первой установке — та же, что лаунчер показывает, когда своих нет. */
@@ -300,10 +306,20 @@ final class WelcomePictures {
         adviceDir.mkdirs();
         if (p.backup != null) return FileUtils.copyFileQuiet(p.backup, target);
         if (p.asset != null) {
-            try (InputStream in = assets.open(STANDARD_DIR + "/" + p.asset)) {
-                return FileUtils.copyStreamQuiet(in, target);
+            Bitmap b;
+            try (InputStream in = assets.open(standardAsset(p.asset))) {
+                b = BitmapFactory.decodeStream(in);
+            } catch (IOException | OutOfMemoryError e) {
+                return false;
+            }
+            if (b == null) return false;
+            try {
+                Images.savePng(b, target, res);
+                return true;
             } catch (IOException e) {
                 return false;
+            } finally {
+                b.recycle();
             }
         }
         return false;
@@ -327,7 +343,9 @@ final class WelcomePictures {
         try {
             String[] names = assets.list(STANDARD_DIR);
             if (names != null) {
-                for (String n : names) if (n.endsWith(".png")) result.add(n);
+                for (String n : names) {
+                    if (n.endsWith(STANDARD_EXT)) result.add(n.substring(0, n.length() - STANDARD_EXT.length()) + ".png");
+                }
             }
         } catch (IOException ignored) {
         }
@@ -339,11 +357,16 @@ final class WelcomePictures {
     }
 
     Bitmap standardThumbnail(String name, int minWidth) {
-        try (InputStream in = assets.open(STANDARD_DIR + "/" + name)) {
+        try (InputStream in = assets.open(standardAsset(name))) {
             return Images.screenThumbnail(in, minWidth);
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /** Файл в assets для стандартной картинки bw_welcome_….png. */
+    private static String standardAsset(String name) {
+        return STANDARD_DIR + "/" + baseName(name) + STANDARD_EXT;
     }
 
     /** Имена стандартных картинок, добавленных навсегда. */
