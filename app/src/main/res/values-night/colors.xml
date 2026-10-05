@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Тёмная тема: включается ночным режимом системы или вручную кнопкой «Тема». -->
 <resources>
-    <!-- Фон логотипа, снят с краёв исходной картинки. -->
-    <color name="logo_bg">#01214E</color>
     <color name="accent">#8AB4F8</color>
     <color name="on_accent">#202124</color>
     <color name="accent_tint">#263A5C</color>

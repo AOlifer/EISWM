@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Светлая тема. Тёмные значения — в values-night/colors.xml. -->
 <resources>
-    <!-- Фон под логотипом: в светлой теме прозрачный (логотип перекрашен под панель),
-         в тёмной — цвет фона самого логотипа. -->
-    <color name="logo_bg">#00000000</color>
     <!-- Фон адаптивной иконки приложения (цвет краёв картинки иконки). -->
     <color name="ic_launcher_background">#011638</color>
     <color name="accent">#1A73E8</color>

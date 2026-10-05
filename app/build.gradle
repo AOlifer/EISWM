@@ -58,9 +58,9 @@ android {
 
     defaultConfig {
         applicationId 'com.eiswm'
-        minSdk 23
+        minSdk 24
         targetSdk 28
-        versionCode 31
+        versionCode 34
         versionName '1.6.0'
     }
 
