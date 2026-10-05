@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
  */
 final class WelcomeSwitch {
     private static final String KEY = "bw_welcome_voice_switch";
+    /** Сколько ждать команду settings или su. */
+    private static final long COMMAND_TIMEOUT_MS = 3000;
     /** Значение, которое прочитать не удалось. */
     static final int UNKNOWN = -1;
 
@@ -64,9 +66,26 @@ final class WelcomeSwitch {
         return result != null && read() == value;
     }
 
+    /**
+     * Команда не дольше {@link #COMMAND_TIMEOUT_MS}: вызов идёт из главного потока, а su может
+     * ждать подтверждения, которого никто не даст, и экран бы завис.
+     */
     private static String runCommand(String... command) {
+        Process p;
         try {
-            Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
+            p = new ProcessBuilder(command).redirectErrorStream(true).start();
+        } catch (Exception e) {
+            return "";
+        }
+        Thread watchdog = new Thread(() -> {
+            try {
+                Thread.sleep(COMMAND_TIMEOUT_MS);
+                p.destroy();
+            } catch (InterruptedException ignored) {
+            }
+        }, "eiswm-command-timeout");
+        watchdog.start();
+        try {
             StringBuilder out = new StringBuilder();
             try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line;
@@ -76,6 +95,8 @@ final class WelcomeSwitch {
             return out.toString();
         } catch (Exception e) {
             return "";
+        } finally {
+            watchdog.interrupt();
         }
     }
 

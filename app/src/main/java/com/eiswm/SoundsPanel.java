@@ -170,39 +170,43 @@ final class SoundsPanel extends SectionPanel implements AudioPreview.Listener {
 
     // ---------------------------------------------------------------- Встроенные MP3
 
+    /** Первый запуск: встроенные MP3 — в Notifications. В фоне: запись с fsync тормозила бы экран. */
     private void copyBundledWelcomeFilesOnce() {
-        if (prefs.getBoolean(Prefs.BUNDLED_COPIED, false)) {
-            return;
-        }
+        if (prefs.getBoolean(Prefs.BUNDLED_COPIED, false)) return;
+        io.execute(() -> {
+            String message = copyBundledWelcomeFiles();
+            if (message != null) {
+                ui.post(() -> {
+                    if (!destroyed) toast(message);
+                });
+            }
+        });
+    }
 
+    /** @return сообщение для пользователя или null. */
+    private String copyBundledWelcomeFiles() {
         File targetDir = FileUtils.NOTIFICATIONS_DIR;
         if (!targetDir.exists() && !targetDir.mkdirs()) {
-            toast(activity.getString(R.string.sounds_notifications_failed));
-            return;
+            return activity.getString(R.string.sounds_notifications_failed);
         }
-
         int copied = 0;
         try {
             String[] names = activity.getAssets().list("welcome");
             if (names != null) {
                 for (String name : names) {
                     File dst = new File(targetDir, name);
-                    if (!FileUtils.hasExtension(dst, SOUND_EXTENSIONS) || dst.exists()) {
-                        continue;
-                    }
+                    if (!FileUtils.hasExtension(dst, SOUND_EXTENSIONS) || dst.exists()) continue;
                     try (InputStream in = activity.getAssets().open("welcome/" + name)) {
                         if (!FileUtils.copyStreamQuiet(in, dst)) throw new IOException(dst.getPath());
                     }
                     copied++;
                 }
             }
-            prefs.edit().putBoolean(Prefs.BUNDLED_COPIED, true).apply();
-            if (copied > 0) {
-                toast(activity.getString(R.string.sounds_bundled_added, copied));
-            }
         } catch (IOException e) {
-            toast(activity.getString(R.string.sounds_bundled_failed));
+            return activity.getString(R.string.sounds_bundled_failed);
         }
+        prefs.edit().putBoolean(Prefs.BUNDLED_COPIED, true).apply();
+        return copied > 0 ? activity.getString(R.string.sounds_bundled_added, copied) : null;
     }
 
     // ---------------------------------------------------------------- Список звуков

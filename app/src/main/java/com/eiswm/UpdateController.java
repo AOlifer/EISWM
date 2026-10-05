@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Обновления на стартовом экране: строка «Проверить обновления» / «Доступна версия N»,
@@ -25,7 +26,7 @@ final class UpdateController {
     private boolean checkingUpdates = false;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
-    private boolean destroyed = false;
+    private volatile boolean destroyed = false;
 
     UpdateController(Activity activity, SharedPreferences prefs, TextView homeUpdate) {
         this.activity = activity;
@@ -110,7 +111,7 @@ final class UpdateController {
 
     /** Загрузка с полоской прогресса; затем установка (на машине) или сообщение (на эмуляторе). */
     private void downloadUpdate(Updater.Release r) {
-        final boolean[] cancelled = {false};
+        final AtomicBoolean cancelled = new AtomicBoolean();
         ProgressBar bar = new ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal);
         bar.setIndeterminate(r.size <= 0);
         bar.setMax(1000);
@@ -127,7 +128,7 @@ final class UpdateController {
                 .setTitle(R.string.update_downloading)
                 .setView(box)
                 .setCancelable(false)
-                .setNegativeButton(R.string.cancel, (d, w) -> cancelled[0] = true)
+                .setNegativeButton(R.string.cancel, (d, w) -> cancelled.set(true))
                 .show();
         final long[] lastUi = {0};
         new Thread(() -> {
@@ -152,7 +153,7 @@ final class UpdateController {
                     }
 
                     @Override public boolean cancelled() {
-                        return cancelled[0] || destroyed;
+                        return cancelled.get() || destroyed;
                     }
                 });
                 if (apk != null && updater.canInstall()) {
