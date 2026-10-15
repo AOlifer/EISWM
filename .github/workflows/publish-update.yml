@@ -1,0 +1,160 @@
+# Публикация обновления на eisapp.ru (свой сервер обновлений).
+#
+# Срабатывает, когда в master меняется docs/updates/latest — то есть в тот же момент, когда новая
+# версия появляется на GitHub Pages для уже установленных копий. Можно запустить и вручную:
+# Actions → «Публикация обновления на eisapp.ru» → Run workflow.
+#
+# Что делает:
+#   1. Берёт описание версии из docs/updates/latest и скачивает APK из выпуска на GitHub по ссылке
+#      оттуда (ссылка вида https://github.com/<владелец>/<репозиторий>/releases/download/<тег>/<файл>).
+#   2. Сверяет размер и sha256 с описанием.
+#   3. Загружает по FTP: APK в updates/eiswm/<версия>/, затем releases.json (история версий),
+#      последним — latest с адресом APK на eisapp.ru (и ссылкой на GitHub как запасной, если
+#      репозиторий публичный).
+#
+# Порядок выпуска не меняется: собрать APK, создать выпуск на GitHub с APK, обновить
+# docs/updates/latest и слить в master.
+#
+# Нужные секреты (Settings → Secrets and variables → Actions → Secrets), те же, что у сайта:
+#   FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+# Необязательные переменные (там же, вкладка Variables):
+#   FTP_SERVER_DIR — папка сайта на сервере, по умолчанию www/eisapp.ru/
+#   FTP_PROTOCOL   — ftps (по умолчанию) или ftp, если сервер не поддерживает TLS
+
+name: Публикация обновления на eisapp.ru
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/updates/latest'
+  workflow_dispatch:
+
+concurrency:
+  group: publish-update
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  APP: eiswm
+  PUBLIC_URL: https://eisapp.ru/updates/eiswm
+
+jobs:
+  publish:
+    name: Загрузка на eisapp.ru
+    runs-on: ubuntu-latest
+    environment:
+      name: eisapp.ru
+      url: https://eisapp.ru/updates/eiswm/latest
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v4
+
+      - name: Проверить, что секреты заданы
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          missing=""
+          [ -z "$FTP_SERVER" ] && missing="$missing FTP_SERVER"
+          [ -z "$FTP_USERNAME" ] && missing="$missing FTP_USERNAME"
+          [ -z "$FTP_PASSWORD" ] && missing="$missing FTP_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Не заданы секреты:$missing (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+
+      - name: Скачать APK из выпуска и проверить
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          m=docs/updates/latest
+          ver=$(jq -er .versionName "$m")
+          code=$(jq -er .versionCode "$m")
+          src=$(jq -er .apk "$m")
+          sha=$(jq -r '.sha256 // ""' "$m" | tr 'A-F' 'a-f')
+          size=$(jq -r '.size // ""' "$m")
+          re='^https://github\.com/[^/]+/[^/]+/releases/download/([^/]+)/([^/]+\.apk)$'
+          if [[ ! "$src" =~ $re ]]; then
+            echo "::error::В $m ссылка apk не на выпуск GitHub: $src"
+            exit 1
+          fi
+          tag="${BASH_REMATCH[1]}"
+          file="${BASH_REMATCH[2]}"
+          if [[ ! "$ver" =~ ^[0-9A-Za-z._-]+$ ]]; then
+            echo "::error::Недопустимые символы в versionName: $ver"
+            exit 1
+          fi
+          mkdir -p work
+          gh release download "$tag" -R "$GITHUB_REPOSITORY" -p "$file" -D work
+          actual_sha=$(sha256sum "work/$file" | cut -d' ' -f1)
+          actual_size=$(stat -c %s "work/$file")
+          if [ -z "$sha" ]; then
+            echo "::error::В $m нет sha256 — без него APK на свой сервер не выкладывается"
+            exit 1
+          fi
+          if [ "$sha" != "$actual_sha" ]; then
+            echo "::error::sha256 не совпал: в $m $sha, у файла выпуска $actual_sha"
+            exit 1
+          fi
+          if [ -n "$size" ] && [ "$size" != "$actual_size" ]; then
+            echo "::error::Размер не совпал: в $m $size, у файла выпуска $actual_size"
+            exit 1
+          fi
+          echo "Версия $ver ($code), файл $file, $actual_size байт, sha256 $actual_sha"
+          {
+            echo "VER=$ver"
+            echo "FILE=$file"
+            echo "SRC=$src"
+          } >> "$GITHUB_ENV"
+
+      - name: Подготовить описание для eisapp.ru
+        env:
+          PRIVATE_REPO: ${{ github.event.repository.private }}
+        run: |
+          set -euo pipefail
+          # Для публичного репозитория ссылка на выпуск GitHub остаётся запасной (mirrors).
+          if [ "$PRIVATE_REPO" = "true" ]; then mirrors='[]'; else mirrors="[\"$SRC\"]"; fi
+          jq --arg apk "$PUBLIC_URL/$VER/$FILE" --argjson mirrors "$mirrors" \
+            '.apk = $apk | if ($mirrors | length) > 0 then .mirrors = $mirrors else del(.mirrors) end' \
+            docs/updates/latest > work/latest
+          cat work/latest
+
+      - name: Установить lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Загрузить по FTP
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || 'www/eisapp.ru/' }}
+          FTP_PROTOCOL: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+        run: |
+          set -euo pipefail
+          if [ "$FTP_PROTOCOL" = "ftps" ]; then
+            tls='set ftp:ssl-force true; set ftp:ssl-protect-data true;'
+          else
+            tls='set ftp:ssl-allow false;'
+          fi
+          dir="${FTP_SERVER_DIR%/}/updates/$APP"
+          remote() { lftp -u "$FTP_USERNAME" --env-password -e "set cmd:fail-exit true; set net:max-retries 3; set net:timeout 30; $tls $1; bye" "$FTP_SERVER"; }
+
+          # История версий: берём с сервера, если она уже есть, и заменяем/добавляем текущую.
+          rm -f work/releases.json
+          remote "get -O work $dir/releases.json" || echo "releases.json на сервере пока нет"
+          if [ ! -s work/releases.json ]; then echo '{"releases": []}' > work/releases.json; fi
+          jq --slurpfile cur work/latest \
+            '.releases = ([$cur[0]] + [.releases[] | select(.versionCode != $cur[0].versionCode)]
+                          | sort_by(-.versionCode))' \
+            work/releases.json > work/releases.new.json
+          mv work/releases.new.json work/releases.json
+
+          # Сначала APK, потом история, последним latest — чтобы приложение не увидело версию
+          # раньше, чем файл доступен.
+          remote "mkdir -p -f $dir/$VER; put -O $dir/$VER work/$FILE; put -O $dir work/releases.json; put -O $dir work/latest"
+          echo "Опубликовано: $PUBLIC_URL/latest"

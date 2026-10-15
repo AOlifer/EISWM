@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -23,11 +24,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -70,6 +71,8 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     static final String KIND_SOUNDS = "sounds";
     static final String KIND_IMAGES = "images";
 
+    private static final int THUMB_CACHE_BYTES = 8 * 1024 * 1024;
+
     private String mode;
     private String[] extensions;
     private long maxDurationMs;
@@ -77,15 +80,21 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
     private boolean audio;
     /** Режим картинок: превью и размер вместо прослушивания и длительности. */
     private boolean images;
-    private final Map<File, int[]> imageSizes = new HashMap<>();
-    private final Map<File, Bitmap> thumbs = new HashMap<>();
+    // Кэши пишутся в главном потоке, а читаются и в фоновом.
+    private final Map<File, int[]> imageSizes = new ConcurrentHashMap<>();
+    /** Превью ограничены по памяти: на флешке с тысячами фото иначе кончится память. */
+    private final LruCache<File, Bitmap> thumbs = new LruCache<File, Bitmap>(THUMB_CACHE_BYTES) {
+        @Override protected int sizeOf(File key, Bitmap value) {
+            return value.getByteCount();
+        }
+    };
 
     private List<File> roots;
     private File root, dir;
     /** Выбор сохраняется при переходе между папками и накопителями. */
     private final TreeSet<File> selected = new TreeSet<>();
     /** Длительность уже проверенных файлов; -1 — не удалось прочитать. */
-    private final Map<File, Long> durations = new HashMap<>();
+    private final Map<File, Long> durations = new ConcurrentHashMap<>();
     private final Map<File, FileRow> rows = new LinkedHashMap<>();
 
     private LinearLayout rootsBar, crumbs, list, sideList;
@@ -437,7 +446,7 @@ public class PickerActivity extends BaseActivity implements AudioPreview.Listene
         io.execute(() -> {
             for (File f : files) {
                 if (destroyed || gen != generation) return;
-                if (imageSizes.containsKey(f) && thumbs.containsKey(f)) continue;
+                if (imageSizes.containsKey(f) && thumbs.get(f) != null) continue;
                 int[] s = Images.size(f);
                 final int[] size = s != null ? s : new int[]{0, 0};
                 Bitmap b = null;

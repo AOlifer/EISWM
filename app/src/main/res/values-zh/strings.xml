@@ -64,7 +64,7 @@
     <string name="home_description">Evolute i-Space 启动时迎接驾驶员的声音和图片：添加您自己的，按季节选择标准图片，开启或关闭迎宾。启动时概况显示温度、续航、电量和警告。</string>
     <string name="home_open_sounds">声音</string>
     <string name="home_open_pictures">图片</string>
-    <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\ngithub.com/AOlifer/EISWM\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
+    <string name="home_developer">开发者：AOlifer · Telegram：@oaaspb\neisapp.ru/eiswm\n许可证 PolyForm Noncommercial：仅限非商业用途</string>
     <string name="home_help">请在左侧或用本页按钮选择一个栏目：\n\n声音：车辆启动时播放的 MP3 文件。\n图片：迎宾画面上的图片。\n概况：启动时——温度、续航、电量、保养和警告。\n\n每个栏目都有自己的“帮助”。点击顶部的标志或标题可返回本页。</string>
     <string name="home_disclaimer_short">⚠ 非官方应用，使用风险自负。</string>
     <string name="disclaimer_title">免责声明</string>

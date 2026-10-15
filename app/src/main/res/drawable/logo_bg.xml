@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Плашка под логотипом: в тёмной теме цвета фона логотипа, в светлой прозрачная. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/logo_bg" />
-    <corners android:radius="10dp" />
-</shape>

@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Доступ к сервису машины (BwCarService, пакет com.bw.car) через общую библиотеку прошивки
@@ -46,6 +48,7 @@ final class CarApi {
 
     private final Context context;
     private Object car;
+    private final Map<String, Object> managers = new ConcurrentHashMap<>();
 
     CarApi(Context context) {
         this.context = context.getApplicationContext();
@@ -69,43 +72,53 @@ final class CarApi {
     void connect(Handler handler, Runnable onConnected, Runnable onDisconnected) throws Exception {
         ServiceConnection conn = new ServiceConnection() {
             @Override public void onServiceConnected(ComponentName name, IBinder service) {
+                managers.clear();
                 onConnected.run();
             }
 
             @Override public void onServiceDisconnected(ComponentName name) {
+                managers.clear();
                 onDisconnected.run();
             }
         };
         Class<?> c = Class.forName(CAR);
-        car = c.getMethod("createCar", Context.class, ServiceConnection.class, Handler.class)
+        car = method(c, "createCar", Context.class, ServiceConnection.class, Handler.class)
                 .invoke(null, context, conn, handler);
-        c.getMethod("connect").invoke(car);
+        method(c, "connect").invoke(car);
     }
 
     void disconnect() {
         if (car == null) return;
         try {
-            car.getClass().getMethod("disconnect").invoke(car);
+            method(car.getClass(), "disconnect").invoke(car);
         } catch (Throwable ignored) {
         }
         car = null;
+        managers.clear();
     }
 
     boolean isConnected() {
         try {
-            return car != null && (Boolean) car.getClass().getMethod("isConnected").invoke(car);
+            return car != null && (Boolean) method(car.getClass(), "isConnected").invoke(car);
         } catch (Throwable e) {
             return false;
         }
     }
 
-    /** Менеджер по имени: "property", "power", "car_setting" и др.; null, если не получилось. */
+    /**
+     * Менеджер по имени: "property", "power", "car_setting" и др.; null, если не получилось.
+     * Менеджеры запоминаются до переподключения сервиса: сводка читает десяток свойств подряд.
+     */
     Object manager(String name) {
+        Object m = managers.get(name);
+        if (m != null) return m;
         try {
-            return car.getClass().getMethod("getCarManager", String.class).invoke(car, name);
+            m = method(car.getClass(), "getCarManager", String.class).invoke(car, name);
         } catch (Throwable e) {
             return null;
         }
+        if (m != null) managers.put(name, m);
+        return m;
     }
 
     // ---------------------------------------------------------------- Свойства
@@ -114,7 +127,7 @@ final class CarApi {
         Object pm = manager("property");
         List<PropertyConfig> out = new ArrayList<>();
         if (pm == null) return out;
-        List<?> list = (List<?>) pm.getClass().getMethod("getPropertyList").invoke(pm);
+        List<?> list = (List<?>) method(pm.getClass(), "getPropertyList").invoke(pm);
         if (list == null) return out;
         for (Object cfg : list) {
             PropertyConfig p = new PropertyConfig();
@@ -137,7 +150,7 @@ final class CarApi {
     Object[] getProperty(int id, int area) throws Exception {
         Object pm = manager("property");
         if (pm == null) throw new IllegalStateException("no property manager");
-        Object v = pm.getClass().getMethod("getProperty", int.class, int.class).invoke(pm, id, area);
+        Object v = method(pm.getClass(), "getProperty", int.class, int.class).invoke(pm, id, area);
         if (v == null) return new Object[]{-1, null};
         return new Object[]{intOr(call(v, "getStatus"), -1), call(v, "getValue")};
     }
@@ -158,7 +171,7 @@ final class CarApi {
                             l.onError((Integer) args[0], (Integer) args[1]);
                         }
                     }));
-            Method reg = pm.getClass().getMethod("registerListener", li, int.class, float.class);
+            Method reg = method(pm.getClass(), "registerListener", li, int.class, float.class);
             return Boolean.TRUE.equals(reg.invoke(pm, proxy, id, rate)) ? proxy : null;
         } catch (Throwable e) {
             return null;
@@ -170,7 +183,7 @@ final class CarApi {
         if (pm == null || propertyListener == null) return;
         try {
             Class<?> li = Class.forName(PROPERTY_LISTENER);
-            pm.getClass().getMethod("unregisterListener", li).invoke(pm, propertyListener);
+            method(pm.getClass(), "unregisterListener", li).invoke(pm, propertyListener);
         } catch (Throwable ignored) {
         }
     }
@@ -188,7 +201,7 @@ final class CarApi {
                             l.onPowerStateChanged((Integer) args[0]);
                         }
                     }));
-            pwr.getClass().getMethod("registerPowerStateListener", li).invoke(pwr, proxy);
+            method(pwr.getClass(), "registerPowerStateListener", li).invoke(pwr, proxy);
             return true;
         } catch (Throwable e) {
             return false;
@@ -200,7 +213,7 @@ final class CarApi {
         Object m = manager(managerName);
         if (m == null) return "no manager";
         try {
-            return String.valueOf(m.getClass().getMethod(method).invoke(m));
+            return String.valueOf(method(m.getClass(), method).invoke(m));
         } catch (Throwable e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             return "error: " + cause.getClass().getSimpleName();
@@ -232,9 +245,23 @@ final class CarApi {
         };
     }
 
+    /** Найденные методы классов bw.car.*: поиск рефлексией медленный, а сводка вызывает их часто. */
+    private static final Map<String, Method> METHODS = new ConcurrentHashMap<>();
+
+    private static Method method(Class<?> c, String name, Class<?>... params) throws NoSuchMethodException {
+        StringBuilder key = new StringBuilder(c.getName()).append('#').append(name);
+        for (Class<?> p : params) key.append(',').append(p.getName());
+        Method m = METHODS.get(key.toString());
+        if (m == null) {
+            m = c.getMethod(name, params);
+            METHODS.put(key.toString(), m);
+        }
+        return m;
+    }
+
     private static Object call(Object o, String method) {
         try {
-            return o.getClass().getMethod(method).invoke(o);
+            return method(o.getClass(), method).invoke(o);
         } catch (Throwable e) {
             return null;
         }

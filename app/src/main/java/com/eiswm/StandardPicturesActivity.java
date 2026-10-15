@@ -52,7 +52,7 @@ public class StandardPicturesActivity extends BaseActivity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_standard);
-        pictures = new WelcomePictures(this);
+        pictures = WelcomePictures.get(this);
         selectedTitle = findViewById(R.id.standardSelected);
         hint = findViewById(R.id.standardHint);
         seasonalState = findViewById(R.id.seasonalState);
@@ -75,7 +75,8 @@ public class StandardPicturesActivity extends BaseActivity {
 
     @Override protected void onDestroy() {
         destroyed = true;
-        io.shutdownNow();
+        // Начатое добавление картинок доделывается: прерывать запись в базу лаунчера нельзя.
+        io.shutdown();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
     }

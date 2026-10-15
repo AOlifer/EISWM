@@ -8,15 +8,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/EISWM.TopBar">
+    <LinearLayout
+        style="@style/EISWM.TopBar"
+        android:paddingStart="0dp">
 
-        <!-- Логотип 2:1 на плашке его же фонового цвета; углы скругляются в MainActivity. -->
+        <!-- Векторный логотип почти во всю высоту панели, по центру над колонкой разделов;
+             свой вариант для светлой и тёмной темы. -->
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="96dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/section_rail_width"
+            android:layout_height="56dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/logo_bg"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
             android:src="@drawable/logo_header" />
@@ -57,7 +59,7 @@
         <LinearLayout
             android:id="@+id/sectionRail"
             style="@style/EISWM.SidePanel"
-            android:layout_width="120dp"
+            android:layout_width="@dimen/section_rail_width"
             android:paddingStart="8dp"
             android:paddingEnd="8dp" />
 
@@ -474,7 +476,7 @@
                             <Button
                                 android:id="@+id/btnPicturesDelete"
                                 style="@style/EISWM.TextButton"
-                                android:layout_height="48dp"
+                                android:layout_height="56dp"
                                 android:layout_marginEnd="16dp"
                                 android:textColor="@color/pill_bad_fg"
                                 android:visibility="invisible" />
@@ -482,13 +484,13 @@
                             <Button
                                 android:id="@+id/btnPicturesSelectAll"
                                 style="@style/EISWM.TextButton"
-                                android:layout_height="48dp"
+                                android:layout_height="56dp"
                                 android:text="@string/select_all" />
     
                             <Button
                                 android:id="@+id/btnPicturesClear"
                                 style="@style/EISWM.TextButton"
-                                android:layout_height="48dp"
+                                android:layout_height="56dp"
                                 android:text="@string/clear_selection" />
                         </LinearLayout>
     

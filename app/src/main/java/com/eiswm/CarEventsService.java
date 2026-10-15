@@ -60,7 +60,7 @@ public class CarEventsService extends Service {
     private Farewell farewell;
     private CarSummary summary;
     /** Последнее известное состояние ACC: null — ещё не пришло. */
-    private Integer acc;
+    private volatile Integer acc;
     private long lastFarewell;
     // Последние значения для события «Итоги»; null — ещё не приходили.
     private Integer gear, door;
@@ -70,13 +70,24 @@ public class CarEventsService extends Service {
     private boolean moved;
     /** Сводка «Итоги» на этой остановке уже была; сбрасывается, когда снова поехали. */
     private boolean finished;
-    private boolean running;
+    private volatile boolean running;
 
-    /** Запустить, если включено прощание или сводка; иначе остановить. */
+    /**
+     * Запустить, если включено прощание или сводка; иначе остановить.
+     * Без system uid (вариант emulator) Android 8+ не даёт запустить службу из фона, например из
+     * {@link WakeReceiver} после загрузки: тогда служба поднимется при открытии приложения.
+     */
     static void update(Context c) {
         Intent i = new Intent(c, CarEventsService.class);
-        if (Farewell.isEnabled(c) || CarSummary.isAnyEnabled(c)) c.startService(i);
-        else c.stopService(i);
+        if (!Farewell.isEnabled(c) && !CarSummary.isAnyEnabled(c)) {
+            c.stopService(i);
+            return;
+        }
+        try {
+            c.startService(i);
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "service not started from background: " + e.getMessage());
+        }
     }
 
     @Override public IBinder onBind(Intent intent) {
@@ -290,7 +301,7 @@ public class CarEventsService extends Service {
         lastFarewell = now;
         // Итоги поездки — по значениям в этот момент.
         // Если «Итоги» уже был в P, конец поездки зафиксирован тогда — Trip.finish его не тронет.
-        handler.post(() -> {
+        postFarewell(() -> {
             if (Features.trip() && car != null && car.isConnected()) Trip.finish(this, CarSummary.read(car));
         });
         if (Farewell.isEnabled(this)) {
@@ -303,18 +314,30 @@ public class CarEventsService extends Service {
         // экран гаснет сразу). Поверх картинки прощания; голос — после звука прощания.
         if (CarSummary.isEnabled(this, Prefs.SUMMARY_FAREWELL)
                 && CarSummary.FINISH_ACC_OFF.equals(CarSummary.finishTrigger(this))) {
-            handler.postDelayed(() -> showSummary(Prefs.SUMMARY_FAREWELL), FAREWELL_SUMMARY_DELAY_MS);
+            postFarewell(() -> showSummary(Prefs.SUMMARY_FAREWELL), FAREWELL_SUMMARY_DELAY_MS);
         }
     }
 
     /** Зажигание снова включили — прощание и сводка прощания обрываются. */
     private void cancelFarewell() {
         lastFarewell = 0;
-        handler.removeCallbacksAndMessages(null);
+        // Только задачи прощания: ожидание экрана приветствия и сводка «Старт» должны остаться.
+        handler.removeCallbacksAndMessages(FAREWELL);
         ui.post(() -> {
             farewell.stop();
             summary.hide();
         });
+    }
+
+    /** Метка задач прощания в handler: их снимает {@link #cancelFarewell()}. */
+    private static final Object FAREWELL = new Object();
+
+    private void postFarewell(Runnable r) {
+        postFarewell(r, 0);
+    }
+
+    private void postFarewell(Runnable r, long delayMs) {
+        handler.postAtTime(r, FAREWELL, SystemClock.uptimeMillis() + delayMs);
     }
 
     // ---------------------------------------------------------------- Включение
@@ -349,7 +372,7 @@ public class CarEventsService extends Service {
         ui.post(() -> {
             long speechDelay = welcome ? 0 : farewell.soundMs() + SPEECH_AFTER_SOUND_MS;
             boolean shown = summary.show(occasion, v, speechDelay);
-            Log.d(TAG, "SUMMARY " + occasion + (shown ? "shown" : "nothing to show"));
+            Log.d(TAG, "SUMMARY " + occasion + (shown ? " shown" : " nothing to show"));
         });
     }
 }

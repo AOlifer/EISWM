@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Логотип для светлой темы: синие точки шильдика «Е» и дуги с градиентом, без свечения.
+    Сетка точек та же, что в drawable/logo_dots.xml (по фото настоящего шильдика).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="117dp"
+    android:height="56dp"
+    android:viewportWidth="292"
+    android:viewportHeight="140">
+
+    <!-- Рисунок в координатах 320×160, обрезан по краям свечения. -->
+    <group android:translateX="-14" android:translateY="-11">
+
+        <!-- Дуги. -->
+        <path
+            android:pathData="M63.25,29.14A59.3,59.3 0,0 0 63.25,132.86M256.75,29.14A59.3,59.3 0,0 1 256.75,132.86M78.82,45.68A40,40 0,0 0 78.82,116.32M241.18,45.68A40,40 0,0 1 241.18,116.32M93.56,59.35A23.7,23.7 0,0 0 93.56,102.65M226.44,59.35A23.7,23.7 0,0 1 226.44,102.65"
+            android:strokeWidth="12"
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient android:type="linear" android:startX="0" android:startY="25"
+                    android:endX="0" android:endY="137" android:startColor="#FF01D8D8" android:endColor="#FF0040D8" />
+            </aapt:attr>
+        </path>
+
+        <!-- Точки. -->
+        <path
+            android:fillColor="#FF1A73E8"
+            android:pathData="M113.3,39.1a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M147.7,39.1a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M182.1,39.1a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M113.3,70.5a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M152,70.5a8,8 0,1 0,16,0a8,8 0,1 0,-16,0Z
+                M189.73,70.5a4.67,4.67 0,1 0,9.34,0a4.67,4.67 0,1 0,-9.34,0Z
+                M113.3,101.9a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M147.7,101.9a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z
+                M182.1,101.9a12.3,12.3 0,1 0,24.6,0a12.3,12.3 0,1 0,-24.6,0Z" />
+    </group>
+</vector>

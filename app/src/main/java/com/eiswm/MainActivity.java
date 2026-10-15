@@ -66,7 +66,6 @@ public class MainActivity extends BaseActivity {
 
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
         findViewById(R.id.btnExit).setOnClickListener(v -> exitApp());
-        findViewById(R.id.logo).setClipToOutline(true);
         setupSections();
         setupHome();
         picturesPanel = new PicturesPanel(this);

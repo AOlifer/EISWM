@@ -15,7 +15,7 @@ public class BootReceiver extends BroadcastReceiver {
         final Context app = context.getApplicationContext();
         new Thread(() -> {
             try {
-                new WelcomePictures(app).restore();
+                WelcomePictures.get(app).restore();
             } catch (Exception ignored) {
             } finally {
                 result.finish();

@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -20,19 +21,23 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * Обновления с сервера: файл JSON по адресу update_url (config.xml) описывает последнюю версию,
- * APK скачивается, проверяется и ставится через {@link PackageInstaller}. На машине приложение
- * работает с system uid и ставит обновление само, без системного установщика.
+ * Обновления с сервера: файл JSON (адреса update_urls в config.xml, см. {@link #fetchLatest()}) описывает
+ * последнюю версию, APK скачивается, проверяется и ставится через {@link PackageInstaller}.
+ * На машине приложение работает с system uid и ставит обновление само, без системного установщика.
  *
  * <pre>
  * {"versionCode": 6, "versionName": "1.6", "date": "2026-10-05",
  *  "apk": "https://…/EISWM-1.6.apk", "size": 5123456, "sha256": "…",
  *  "changes": {"ru": "…", "en": "…", "de": "…"}}
  * </pre>
- * Обязательны versionCode, versionName и apk; остальное по желанию.
+ * Обязательны versionCode, versionName и apk; остальное по желанию. Адрес apk может быть
+ * относительным (от адреса JSON). Необязательный список "mirrors" — запасные адреса того же APK,
+ * они пробуются по порядку, если основной не скачался или не совпал с sha256.
  */
 final class Updater {
     /** Автоматическая проверка при запуске — не чаще раза в сутки. */
@@ -45,6 +50,8 @@ final class Updater {
         int versionCode;
         String versionName, date, apk, sha256, changes;
         long size;
+        /** Запасные адреса APK, уже проверенные. */
+        final List<String> mirrors = new ArrayList<>();
     }
 
     interface Progress {
@@ -73,22 +80,49 @@ final class Updater {
         return context.getResources().getBoolean(R.bool.update_can_install);
     }
 
-    /** Читает JSON с сервера. Вызывать в фоновом потоке. */
+    /**
+     * Читает JSON со всех адресов update_urls и берёт самую новую версию: если на одном сервере
+     * забыли выложить релиз или он недоступен, сработает другой. Ошибка — только если не ответил
+     * ни один. При равных версиях выигрывает адрес, стоящий в списке раньше. Вызывать в фоновом потоке.
+     */
     Release fetchLatest() throws IOException {
-        HttpURLConnection c = open(context.getString(R.string.update_url));
+        Release best = null;
+        IOException last = null;
+        for (String url : context.getResources().getStringArray(R.array.update_urls)) {
+            try {
+                Release r = fetchLatest(url);
+                if (best == null || r.versionCode > best.versionCode) best = r;
+            } catch (IOException e) {
+                last = e;
+            }
+        }
+        if (best != null) return best;
+        throw last != null ? last : new IOException("no update url");
+    }
+
+    private static Release fetchLatest(String url) throws IOException {
+        HttpURLConnection c = open(url);
         try {
             byte[] body = readAll(c.getInputStream(), MAX_JSON_BYTES);
             JSONObject o = new JSONObject(new String(body, "UTF-8"));
             Release r = new Release();
             r.versionCode = o.getInt("versionCode");
             r.versionName = o.getString("versionName");
-            r.apk = o.getString("apk");
+            URL base = c.getURL();
+            r.apk = resolve(base, o.getString("apk"));
             r.date = o.optString("date", "");
             r.sha256 = o.optString("sha256", "").trim().toLowerCase(Locale.ROOT);
             r.size = o.optLong("size", -1);
             r.changes = localized(o.optJSONObject("changes"));
-            if (!r.apk.startsWith("https://") && !r.apk.startsWith("http://")) {
-                throw new IOException("bad apk url");
+            JSONArray mirrors = o.optJSONArray("mirrors");
+            if (mirrors != null) {
+                for (int i = 0; i < mirrors.length(); i++) {
+                    try {
+                        r.mirrors.add(resolve(base, mirrors.getString(i)));
+                    } catch (IOException | org.json.JSONException ignored) {
+                        // Негодное зеркало пропускаем, остальное описание в порядке.
+                    }
+                }
             }
             return r;
         } catch (org.json.JSONException e) {
@@ -96,6 +130,15 @@ final class Updater {
         } finally {
             c.disconnect();
         }
+    }
+
+    /** Абсолютный адрес http(s) из ссылки в JSON (может быть относительной). */
+    private static String resolve(URL base, String link) throws IOException {
+        URL u = new URL(base, link);
+        if (!"https".equals(u.getProtocol()) && !"http".equals(u.getProtocol())) {
+            throw new IOException("bad apk url");
+        }
+        return u.toString();
     }
 
     /** Описание изменений на языке системы, иначе английское, иначе любое. */
@@ -119,7 +162,41 @@ final class Updater {
         if (old != null) for (File f : old) f.delete();
         File apk = new File(dir, "EISWM-" + r.versionCode + ".apk");
 
-        HttpURLConnection c = open(r.apk);
+        List<String> sources = new ArrayList<>();
+        sources.add(r.apk);
+        sources.addAll(r.mirrors);
+        IOException last = null;
+        boolean done = false;
+        for (String url : sources) {
+            try {
+                if (!downloadFrom(url, apk, r, progress)) return null;
+                done = true;
+                break;
+            } catch (IOException e) {
+                apk.delete();
+                last = e;
+            }
+        }
+        if (!done) throw last;
+
+        PackageInfo info = context.getPackageManager().getPackageArchiveInfo(apk.getPath(), 0);
+        if (info == null || !context.getPackageName().equals(info.packageName)) {
+            apk.delete();
+            throw new IOException(context.getString(R.string.update_error_package));
+        }
+        if (info.versionCode <= currentVersionCode()) {
+            apk.delete();
+            throw new IOException(context.getString(R.string.update_error_version));
+        }
+        return apk;
+    }
+
+    /**
+     * Скачивает APK с одного адреса и сверяет sha256.
+     * @return false, если загрузку отменили (файл удалён).
+     */
+    private boolean downloadFrom(String url, File apk, Release r, Progress progress) throws IOException {
+        HttpURLConnection c = open(url);
         MessageDigest sha;
         try {
             sha = MessageDigest.getInstance("SHA-256");
@@ -135,7 +212,7 @@ final class Updater {
                 if (progress.cancelled()) {
                     out.close();
                     apk.delete();
-                    return null;
+                    return false;
                 }
                 out.write(buf, 0, n);
                 sha.update(buf, 0, n);
@@ -147,19 +224,9 @@ final class Updater {
         }
 
         if (!r.sha256.isEmpty() && !r.sha256.equals(hex(sha.digest()))) {
-            apk.delete();
             throw new IOException(context.getString(R.string.update_error_checksum));
         }
-        PackageInfo info = context.getPackageManager().getPackageArchiveInfo(apk.getPath(), 0);
-        if (info == null || !context.getPackageName().equals(info.packageName)) {
-            apk.delete();
-            throw new IOException(context.getString(R.string.update_error_package));
-        }
-        if (info.versionCode <= currentVersionCode()) {
-            apk.delete();
-            throw new IOException(context.getString(R.string.update_error_version));
-        }
-        return apk;
+        return true;
     }
 
     /**

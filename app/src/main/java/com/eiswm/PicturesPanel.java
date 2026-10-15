@@ -55,7 +55,7 @@ final class PicturesPanel extends SectionPanel {
 
     PicturesPanel(Activity activity) {
         super(activity);
-        pictures = new WelcomePictures(activity);
+        pictures = WelcomePictures.get(activity);
         grid = activity.findViewById(R.id.pictureGrid);
         label = activity.findViewById(R.id.picturesLabel);
         warning = activity.findViewById(R.id.picturesWarning);

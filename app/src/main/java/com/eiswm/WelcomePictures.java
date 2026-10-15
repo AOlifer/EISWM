@@ -8,8 +8,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -46,8 +48,13 @@ final class WelcomePictures {
     private static final String BLACK_ID = "eiswm_off";
     /** Срок показа наших картинок: до 2100 года. */
     private static final long FOREVER = 4102444800000L;
-    /** Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам. */
+    /**
+     * Стандартные картинки (assets/standard): добавленные навсегда и включённые по сезонам.
+     * В APK они лежат в WebP, чтобы приложение было меньше, а лаунчеру записываются в PNG.
+     * В коде и настройках картинка по-прежнему называется bw_welcome_….png.
+     */
     private static final String STANDARD_DIR = "standard";
+    private static final String STANDARD_EXT = ".webp";
     private static final String STD_PREFIX = "eiswm_std_";
     private static final String SEASON_PREFIX = "eiswm_season_";
     /** Картинка по умолчанию при первой установке — та же, что лаунчер показывает, когда своих нет. */
@@ -83,7 +90,19 @@ final class WelcomePictures {
     /** Строки ошибок на языке системы. */
     private final Resources res;
 
-    WelcomePictures(Context c) {
+    private static WelcomePictures instance;
+
+    /**
+     * Один объект на процесс. Картинки меняют несколько потоков (запуск машины, раздел
+     * «Картинки», экран стандартных картинок), а база лаунчера и отложенные записи читаются и
+     * записываются в несколько шагов: методы synchronized, чтобы потоки не затирали друг друга.
+     */
+    static synchronized WelcomePictures get(Context c) {
+        if (instance == null) instance = new WelcomePictures(c.getApplicationContext());
+        return instance;
+    }
+
+    private WelcomePictures(Context c) {
         assets = c.getAssets();
         res = c.getResources();
         adviceDir = new File(c.getString(R.string.welcome_picture_dir));
@@ -116,7 +135,7 @@ final class WelcomePictures {
      * Картинки, которыми управляет пользователь: записи базы (или отложенные, если картинки
      * выключены), у которых есть файл. Чёрная «картинка выключения» в список не входит.
      */
-    List<Picture> list() throws IOException {
+    synchronized List<Picture> list() throws IOException {
         List<Picture> all = isDisabled() ? readParked() : readRows();
         List<Picture> result = new ArrayList<>();
         for (Picture p : all) {
@@ -136,7 +155,7 @@ final class WelcomePictures {
     // ---------------------------------------------------------------- Добавление и удаление
 
     /** Подогнать картинку под экран, положить в папку лаунчера, сделать копию и записать в базу. */
-    void add(File src) throws IOException {
+    synchronized void add(File src) throws IOException {
         Bitmap fitted = Images.fitToScreen(src, res);
         long now = System.currentTimeMillis();
         String id = OWN_PREFIX + now;
@@ -159,7 +178,7 @@ final class WelcomePictures {
     }
 
     /** Удалить запись, файл и нашу копию. */
-    void delete(Picture p) throws IOException {
+    synchronized void delete(Picture p) throws IOException {
         if (isDisabled()) {
             List<Picture> parked = readParked();
             for (int i = parked.size() - 1; i >= 0; i--) {
@@ -190,7 +209,7 @@ final class WelcomePictures {
      * Выключить: все записи уходят в настройки EISWM, в базе остаётся одна чёрная картинка.
      * Включить: чёрная картинка удаляется, отложенные записи возвращаются.
      */
-    void setDisabled(boolean disabled) throws IOException {
+    synchronized void setDisabled(boolean disabled) throws IOException {
         if (disabled == isDisabled()) return;
         if (disabled) {
             List<Picture> rows = readRows();
@@ -205,10 +224,13 @@ final class WelcomePictures {
         } else {
             List<Picture> parked = readParked();
             try (SQLiteDatabase db = openDb()) {
-                db.delete(TABLE, "id = ?", new String[]{BLACK_ID});
-                for (Picture p : parked) {
-                    if (new File(adviceDir, p.fileName).isFile()) upsert(db, p);
-                }
+                // Одной транзакцией: лаунчер не увидит базу без чёрной картинки и без записей.
+                inTransaction(db, () -> {
+                    db.delete(TABLE, "id = ?", new String[]{BLACK_ID});
+                    for (Picture p : parked) {
+                        if (new File(adviceDir, p.fileName).isFile()) upsert(db, p);
+                    }
+                });
             }
             new File(adviceDir, BLACK_ID + ".png").delete();
             prefs.edit().putBoolean(Prefs.PICTURES_DISABLED, false).remove(Prefs.PICTURES_PARKED).commit();
@@ -236,7 +258,7 @@ final class WelcomePictures {
      * Вызывается при запуске EISWM и при старте машины.
      * @return сколько наших картинок пришлось восстановить.
      */
-    int restore() throws IOException {
+    synchronized int restore() throws IOException {
         List<Picture> desired = desiredRecords();
         Set<String> restored = new HashSet<>();
         for (Picture d : desired) {
@@ -267,11 +289,13 @@ final class WelcomePictures {
         if (desired.isEmpty()) return 0;
         List<Picture> rows = readRows();
         try (SQLiteDatabase db = openDb()) {
-            for (Picture d : desired) {
-                boolean missing = !containsId(rows, d.id);
-                if (missing) restored.add(d.id);
-                if (missing || d.id.startsWith(SEASON_PREFIX)) upsert(db, d);
-            }
+            inTransaction(db, () -> {
+                for (Picture d : desired) {
+                    boolean missing = !containsId(rows, d.id);
+                    if (missing) restored.add(d.id);
+                    if (missing || d.id.startsWith(SEASON_PREFIX)) upsert(db, d);
+                }
+            });
         }
         return restored.size();
     }
@@ -300,10 +324,20 @@ final class WelcomePictures {
         adviceDir.mkdirs();
         if (p.backup != null) return FileUtils.copyFileQuiet(p.backup, target);
         if (p.asset != null) {
-            try (InputStream in = assets.open(STANDARD_DIR + "/" + p.asset)) {
-                return FileUtils.copyStreamQuiet(in, target);
+            Bitmap b;
+            try (InputStream in = assets.open(standardAsset(p.asset))) {
+                b = BitmapFactory.decodeStream(in);
+            } catch (IOException | OutOfMemoryError e) {
+                return false;
+            }
+            if (b == null) return false;
+            try {
+                Images.savePng(b, target, res);
+                return true;
             } catch (IOException e) {
                 return false;
+            } finally {
+                b.recycle();
             }
         }
         return false;
@@ -327,7 +361,9 @@ final class WelcomePictures {
         try {
             String[] names = assets.list(STANDARD_DIR);
             if (names != null) {
-                for (String n : names) if (n.endsWith(".png")) result.add(n);
+                for (String n : names) {
+                    if (n.endsWith(STANDARD_EXT)) result.add(n.substring(0, n.length() - STANDARD_EXT.length()) + ".png");
+                }
             }
         } catch (IOException ignored) {
         }
@@ -339,11 +375,16 @@ final class WelcomePictures {
     }
 
     Bitmap standardThumbnail(String name, int minWidth) {
-        try (InputStream in = assets.open(STANDARD_DIR + "/" + name)) {
+        try (InputStream in = assets.open(standardAsset(name))) {
             return Images.screenThumbnail(in, minWidth);
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /** Файл в assets для стандартной картинки bw_welcome_….png. */
+    private static String standardAsset(String name) {
+        return STANDARD_DIR + "/" + baseName(name) + STANDARD_EXT;
     }
 
     /** Имена стандартных картинок, добавленных навсегда. */
@@ -357,7 +398,7 @@ final class WelcomePictures {
      * была видна и управлялась в приложении. Проверка выполняется один раз.
      * @return true, если картинка по умолчанию добавлена.
      */
-    boolean installDefaultOnFirstRun() throws IOException {
+    synchronized boolean installDefaultOnFirstRun() throws IOException {
         if (prefs.getBoolean(Prefs.PICTURES_FIRST_RUN_DONE, false)) return false;
         File[] files = adviceDir.listFiles(f -> f.isFile() && !f.getName().startsWith("."));
         boolean empty = readRows().isEmpty() && (files == null || files.length == 0);
@@ -374,7 +415,7 @@ final class WelcomePictures {
     }
 
     /** Добавить стандартные картинки: показываются круглый год. */
-    void addStandard(List<String> names) throws IOException {
+    synchronized void addStandard(List<String> names) throws IOException {
         Set<String> set = standardAdded();
         set.addAll(names);
         if (!prefs.edit().putStringSet(Prefs.PICTURES_STD, set).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
@@ -385,7 +426,7 @@ final class WelcomePictures {
      * Все стандартные картинки по временам года: зимой машина выбирает из четырёх зимних,
      * весной — из весенних и так далее. Сроки обновляются при запуске и при старте машины.
      */
-    void setSeasonal(boolean on) throws IOException {
+    synchronized void setSeasonal(boolean on) throws IOException {
         if (on) {
             Set<String> all = new HashSet<>(standardNames());
             if (!prefs.edit().putStringSet(Prefs.PICTURES_SEASONAL, all).commit()) throw new IOException(res.getString(R.string.pictures_prefs_failed));
@@ -537,6 +578,17 @@ final class WelcomePictures {
         }
     }
 
+    /** Несколько изменений базы — все или ни одного. */
+    private static void inTransaction(SQLiteDatabase db, Runnable changes) {
+        db.beginTransaction();
+        try {
+            changes.run();
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private static void upsert(SQLiteDatabase db, Picture p) {
         db.insertWithOnConflict(TABLE, null, values(p), SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -562,25 +614,33 @@ final class WelcomePictures {
 
     // ---------------------------------------------------------------- Отложенные записи
 
-    private List<Picture> readParked() {
-        List<Picture> result = new ArrayList<>();
+    /**
+     * Отложенные записи. Испорченная запись пропускается, остальные читаются. Если не читается
+     * весь список — исключение: иначе следующая запись сохранила бы пустой список и картинки
+     * пропали бы насовсем.
+     */
+    private List<Picture> readParked() throws IOException {
+        JSONArray arr;
         try {
-            JSONArray arr = new JSONArray(prefs.getString(Prefs.PICTURES_PARKED, "[]"));
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
-                Picture p = new Picture();
-                p.id = o.getString("id");
-                p.title = o.optString("title", "");
-                p.url = o.optString("url", "");
-                p.type = o.optInt("type");
-                p.sort = o.optInt("sort");
-                p.start = o.optLong("start");
-                p.end = o.optLong("end");
-                p.created = o.optLong("created");
-                p.fileName = o.getString("file");
-                result.add(p);
-            }
-        } catch (Exception ignored) {
+            arr = new JSONArray(prefs.getString(Prefs.PICTURES_PARKED, "[]"));
+        } catch (JSONException e) {
+            throw new IOException(res.getString(R.string.pictures_prefs_failed), e);
+        }
+        List<Picture> result = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject o = arr.optJSONObject(i);
+            if (o == null || o.optString("id").isEmpty() || o.optString("file").isEmpty()) continue;
+            Picture p = new Picture();
+            p.id = o.optString("id");
+            p.title = o.optString("title", "");
+            p.url = o.optString("url", "");
+            p.type = o.optInt("type");
+            p.sort = o.optInt("sort");
+            p.start = o.optLong("start");
+            p.end = o.optLong("end");
+            p.created = o.optLong("created");
+            p.fileName = o.optString("file");
+            result.add(p);
         }
         return result;
     }
