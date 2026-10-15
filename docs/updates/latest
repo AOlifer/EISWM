@@ -1,14 +1,14 @@
 {
-  "versionCode": 30,
-  "versionName": "1.6.0",
-  "date": "2026-10-04",
-  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.6.0/EISWM-1.6.0.apk",
-  "size": 13693348,
-  "sha256": "8b2f48ea7c320fdfbcd8b9af3978c5d21f544025119a9471200a6be4b532ba9a",
+  "versionCode": 35,
+  "versionName": "1.6.1",
+  "date": "2026-10-15",
+  "apk": "https://github.com/AOlifer/EISWM/releases/download/1.6.1/EISWM-1.6.1.apk",
+  "size": 7271695,
+  "sha256": "ecd9487b03fc131d212244378943951a56b903fd4eb5c964d5a56067a6f4ef3c",
   "changes": {
-    "ru": "• Новый раздел «Сводка»: при старте — температура, запас хода, заряд, топливо, пробег до сервиса и настраиваемые предупреждения; в конце поездки (при переключении в P) — её итоги.\n• Топливо в литрах или процентах, время показа плашки настраивается.\n• Исправлено: переключатель звукового приветствия был неактивен на машинах, где эту настройку ещё не меняли.",
-    "en": "• New Summary section: at start-up — temperature, range, charge, fuel, distance to service and adjustable warnings; at the end of a trip (when shifting to P) — trip results.\n• Fuel in litres or percent, adjustable display time of the bar.\n• Fixed: the welcome sound switch was inactive on cars where this setting had never been changed.",
-    "de": "• Neuer Bereich „Übersicht“: beim Start — Temperatur, Reichweite, Ladestand, Kraftstoff, Strecke bis zur Wartung und einstellbare Warnungen; am Ende der Fahrt (beim Schalten auf P) — das Fahrtergebnis.\n• Kraftstoff in Litern oder Prozent, Anzeigedauer der Leiste einstellbar.\n• Behoben: Der Schalter für den Begrüßungsklang war auf Autos inaktiv, auf denen diese Einstellung nie geändert wurde.",
-    "zh": "• 新增“概况”栏目：启动时显示温度、续航、电量、油量、距保养里程和可设置的警告；行程结束（换入 P 挡）时显示行程结果。\n• 油量可按升或百分比显示，概况条显示时长可调。\n• 修复：在从未更改过迎宾声音设置的车辆上，迎宾声音开关无法使用。"
+    "ru": "• Обновления теперь приходят с сайта приложения eisapp.ru, на стартовом экране — его адрес eisapp.ru/eiswm.\n• Приложение почти вдвое меньше и больше не запрашивает доступ к хранилищу.\n• Логотип стал чётче, значения для сводки читаются быстрее.\n• Исправлено: картинки приветствия могли потеряться, сводка «Старт» могла не появиться.",
+    "en": "• Updates now come from the app's website eisapp.ru; the start screen shows its address eisapp.ru/eiswm.\n• The app is almost half the size and no longer asks for storage access.\n• Sharper logo, summary values are read faster.\n• Fixed: welcome pictures could get lost, the Start summary could fail to appear.",
+    "de": "• Updates kommen jetzt von der Website der App eisapp.ru; der Startbildschirm zeigt ihre Adresse eisapp.ru/eiswm.\n• Die App ist fast halb so groß und fragt nicht mehr nach Speicherzugriff.\n• Schärferes Logo, Werte für die Übersicht werden schneller gelesen.\n• Behoben: Begrüßungsbilder konnten verloren gehen, die Start-Übersicht erschien manchmal nicht.",
+    "zh": "• 更新现在来自应用网站 eisapp.ru，启动页显示其地址 eisapp.ru/eiswm。\n• 应用体积几乎减半，不再请求存储权限。\n• 标志更清晰，概况数据读取更快。\n• 修复：迎宾图片可能丢失，启动概况可能不显示。"
   }
 }
