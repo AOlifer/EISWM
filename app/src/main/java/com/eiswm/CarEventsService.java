@@ -72,11 +72,22 @@ public class CarEventsService extends Service {
     private boolean finished;
     private volatile boolean running;
 
-    /** Запустить, если включено прощание или сводка; иначе остановить. */
+    /**
+     * Запустить, если включено прощание или сводка; иначе остановить.
+     * Без system uid (вариант emulator) Android 8+ не даёт запустить службу из фона, например из
+     * {@link WakeReceiver} после загрузки: тогда служба поднимется при открытии приложения.
+     */
     static void update(Context c) {
         Intent i = new Intent(c, CarEventsService.class);
-        if (Farewell.isEnabled(c) || CarSummary.isAnyEnabled(c)) c.startService(i);
-        else c.stopService(i);
+        if (!Farewell.isEnabled(c) && !CarSummary.isAnyEnabled(c)) {
+            c.stopService(i);
+            return;
+        }
+        try {
+            c.startService(i);
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "service not started from background: " + e.getMessage());
+        }
     }
 
     @Override public IBinder onBind(Intent intent) {
