@@ -65,7 +65,7 @@
     <string name="home_description">Klänge und Bilder, mit denen der Evolute i-Space den Fahrer beim Einschalten begrüßt: eigene hinzufügen, Standardbilder nach Jahreszeit wählen, die Begrüßung ein- und ausschalten. Eine Übersicht beim Start zeigt Temperatur, Reichweite, Ladestand und Warnungen.</string>
     <string name="home_open_sounds">Klänge</string>
     <string name="home_open_pictures">Bilder</string>
-    <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
+    <string name="home_developer">Entwickler: AOlifer · Telegram: @oaaspb\neisapp.ru/eiswm\nLizenz PolyForm Noncommercial: nur nicht-kommerzielle Nutzung</string>
     <string name="home_help">Wählen Sie links einen Bereich oder tippen Sie auf eine Schaltfläche auf diesem Bildschirm:\n\nKlänge: MP3-Dateien, die das Auto beim Einschalten abspielt.\nBilder: Bilder auf dem Begrüßungsbildschirm.\nÜbersicht: beim Einschalten — Temperatur, Reichweite, Ladestand, Wartung und Warnungen.\n\nJeder Bereich hat eine eigene Hilfe. Ein Tipp auf das Logo oder den Titel oben führt zurück zu diesem Bildschirm.</string>
     <string name="home_disclaimer_short">⚠ Inoffizielle App, Nutzung auf eigenes Risiko.</string>
     <string name="disclaimer_title">Haftungsausschluss</string>

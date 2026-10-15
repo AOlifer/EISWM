@@ -68,7 +68,7 @@
     <string name="home_description">The sounds and pictures Evolute i-Space greets the driver with at start-up: add your own, pick standard ones by season, turn the greeting on and off. A summary at start-up shows temperature, range, charge and warnings.</string>
     <string name="home_open_sounds">Sounds</string>
     <string name="home_open_pictures">Pictures</string>
-    <string name="home_developer">Developer: AOlifer · Telegram: @oaaspb\ngithub.com/AOlifer/EISWM\nLicense PolyForm Noncommercial: non-commercial use only</string>
+    <string name="home_developer">Developer: AOlifer · Telegram: @oaaspb\neisapp.ru/eiswm\nLicense PolyForm Noncommercial: non-commercial use only</string>
     <string name="home_help">Choose a section on the left or with a button on this screen:\n\nSounds: MP3 files the car plays at start-up.\nPictures: images on the welcome screen.\nSummary: at start-up — temperature, range, charge, service and warnings.\n\nEach section has its own Help. Tap the logo or the title at the top to return to this screen.</string>
     <string name="home_disclaimer_short">⚠ Unofficial app, use at your own risk.</string>
     <string name="disclaimer_title">Disclaimer</string>
